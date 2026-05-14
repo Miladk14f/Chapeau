@@ -57,7 +57,7 @@ namespace Chapeau.Repositories
 
             using SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Name", name);
-            cmd.Parameters.AddWithValue("@Pin",  pin);
+            cmd.Parameters.AddWithValue("@Pin", pin);
 
             using SqlDataReader reader = cmd.ExecuteReader();
 
@@ -77,7 +77,7 @@ namespace Chapeau.Repositories
             using SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Name", staff.Name);
             cmd.Parameters.AddWithValue("@Role", staff.Role);
-            cmd.Parameters.AddWithValue("@Pin",  staff.Pin);
+            cmd.Parameters.AddWithValue("@Pin", staff.Pin);
 
             cmd.ExecuteNonQuery();
         }
@@ -92,8 +92,8 @@ namespace Chapeau.Repositories
             using SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Name", staff.Name);
             cmd.Parameters.AddWithValue("@Role", staff.Role);
-            cmd.Parameters.AddWithValue("@Pin",  staff.Pin);
-            cmd.Parameters.AddWithValue("@Id",   staff.Id);
+            cmd.Parameters.AddWithValue("@Pin", staff.Pin);
+            cmd.Parameters.AddWithValue("@Id", staff.Id);
 
             cmd.ExecuteNonQuery();
         }
@@ -114,10 +114,10 @@ namespace Chapeau.Repositories
         private Staff MapReader(SqlDataReader reader)
         {
             return new Staff(
-                id:   (int)reader["Id"],
+                id: (int)reader["Id"],
                 name: reader["Name"].ToString(),
                 role: reader["Role"].ToString(),
-                pin:  reader["Pin"].ToString()
+                pin: reader["Pin"].ToString()
             );
         }
     }
