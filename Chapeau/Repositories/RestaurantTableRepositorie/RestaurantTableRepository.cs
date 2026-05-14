@@ -61,9 +61,9 @@ namespace Chapeau.Repositories
                              WHERE Id = @Id";
 
             using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Guests",   guests);
+            cmd.Parameters.AddWithValue("@Guests", guests);
             cmd.Parameters.AddWithValue("@WaiterId", waiterId);
-            cmd.Parameters.AddWithValue("@Id",       tableId);
+            cmd.Parameters.AddWithValue("@Id", tableId);
 
             cmd.ExecuteNonQuery();
         }
@@ -93,7 +93,7 @@ namespace Chapeau.Repositories
 
             using SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Status", status);
-            cmd.Parameters.AddWithValue("@Id",     tableId);
+            cmd.Parameters.AddWithValue("@Id", tableId);
 
             cmd.ExecuteNonQuery();
         }
@@ -101,12 +101,12 @@ namespace Chapeau.Repositories
         private RestaurantTable MapReader(SqlDataReader reader)
         {
             return new RestaurantTable(
-                id:              (int)reader["Id"],
-                seats:           (int)reader["Seats"],
-                guests:          reader["Guests"]          == DBNull.Value ? null : (int?)reader["Guests"],
-                status:          reader["Status"]          == DBNull.Value ? null : reader["Status"].ToString(),
-                seatedAt:        reader["SeatedAt"]        == DBNull.Value ? null : (DateTime?)reader["SeatedAt"],
-                waiterId:        reader["WaiterId"]        == DBNull.Value ? null : (int?)reader["WaiterId"],
+                id: (int)reader["Id"],
+                seats: (int)reader["Seats"],
+                guests: reader["Guests"] == DBNull.Value ? null : (int?)reader["Guests"],
+                status: reader["Status"] == DBNull.Value ? null : reader["Status"].ToString(),
+                seatedAt: reader["SeatedAt"] == DBNull.Value ? null : (DateTime?)reader["SeatedAt"],
+                waiterId: reader["WaiterId"] == DBNull.Value ? null : (int?)reader["WaiterId"],
                 reservationName: reader["ReservationName"] == DBNull.Value ? null : reader["ReservationName"].ToString()
             );
         }
