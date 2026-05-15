@@ -1,13 +1,13 @@
 using Chapeau.Models;
 using Microsoft.Data.SqlClient;
 
-namespace Chapeau.Repositories
+namespace Chapeau.Repositories.BillRepository
 {
-    public class BillRepository : IBillRepository
+    public class DBBillRepository : IBillRepository
     {
         private readonly string _connectionString;
 
-        public BillRepository(IConfiguration config)
+        public DBBillRepository(IConfiguration config)
         {
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
@@ -85,7 +85,7 @@ namespace Chapeau.Repositories
             using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@OrderId", bill.OrderId);
             cmd.Parameters.AddWithValue("@Tip", bill.Tip);
-            cmd.Parameters.AddWithValue("@SplitMethod", bill.SplitMethod);
+            cmd.Parameters.AddWithValue("@SplitMethod", bill.SplitedMethod);
             cmd.Parameters.AddWithValue("@Amount", bill.Amount);
             cmd.Parameters.AddWithValue("@Status", bill.Status);
 
@@ -108,7 +108,7 @@ namespace Chapeau.Repositories
             using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@OrderId", bill.OrderId);
             cmd.Parameters.AddWithValue("@Tip", bill.Tip);
-            cmd.Parameters.AddWithValue("@SplitMethod", bill.SplitMethod);
+            cmd.Parameters.AddWithValue("@SplitMethod", bill.SplitedMethod);
             cmd.Parameters.AddWithValue("@Amount", bill.Amount);
             cmd.Parameters.AddWithValue("@Status", bill.Status);
             cmd.Parameters.AddWithValue("@Id", bill.Id);
@@ -136,7 +136,7 @@ namespace Chapeau.Repositories
                 Id = (int)reader["Id"],
                 OrderId = (int)reader["OrderId"],
                 Tip = (decimal)reader["Tip"],
-                SplitMethod = reader["split_method"].ToString(),
+                SplitedMethod = reader["split_method"].ToString(),
                 Amount = (decimal)reader["amount"],
                 Status = reader["status"].ToString()
             };

@@ -1,8 +1,8 @@
 using Chapeau.Models;
 
-namespace Chapeau.Repositories
+namespace Chapeau.Services.BillService
 {
-    public interface IBillRepository
+    public interface IBillService
     {
         List<Bill> GetAll();
         Bill GetById(int id);

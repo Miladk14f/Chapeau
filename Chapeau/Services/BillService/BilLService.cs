@@ -1,7 +1,7 @@
 using Chapeau.Models;
-using Chapeau.Repositories;
+using Chapeau.Repositories.BillRepository;
 
-namespace Chapeau.Services
+namespace Chapeau.Services.BillService
 {
     public class BillService : IBillService
     {

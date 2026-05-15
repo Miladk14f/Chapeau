@@ -1,12 +1,12 @@
-using Chapeau.Repositories;
-using Chapeau.Services;
+using Chapeau.Repositories.BillRepository;
+using Chapeau.Services.BillService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IBillRepository, BillRepository>();
+builder.Services.AddScoped<IBillRepository, DBBillRepository>();
 builder.Services.AddScoped<IBillService, BillService>();
 
 var app = builder.Build();
