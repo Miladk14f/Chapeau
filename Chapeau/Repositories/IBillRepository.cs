@@ -1,24 +1,14 @@
-namespace Chapeau.Models
+using Chapeau.Models;
+
+namespace Chapeau.Repositories
 {
-    public class Bill
+    public interface IBillRepository
     {
-        public int Id { get; set; }
-        public int OrderId { get; set; }
-        public decimal Tip { get; set; }
-        public string SplitedMethod { get; set; }
-        public decimal Amount { get; set; }
-        public string Status { get; set; }
-
-        public Bill() { }
-
-        public Bill(int id, int orderId, decimal tip, string splitedMethod, decimal amount, string status)
-        {
-            Id = id;
-            OrderId = orderId;
-            Tip = tip;
-            SplitedMethod = splitedMethod;
-            Amount = amount;
-            Status = status;
-        }
+        List<Bill> GetAll();
+        Bill GetById(int id);
+        Bill GetByOrderId(int orderId);
+        void Add(Bill bill);
+        void Update(Bill bill);
+        void Delete(int id);
     }
 }

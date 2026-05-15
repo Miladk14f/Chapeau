@@ -1,24 +1,47 @@
-namespace Chapeau.Models
+using Chapeau.Models;
+using Chapeau.Repositories;
+
+namespace Chapeau.Services
 {
-    public class Bill
+    public class BillService : IBillService
     {
-        public int Id { get; set; }
-        public int OrderId { get; set; }
-        public decimal Tip { get; set; }
-        public string SplitedMethod { get; set; }
-        public decimal Amount { get; set; }
-        public string Status { get; set; }
+        private readonly IBillRepository _billRepository;
 
-        public Bill() { }
-
-        public Bill(int id, int orderId, decimal tip, string splitedMethod, decimal amount, string status)
+        public BillService(IBillRepository billRepository)
         {
-            Id = id;
-            OrderId = orderId;
-            Tip = tip;
-            SplitedMethod = splitedMethod;
-            Amount = amount;
-            Status = status;
+            _billRepository = billRepository;
+        }
+
+        public List<Bill> GetAll()
+        {
+            return _billRepository.GetAll();
+        }
+
+        public Bill GetById(int id)
+        {
+            return _billRepository.GetById(id);
+        }
+
+        public Bill GetByOrderId(int orderId)
+        {
+            return _billRepository.GetByOrderId(orderId);
+        }
+
+        public void Add(Bill bill)
+        {
+            bill.Status = "unpaid";
+
+            _billRepository.Add(bill);
+        }
+
+        public void Update(Bill bill)
+        {
+            _billRepository.Update(bill);
+        }
+
+        public void Delete(int id)
+        {
+            _billRepository.Delete(id);
         }
     }
 }
