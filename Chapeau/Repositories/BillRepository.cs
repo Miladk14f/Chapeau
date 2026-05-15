@@ -21,7 +21,7 @@ namespace Chapeau.Repositories
 
             string query = "SELECT Id, OrderId, Tip, split_method, amount, status FROM BILL";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
+            using SqlCommand cmd = new SqlCommand(query, connection);
             using SqlDataReader reader = cmd.ExecuteReader();
 
             while (reader.Read())
@@ -39,7 +39,7 @@ namespace Chapeau.Repositories
 
             string query = "SELECT Id, OrderId, Tip, split_method, amount, status FROM BILL WHERE Id = @Id";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
+            using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@Id", id);
 
             using SqlDataReader reader = cmd.ExecuteReader();
@@ -59,7 +59,7 @@ namespace Chapeau.Repositories
 
             string query = "SELECT Id, OrderId, Tip, split_method, amount, status FROM BILL WHERE OrderId = @OrderId";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
+            using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@OrderId", orderId);
 
             using SqlDataReader reader = cmd.ExecuteReader();
@@ -82,7 +82,7 @@ namespace Chapeau.Repositories
                             VALUES
                             (@OrderId, @Tip, @SplitMethod, @Amount, @Status)";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
+            using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@OrderId", bill.OrderId);
             cmd.Parameters.AddWithValue("@Tip", bill.Tip);
             cmd.Parameters.AddWithValue("@SplitMethod", bill.SplitMethod);
@@ -105,7 +105,7 @@ namespace Chapeau.Repositories
                                 status = @Status
                             WHERE Id = @Id";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
+            using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@OrderId", bill.OrderId);
             cmd.Parameters.AddWithValue("@Tip", bill.Tip);
             cmd.Parameters.AddWithValue("@SplitMethod", bill.SplitMethod);
@@ -123,7 +123,7 @@ namespace Chapeau.Repositories
 
             string query = "DELETE FROM BILL WHERE Id = @Id";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
+            using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@Id", id);
 
             cmd.ExecuteNonQuery();
