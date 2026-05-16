@@ -1,0 +1,325 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chapeau – Sign In</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: #1a0d12;
+            color: #e8ddd5;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 48px 16px 32px;
+        }
+
+        /* ── Header ── */
+        .logo-circle {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #8b3a52;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: #e8c9a0;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: #f0e6d8;
+            font-family: Georgia, 'Times New Roman', serif;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #c9843a;
+            margin-bottom: 12px;
+        }
+
+        .hint {
+            font-size: 14px;
+            color: #6b5560;
+            margin-bottom: 36px;
+        }
+
+        /* ── Staff grid ── */
+        .login-wrap {
+            width: 100%;
+            max-width: 720px;
+        }
+
+        .role-section {
+            margin-bottom: 28px;
+        }
+
+        .role-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: #6b5560;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #2e1820;
+        }
+
+        .role-icon { font-size: 13px; }
+
+        .staff-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* hidden radio input */
+        .staff-grid input[type="radio"] {
+            display: none;
+        }
+
+        .staff-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #261119;
+            border: 1px solid #3a1e28;
+            border-radius: 10px;
+            padding: 14px 20px;
+            cursor: pointer;
+            min-width: 200px;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .staff-grid input[type="radio"]:checked + .staff-card {
+            border-color: #8b3a52;
+            background: #2e1520;
+        }
+
+        .staff-card:hover {
+            border-color: #5a2535;
+            background: #2a1318;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .card-info { line-height: 1.3; }
+
+        .card-firstname {
+            font-size: 15px;
+            font-weight: 600;
+            color: #f0e6d8;
+        }
+
+        .card-lastname {
+            font-size: 12px;
+            color: #6b5560;
+        }
+
+        /* ── Password field ── */
+        .password-section {
+            margin-top: 32px;
+            border-top: 1px solid #2e1820;
+            padding-top: 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .password-section label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #6b5560;
+            margin-bottom: 10px;
+        }
+
+        .password-section input[type="password"] {
+            width: 360px;
+            background: #261119;
+            border: 1px solid #3a1e28;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 15px;
+            color: #f0e6d8;
+            outline: none;
+            transition: border-color 0.15s;
+            text-align: center;
+        }
+
+        .password-section input[type="password"]::placeholder {
+            color: #4a2e3a;
+        }
+
+        .password-section input[type="password"]:focus {
+            border-color: #8b3a52;
+        }
+
+        .btn-signin {
+            display: block;
+            margin-top: 16px;
+            padding: 12px 36px;
+            width: 360px;
+            background: #8b3a52;
+            color: #f0e6d8;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+            text-align: center;
+        }
+
+        .btn-signin:hover {
+            background: #a04560;
+        }
+
+        /* ── Footer ── */
+        footer {
+            margin-top: auto;
+            padding-top: 48px;
+            font-size: 12px;
+            color: #3a2030;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="logo-circle">C</div>
+    <h1>Chapeau</h1>
+    <p class="subtitle">Zeewolde · Ordering System</p>
+    <p class="hint">Select your name to sign in</p>
+
+    <div class="login-wrap">
+        <form method="post" action="/Staff/Login">
+
+            <!-- MANAGER -->
+            <div class="role-section">
+                <div class="role-label">
+                    <span class="role-icon">📊</span> Manager
+                </div>
+                <div class="staff-grid">
+                    <input type="radio" name="staffName" id="sophie" value="Sophie Martin" />
+                    <label class="staff-card" for="sophie">
+                        <div class="avatar" style="background:#8b3a52">SM</div>
+                        <div class="card-info">
+                            <div class="card-firstname">Sophie</div>
+                            <div class="card-lastname">Martin</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- CHEF -->
+            <div class="role-section">
+                <div class="role-label">
+                    <span class="role-icon">🍽</span> Chef
+                </div>
+                <div class="staff-grid">
+                    <input type="radio" name="staffName" id="jeanpierre" value="Jean-Pierre Dubois" />
+                    <label class="staff-card" for="jeanpierre">
+                        <div class="avatar" style="background:#2d6e4e">JD</div>
+                        <div class="card-info">
+                            <div class="card-firstname">Jean-Pierre</div>
+                            <div class="card-lastname">Dubois</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- BAR -->
+            <div class="role-section">
+                <div class="role-label">
+                    <span class="role-icon">🍷</span> Bar
+                </div>
+                <div class="staff-grid">
+                    <input type="radio" name="staffName" id="emma" value="Emma Rousseau" />
+                    <label class="staff-card" for="emma">
+                        <div class="avatar" style="background:#2a4f7a">ER</div>
+                        <div class="card-info">
+                            <div class="card-firstname">Emma</div>
+                            <div class="card-lastname">Rousseau</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- SERVICE -->
+            <div class="role-section">
+                <div class="role-label">
+                    <span class="role-icon">⊞</span> Service
+                </div>
+                <div class="staff-grid">
+                    <input type="radio" name="staffName" id="marie" value="Marie Bernard" />
+                    <label class="staff-card" for="marie">
+                        <div class="avatar" style="background:#7a5a1a">MB</div>
+                        <div class="card-info">
+                            <div class="card-firstname">Marie</div>
+                            <div class="card-lastname">Bernard</div>
+                        </div>
+                    </label>
+
+                    <input type="radio" name="staffName" id="lucas" value="Lucas Petit" />
+                    <label class="staff-card" for="lucas">
+                        <div class="avatar" style="background:#4a2e7a">LP</div>
+                        <div class="card-info">
+                            <div class="card-firstname">Lucas</div>
+                            <div class="card-lastname">Petit</div>
+                        </div>
+                    </label>
+
+                    <input type="radio" name="staffName" id="thomas" value="Thomas Leroy" />
+                    <label class="staff-card" for="thomas">
+                        <div class="avatar" style="background:#1e5c5c">TL</div>
+                        <div class="card-info">
+                            <div class="card-firstname">Thomas</div>
+                            <div class="card-lastname">Leroy</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- PASSWORD -->
+            <div class="password-section">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" />
+                <button type="submit" class="btn-signin">Sign in →</button>
+            </div>
+
+        </form>
+    </div>
+
+    <footer>© 2025 Restaurant Chapeau, Zeewolde</footer>
+
+</body>
+</html>
