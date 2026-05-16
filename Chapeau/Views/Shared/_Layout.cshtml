@@ -109,15 +109,7 @@
             color: #6b5560;
         }
 
-        .topbar-clock {
-            flex: 1;
-            text-align: center;
-            font-size: 15px;
-            font-weight: 600;
-            color: #c9843a;
-        }
-
-        .topbar-right {
+.topbar-right {
             display: flex;
             align-items: center;
             gap: 12px;
@@ -214,11 +206,7 @@
                 <span class="topbar-brand-sub">Zeewolde · Ordering System</span>
             </div>
 
-            <div class="topbar-clock">
-                ⏱ @DateTime.Now.ToString("HH:mm")
-            </div>
-
-            <div class="topbar-right">
+<div class="topbar-right">
                 @{
                     var staffName = Context.Session.GetString("StaffName") ?? "";
                     var staffRole = Context.Session.GetString("StaffRole") ?? "";
