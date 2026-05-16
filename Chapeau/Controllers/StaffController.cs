@@ -16,37 +16,53 @@ namespace Chapeau.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            List<Staff> staff = _staffService.GetAll();
+
+            int.TryParse(Request.Cookies["SelectedStaffId"], out int selectedId);
+            ViewBag.SelectedStaffId = selectedId;
+
+            return View(staff);
         }
 
         [HttpPost]
-        public IActionResult Login(string staffName, string password)
+        public IActionResult Select(int staffId)
         {
-            Staff staff = _staffService.Login(staffName, password);
-
-            if (staff == null)
+            Response.Cookies.Append("SelectedStaffId", staffId.ToString(), new CookieOptions
             {
-                ViewBag.Error = "Invalid name or password.";
-                return View();
+                HttpOnly = true,
+                SameSite = SameSiteMode.Lax
+            });
+
+            return RedirectToAction("Login");
+        }
+
+        [HttpPost]
+        public IActionResult Login(string password)
+        {
+            int.TryParse(Request.Cookies["SelectedStaffId"], out int staffId);
+
+            Staff staff = _staffService.GetById(staffId);
+
+            if (staff == null || staff.Pin != password)
+            {
+                ViewBag.Error = "Invalid password.";
+                ViewBag.SelectedStaffId = staffId;
+                return View(_staffService.GetAll());
             }
 
             HttpContext.Session.SetString("StaffName", staff.Name);
             HttpContext.Session.SetString("StaffRole", staff.Role);
             HttpContext.Session.SetInt32("StaffId", staff.Id);
 
-            return staff.Role switch
-            {
-                "manager" => RedirectToAction("Index", "Home"),
-                "chef"    => RedirectToAction("Index", "Home"),
-                "bar"     => RedirectToAction("Index", "Home"),
-                "waiter"  => RedirectToAction("Index", "Home"),
-                _         => RedirectToAction("Login")
-            };
+            Response.Cookies.Delete("SelectedStaffId");
+
+            return RedirectToAction("Index", "RestaurantTable");
         }
 
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
+            Response.Cookies.Delete("SelectedStaffId");
             return RedirectToAction("Login");
         }
     }
