@@ -3,6 +3,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<Chapeau.Repositories.ICommentRepository, Chapeau.Repositories.CommentRepository>();
+builder.Services.AddScoped<Chapeau.Service.CommentService>();
+
+builder.Services.AddScoped<Chapeau.Repositories.IStockItemRepository, Chapeau.Repositories.StockItemRepository>();
+builder.Services.AddScoped<Chapeau.Services.StockItemService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

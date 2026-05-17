@@ -1,0 +1,59 @@
+@model List<Chapeau.Models.StockItem>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Bar Display & Stock";
+}
+
+<div class="container-fluid mt-3" style="font-family: sans-serif;">
+    <div class="d-flex justify-content-between align-items-center bg-info text-dark p-3 rounded mb-4">
+        <h1 class="h3 mb-0">BAR DISPLAY & INVENTORY</h1>
+        <span class="badge bg-dark text-white">Drinks Manager</span>
+    </div>
+
+    <h2 class="h4 mb-3">Current Drink Stock Levels</h2>
+    <div class="table-responsive bg-white shadow-sm rounded p-3">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Item Name</th>
+                    <th>Current Stock</th>
+                    <th>Max Stock</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Count > 0)
+                {
+                    foreach (var drink in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@drink.Name</td>
+                            <td>@drink.Quantity</td>
+                            <td>@drink.MaxQuantity</td>
+                            <td>
+                                @if (drink.Quantity <= 0)
+                                {
+                                    <span class="badge bg-danger">OUT OF STOCK</span>
+                                }
+                                else if (drink.Quantity <= 5)
+                                {
+                                    <span class="badge bg-warning text-dark">LOW STOCK</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">AVAILABLE</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No stock data found in the database.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
