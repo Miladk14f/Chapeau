@@ -1,6 +1,3 @@
-using Chapeau.Repositories;
-using Chapeau.Services;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
