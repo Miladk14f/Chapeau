@@ -1,3 +1,7 @@
+using Chapeau.Repositories;
+using Chapeau.Repositories.BillRepository;
+using Chapeau.Services;
+using Chapeau.Services.BillService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,13 +13,17 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IBillRepository, DBBillRepository>();
 builder.Services.AddScoped<IBillService, BillService>();
 
+builder.Services.AddScoped<IRestaurantTableRepository, DBRestaurantTableRepository>();
+builder.Services.AddScoped<IRestaurantTableService, RestaurantTableService>();
+
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<IStaffService, StaffService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 

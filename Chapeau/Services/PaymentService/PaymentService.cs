@@ -1,5 +1,6 @@
 using Chapeau.Models;
 using Chapeau.Repositories;
+using Chapeau.Repositories.BillRepository;
 
 namespace Chapeau.Services
 {
