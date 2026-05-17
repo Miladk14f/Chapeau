@@ -22,6 +22,9 @@ builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
