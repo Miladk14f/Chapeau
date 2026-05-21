@@ -30,6 +30,12 @@ builder.Services.AddScoped<IStockItemService, StockItemService>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 
+builder.Services.AddScoped<Chapeau.Repositories.ICommentRepository, Chapeau.Repositories.CommentRepository>();
+builder.Services.AddScoped<Chapeau.Service.CommentService>();
+
+builder.Services.AddScoped<Chapeau.Repositories.IStockItemRepository, Chapeau.Repositories.StockItemRepository>();
+builder.Services.AddScoped<Chapeau.Services.StockItemService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
