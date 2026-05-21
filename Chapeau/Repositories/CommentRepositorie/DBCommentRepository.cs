@@ -13,6 +13,24 @@ namespace Chapeau.Repositories
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
 
+        public List<Comment> GetAllComments()
+        {
+            List<Comment> comments = new List<Comment>();
+
+            using SqlConnection conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            string query = "SELECT Id, OrderId, Type, Text, CreatedAt FROM COMMENT ORDER BY CreatedAt DESC";
+
+            using SqlCommand cmd = new SqlCommand(query, conn);
+            using SqlDataReader reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+                comments.Add(MapReader(reader));
+
+            return comments;
+        }
+
         public List<Comment> GetCommentsByOrderId(int orderId)
         {
             List<Comment> comments = new List<Comment>();

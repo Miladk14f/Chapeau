@@ -20,7 +20,7 @@ namespace Chapeau.Repositories.BillRepository
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
 
-            string query = "SELECT Id, OrderId, Tip, split_method, amount, status FROM BILL";
+            string query = "SELECT Id, OrderId, Tip, splited_method, amount, status FROM BILL";
 
             using SqlCommand cmd = new SqlCommand(query, connection);
             using SqlDataReader reader = cmd.ExecuteReader();
@@ -38,7 +38,7 @@ namespace Chapeau.Repositories.BillRepository
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
 
-            string query = "SELECT Id, OrderId, Tip, split_method, amount, status FROM BILL WHERE Id = @Id";
+            string query = "SELECT Id, OrderId, Tip, splited_method, amount, status FROM BILL WHERE Id = @Id";
 
             using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@Id", id);
@@ -58,7 +58,7 @@ namespace Chapeau.Repositories.BillRepository
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
 
-            string query = "SELECT Id, OrderId, Tip, split_method, amount, status FROM BILL WHERE OrderId = @OrderId";
+            string query = "SELECT Id, OrderId, Tip, splited_method, amount, status FROM BILL WHERE OrderId = @OrderId";
 
             using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@OrderId", orderId);
@@ -79,7 +79,7 @@ namespace Chapeau.Repositories.BillRepository
             connection.Open();
 
             string query = @"INSERT INTO BILL
-                            (OrderId, Tip, split_method, amount, status)
+                            (OrderId, Tip, splited_method, amount, status)
                             VALUES
                             (@OrderId, @Tip, @SplitMethod, @Amount, @Status)";
 
@@ -101,7 +101,7 @@ namespace Chapeau.Repositories.BillRepository
             string query = @"UPDATE BILL
                             SET OrderId = @OrderId,
                                 Tip = @Tip,
-                                split_method = @SplitMethod,
+                                splited_method = @SplitMethod,
                                 amount = @Amount,
                                 status = @Status
                             WHERE Id = @Id";

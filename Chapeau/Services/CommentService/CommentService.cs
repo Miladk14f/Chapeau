@@ -12,6 +12,11 @@ namespace Chapeau.Services
             _repository = repository;
         }
 
+        public List<Comment> GetAllComments()
+        {
+            return _repository.GetAllComments();
+        }
+
         public List<Comment> GetCommentsByOrderId(int orderId)
         {
             return _repository.GetCommentsByOrderId(orderId);
