@@ -3,11 +3,11 @@ using Microsoft.Data.SqlClient;
 
 namespace Chapeau.Repositories
 {
-    public class CommentRepository : ICommentRepository
+    public class DBCommentRepository : ICommentRepository
     {
         private readonly string _connectionString;
 
-        public CommentRepository(IConfiguration config)
+        public DBCommentRepository(IConfiguration config)
         {
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
@@ -40,9 +40,9 @@ namespace Chapeau.Repositories
             string query = "INSERT INTO COMMENT (OrderId, Type, Text, CreatedAt) VALUES (@OrderId, @Type, @Text, @CreatedAt)";
 
             using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@OrderId",   comment.OrderId);
-            cmd.Parameters.AddWithValue("@Type",      (object?)comment.Type ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Text",      (object?)comment.Text ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@OrderId", comment.OrderId);
+            cmd.Parameters.AddWithValue("@Type", (object?)comment.Type ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Text", (object?)comment.Text ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@CreatedAt", comment.CreatedAt);
 
             cmd.ExecuteNonQuery();
@@ -64,10 +64,10 @@ namespace Chapeau.Repositories
         private Comment MapReader(SqlDataReader reader)
         {
             return new Comment(
-                id:        (int)reader["Id"],
-                orderId:   (int)reader["OrderId"],
-                type:      reader["Type"]  == DBNull.Value ? null : reader["Type"].ToString(),
-                text:      reader["Text"]  == DBNull.Value ? null : reader["Text"].ToString(),
+                id: (int)reader["Id"],
+                orderId: (int)reader["OrderId"],
+                type: reader["Type"] == DBNull.Value ? null : reader["Type"].ToString(),
+                text: reader["Text"] == DBNull.Value ? null : reader["Text"].ToString(),
                 createdAt: (DateTime)reader["CreatedAt"]
             );
         }

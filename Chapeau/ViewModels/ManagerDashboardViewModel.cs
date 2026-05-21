@@ -29,7 +29,6 @@ namespace Chapeau.ViewModels
         public int PraiseCount { get; set; }
         public List<FeedbackRow> FeedbackItems { get; set; } = new();
 
-
         public List<OpenTableRow> OpenTables { get; set; } = new();
     }
 

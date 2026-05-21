@@ -3,11 +3,11 @@ using Microsoft.Data.SqlClient;
 
 namespace Chapeau.Repositories
 {
-    public class OrderItemRepository : IOrderItemRepository
+    public class DBOrderItemRepository : IOrderItemRepository
     {
         private readonly string _connectionString;
 
-        public OrderItemRepository(IConfiguration config)
+        public DBOrderItemRepository(IConfiguration config)
         {
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
@@ -42,12 +42,12 @@ namespace Chapeau.Repositories
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
                 "INSERT INTO ORDER_ITEM (OrderId, MenuId, Name, Qty, Price, Vat, ItemType) VALUES (@OrderId, @MenuId, @Name, @Qty, @Price, @Vat, @ItemType)", conn);
-            cmd.Parameters.AddWithValue("@OrderId",  item.OrderId);
-            cmd.Parameters.AddWithValue("@MenuId",   item.MenuId);
-            cmd.Parameters.AddWithValue("@Name",     item.Name);
-            cmd.Parameters.AddWithValue("@Qty",      item.Qty);
-            cmd.Parameters.AddWithValue("@Price",    item.Price);
-            cmd.Parameters.AddWithValue("@Vat",      item.Vat);
+            cmd.Parameters.AddWithValue("@OrderId", item.OrderId);
+            cmd.Parameters.AddWithValue("@MenuId", item.MenuId);
+            cmd.Parameters.AddWithValue("@Name", item.Name);
+            cmd.Parameters.AddWithValue("@Qty", item.Qty);
+            cmd.Parameters.AddWithValue("@Price", item.Price);
+            cmd.Parameters.AddWithValue("@Vat", item.Vat);
             cmd.Parameters.AddWithValue("@ItemType", (object?)item.ItemType ?? DBNull.Value);
             cmd.ExecuteNonQuery();
         }
@@ -58,14 +58,14 @@ namespace Chapeau.Repositories
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
                 "UPDATE ORDER_ITEM SET OrderId=@OrderId, MenuId=@MenuId, Name=@Name, Qty=@Qty, Price=@Price, Vat=@Vat, ItemType=@ItemType WHERE Id=@Id", conn);
-            cmd.Parameters.AddWithValue("@OrderId",  item.OrderId);
-            cmd.Parameters.AddWithValue("@MenuId",   item.MenuId);
-            cmd.Parameters.AddWithValue("@Name",     item.Name);
-            cmd.Parameters.AddWithValue("@Qty",      item.Qty);
-            cmd.Parameters.AddWithValue("@Price",    item.Price);
-            cmd.Parameters.AddWithValue("@Vat",      item.Vat);
+            cmd.Parameters.AddWithValue("@OrderId", item.OrderId);
+            cmd.Parameters.AddWithValue("@MenuId", item.MenuId);
+            cmd.Parameters.AddWithValue("@Name", item.Name);
+            cmd.Parameters.AddWithValue("@Qty", item.Qty);
+            cmd.Parameters.AddWithValue("@Price", item.Price);
+            cmd.Parameters.AddWithValue("@Vat", item.Vat);
             cmd.Parameters.AddWithValue("@ItemType", (object?)item.ItemType ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Id",       item.Id);
+            cmd.Parameters.AddWithValue("@Id", item.Id);
             cmd.ExecuteNonQuery();
         }
 

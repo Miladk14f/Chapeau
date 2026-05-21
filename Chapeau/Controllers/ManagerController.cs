@@ -9,24 +9,23 @@ namespace Chapeau.Controllers
         {
             var vm = new ManagerDashboardViewModel
             {
-                ActiveTab   = tab,
+                ActiveTab = tab,
                 StockFilter = stockFilter,
 
-                // Placeholder data — wire to real repos when implemented
-                RevenuePaid      = 0,
-                RevenueOpen      = 0,
-                CoversToday      = 0,
-                CoversSeated     = 0,
-                TipsReceived     = 0,
+                RevenuePaid = 0,
+                RevenueOpen = 0,
+                CoversToday = 0,
+                CoversSeated = 0,
+                TipsReceived = 0,
                 TablesCheckedOut = 0,
-                StockOutCount    = 0,
-                StockLowCount    = 0,
+                StockOutCount = 0,
+                StockLowCount = 0,
 
-                CategoryRevenues  = new(),
+                CategoryRevenues = new(),
                 StaffPerformances = new(),
-                StockItems        = new(),
-                FeedbackItems     = new(),
-                OpenTables        = new(),
+                StockItems = new(),
+                FeedbackItems = new(),
+                OpenTables = new(),
             };
 
             return View(vm);

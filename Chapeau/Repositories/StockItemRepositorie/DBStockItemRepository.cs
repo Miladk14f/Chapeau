@@ -3,11 +3,11 @@ using Microsoft.Data.SqlClient;
 
 namespace Chapeau.Repositories
 {
-    public class StockItemRepository : IStockItemRepository
+    public class DBStockItemRepository : IStockItemRepository
     {
         private readonly string _connectionString;
 
-        public StockItemRepository(IConfiguration config)
+        public DBStockItemRepository(IConfiguration config)
         {
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
@@ -56,8 +56,8 @@ namespace Chapeau.Repositories
             string query = "INSERT INTO STOCK_ITEM (Name, Quantity, MaxQuantity) VALUES (@Name, @Quantity, @MaxQuantity)";
 
             using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Name",        item.Name);
-            cmd.Parameters.AddWithValue("@Quantity",    item.Quantity);
+            cmd.Parameters.AddWithValue("@Name", item.Name);
+            cmd.Parameters.AddWithValue("@Quantity", item.Quantity);
             cmd.Parameters.AddWithValue("@MaxQuantity", item.MaxQuantity);
 
             cmd.ExecuteNonQuery();
@@ -71,10 +71,10 @@ namespace Chapeau.Repositories
             string query = "UPDATE STOCK_ITEM SET Name = @Name, Quantity = @Quantity, MaxQuantity = @MaxQuantity WHERE Id = @Id";
 
             using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Name",        item.Name);
-            cmd.Parameters.AddWithValue("@Quantity",    item.Quantity);
+            cmd.Parameters.AddWithValue("@Name", item.Name);
+            cmd.Parameters.AddWithValue("@Quantity", item.Quantity);
             cmd.Parameters.AddWithValue("@MaxQuantity", item.MaxQuantity);
-            cmd.Parameters.AddWithValue("@Id",          item.Id);
+            cmd.Parameters.AddWithValue("@Id", item.Id);
 
             cmd.ExecuteNonQuery();
         }
@@ -101,7 +101,7 @@ namespace Chapeau.Repositories
 
             using SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Quantity", quantity);
-            cmd.Parameters.AddWithValue("@Id",       id);
+            cmd.Parameters.AddWithValue("@Id", id);
 
             cmd.ExecuteNonQuery();
         }
@@ -109,9 +109,9 @@ namespace Chapeau.Repositories
         private StockItem MapReader(SqlDataReader reader)
         {
             return new StockItem(
-                id:          (int)reader["Id"],
-                name:        reader["Name"].ToString(),
-                quantity:    (int)reader["Quantity"],
+                id: (int)reader["Id"],
+                name: reader["Name"].ToString(),
+                quantity: (int)reader["Quantity"],
                 maxQuantity: (int)reader["MaxQuantity"]
             );
         }

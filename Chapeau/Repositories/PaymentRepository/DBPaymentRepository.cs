@@ -3,11 +3,11 @@ using Microsoft.Data.SqlClient;
 
 namespace Chapeau.Repositories
 {
-    public class PaymentRepository : IPaymentRepository
+    public class DBPaymentRepository : IPaymentRepository
     {
         private readonly string _connectionString;
 
-        public PaymentRepository(IConfiguration config)
+        public DBPaymentRepository(IConfiguration config)
         {
             _connectionString = config.GetConnectionString("ChapeauDb");
         }

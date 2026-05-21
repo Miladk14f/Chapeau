@@ -77,7 +77,7 @@ namespace Chapeau.Repositories.BillRepository
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
 
-            string query = @"INSERT INTO BILL 
+            string query = @"INSERT INTO BILL
                             (OrderId, Tip, split_method, amount, status)
                             VALUES
                             (@OrderId, @Tip, @SplitMethod, @Amount, @Status)";

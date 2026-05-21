@@ -9,7 +9,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentRepository, DBPaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddScoped<IBillRepository, DBBillRepository>();
@@ -18,19 +18,19 @@ builder.Services.AddScoped<IBillService, BillService>();
 builder.Services.AddScoped<IRestaurantTableRepository, DBRestaurantTableRepository>();
 builder.Services.AddScoped<IRestaurantTableService, RestaurantTableService>();
 
-builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<IStaffRepository, DBStaffRepository>();
 builder.Services.AddScoped<IStaffService, StaffService>();
 
-builder.Services.AddScoped<IMenuItemRepository, MenuItemRepository>();
+builder.Services.AddScoped<IMenuItemRepository, DBMenuItemRepository>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 
-builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<IOrderItemRepository, DBOrderItemRepository>();
 builder.Services.AddScoped<IOrderItemService, OrderItemService>();
 
-builder.Services.AddScoped<IStockItemRepository, StockItemRepository>();
+builder.Services.AddScoped<IStockItemRepository, DBStockItemRepository>();
 builder.Services.AddScoped<IStockItemService, StockItemService>();
 
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ICommentRepository, DBCommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 
 var app = builder.Build();
