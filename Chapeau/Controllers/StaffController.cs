@@ -43,7 +43,7 @@ namespace Chapeau.Controllers
 
             Staff staff = _staffService.GetById(staffId);
 
-            if (staff == null || staff.Pin != password)
+            if (staff == null || !_staffService.VerifyPin(staff, password))
             {
                 ViewBag.Error = "Invalid password.";
                 ViewBag.SelectedStaffId = staffId;

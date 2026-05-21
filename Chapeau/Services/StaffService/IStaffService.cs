@@ -10,5 +10,6 @@ namespace Chapeau.Services
         void Add(Staff staff);
         void Update(Staff staff);
         void Delete(int id);
+        bool VerifyPin(Staff staff, string pin);
     }
 }
