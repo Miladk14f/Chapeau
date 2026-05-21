@@ -16,7 +16,6 @@
             overflow: hidden;
         }
 
-        /* ── Sidebar ── */
         .sidebar {
             width: 76px;
             background: #1a0d12;
@@ -72,7 +71,6 @@
 
         .nav-icon { font-size: 20px; line-height: 1; }
 
-        /* ── Main area ── */
         .main-wrap {
             flex: 1;
             display: flex;
@@ -80,7 +78,6 @@
             overflow: hidden;
         }
 
-        /* ── Top bar ── */
         .topbar {
             background: #2a1218;
             display: flex;
@@ -129,9 +126,7 @@
             color: #f0e6d8;
         }
 
-        .topbar-user {
-            line-height: 1.2;
-        }
+        .topbar-user { line-height: 1.2; }
 
         .topbar-user-name {
             font-size: 14px;
@@ -155,7 +150,6 @@
 
         .topbar-logout:hover { color: #c9843a; }
 
-        /* ── Page content ── */
         .page-content {
             flex: 1;
             overflow-y: auto;
@@ -164,32 +158,63 @@
     </style>
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Chapeau</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-controller="Bar" asp-action="Index">Bar</a>
-                        </li>
-                    </ul>
+
+    <nav class="sidebar">
+        <a class="sidebar-logo" asp-controller="RestaurantTable" asp-action="Index">C</a>
+
+        <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "RestaurantTable" ? "active" : "")"
+           asp-controller="RestaurantTable" asp-action="Index">
+            <span class="nav-icon">⊞</span>
+            Tables
+        </a>
+
+        <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Kitchen" ? "active" : "")"
+           asp-controller="Kitchen" asp-action="Index">
+            <span class="nav-icon">🍽</span>
+            Kitchen
+        </a>
+
+        <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Bar" ? "active" : "")"
+           asp-controller="Bar" asp-action="Index">
+            <span class="nav-icon">🍷</span>
+            Bar
+        </a>
+
+        @if (Context.Session.GetString("StaffRole") == "manager")
+        {
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Manager" ? "active" : "")"
+               asp-controller="Manager" asp-action="Index">
+                <span class="nav-icon">📊</span>
+                Manager
+            </a>
+        }
+    </nav>
+
+    <div class="main-wrap">
+
+        <header class="topbar">
+            <div class="topbar-brand">
+                <span class="topbar-brand-name">Chapeau</span>
+                <span class="topbar-brand-sub">Zeewolde · Ordering System</span>
+            </div>
+
+            <div class="topbar-right">
+                @{
+                    var staffName = Context.Session.GetString("StaffName") ?? "";
+                    var staffRole = Context.Session.GetString("StaffRole") ?? "";
+                    var initials  = staffName.Length > 0
+                        ? string.Concat(staffName.Split(' ').Where(w => w.Length > 0).Take(2).Select(w => w[0].ToString().ToUpper()))
+                        : "?";
+                }
+                <div class="topbar-avatar">@initials</div>
+                <div class="topbar-user">
+                    <div class="topbar-user-name">@staffName</div>
+                    <div class="topbar-user-role">@staffRole</div>
                 </div>
                 <a class="topbar-logout" asp-controller="Staff" asp-action="Logout" title="Sign out">⇥</a>
             </div>
         </header>
 
-        <!-- Page body -->
         <div class="page-content">
             @RenderBody()
         </div>
