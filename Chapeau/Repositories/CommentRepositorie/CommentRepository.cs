@@ -66,8 +66,8 @@ namespace Chapeau.Repositories
             return new Comment(
                 id:        (int)reader["Id"],
                 orderId:   (int)reader["OrderId"],
-                type:      reader["Type"]      == DBNull.Value ? null : reader["Type"].ToString(),
-                text:      reader["Text"]      == DBNull.Value ? null : reader["Text"].ToString(),
+                type:      reader["Type"]  == DBNull.Value ? null : reader["Type"].ToString(),
+                text:      reader["Text"]  == DBNull.Value ? null : reader["Text"].ToString(),
                 createdAt: (DateTime)reader["CreatedAt"]
             );
         }
