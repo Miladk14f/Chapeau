@@ -1,15 +1,17 @@
+using Chapeau.Models.Enums;
+
 namespace Chapeau.Models
 {
     public class Staff
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public string Role { get; set; }
+        public EStaffRole Role { get; set; }
         public string Pin { get; set; }
 
         public Staff() { }
 
-        public Staff(int id, string name, string role, string pin)
+        public Staff(int id, string name, EStaffRole role, string pin)
         {
             Id = id;
             Name = name;

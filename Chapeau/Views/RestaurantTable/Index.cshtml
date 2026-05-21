@@ -1,8 +1,9 @@
 @model List<Chapeau.Models.RestaurantTable>
+@using Chapeau.Models.Enums
 @{
     ViewData["Title"] = "Tables";
-    var occupied  = Model?.Count(t => t.Status == "occupied")  ?? 0;
-    var available = Model?.Count(t => t.Status != "occupied")  ?? 0;
+    var occupied  = Model?.Count(t => t.Status == ETableStatus.Occupied) ?? 0;
+    var available = Model?.Count(t => t.Status != ETableStatus.Occupied) ?? 0;
 }
 
 <style>
@@ -190,7 +191,7 @@
     {
         @foreach (var table in Model)
         {
-            var isOccupied = table.Status == "occupied";
+            var isOccupied = table.Status == ETableStatus.Occupied;
             var isReserved = table.ReservationName != null && !isOccupied;
             var cardClass  = isOccupied ? "occupied" : isReserved ? "reserved" : "";
             var badgeClass = isOccupied ? "badge-occupied" : isReserved ? "badge-reserved" : "badge-available";

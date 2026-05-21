@@ -1,3 +1,5 @@
+using Chapeau.Models.Enums;
+
 namespace Chapeau.Models
 {
     public class Bill
@@ -5,13 +7,16 @@ namespace Chapeau.Models
         public int Id { get; set; }
         public int OrderId { get; set; }
         public decimal Tip { get; set; }
-        public string SplitedMethod { get; set; }
+        public ESplitMethod SplitedMethod { get; set; }
         public decimal Amount { get; set; }
-        public string Status { get; set; }
+        public EBillStatus Status { get; set; }
+
+        public Order? Order { get; set; }
+        public List<Payment>? Payments { get; set; }
 
         public Bill() { }
 
-        public Bill(int id, int orderId, decimal tip, string splitedMethod, decimal amount, string status)
+        public Bill(int id, int orderId, decimal tip, ESplitMethod splitedMethod, decimal amount, EBillStatus status)
         {
             Id = id;
             OrderId = orderId;

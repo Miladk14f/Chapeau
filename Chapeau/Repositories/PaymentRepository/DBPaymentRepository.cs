@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Microsoft.Data.SqlClient;
 
 namespace Chapeau.Repositories
@@ -86,9 +87,9 @@ namespace Chapeau.Repositories
 
             using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@BillId", payment.BillId);
-            cmd.Parameters.AddWithValue("@PaymentMethod", payment.PaymentMethod);
+            cmd.Parameters.AddWithValue("@PaymentMethod", payment.PaymentMethod.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Amount", payment.Amount);
-            cmd.Parameters.AddWithValue("@Status", payment.Status);
+            cmd.Parameters.AddWithValue("@Status", payment.Status.ToString().ToLower());
             cmd.Parameters.AddWithValue("@PaidAt", payment.PaidAt);
 
             cmd.ExecuteNonQuery();
@@ -109,9 +110,9 @@ namespace Chapeau.Repositories
 
             using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@BillId", payment.BillId);
-            cmd.Parameters.AddWithValue("@PaymentMethod", payment.PaymentMethod);
+            cmd.Parameters.AddWithValue("@PaymentMethod", payment.PaymentMethod.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Amount", payment.Amount);
-            cmd.Parameters.AddWithValue("@Status", payment.Status);
+            cmd.Parameters.AddWithValue("@Status", payment.Status.ToString().ToLower());
             cmd.Parameters.AddWithValue("@PaidAt", payment.PaidAt);
             cmd.Parameters.AddWithValue("@Id", payment.Id);
 
@@ -137,9 +138,9 @@ namespace Chapeau.Repositories
             {
                 Id = (int)reader["Id"],
                 BillId = (int)reader["BillId"],
-                PaymentMethod = reader["payment_method"].ToString(),
+                PaymentMethod = Enum.Parse<EPaymentMethod>(reader["payment_method"] == DBNull.Value ? "Cash" : reader["payment_method"].ToString(), ignoreCase: true),
                 Amount = (decimal)reader["amount"],
-                Status = reader["status"].ToString(),
+                Status = Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true),
                 PaidAt = reader["PaidAt"] == DBNull.Value ? null : (DateTime)reader["PaidAt"]
             };
         }

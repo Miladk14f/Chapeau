@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 
 namespace Chapeau.Repositories
 {
@@ -8,6 +9,6 @@ namespace Chapeau.Repositories
         RestaurantTable GetById(int id);
         void SeatGuests(int tableId, int guests, int waiterId);
         void FreeTable(int tableId);
-        void UpdateStatus(int tableId, string status);
+        void UpdateStatus(int tableId, ETableStatus status);
     }
 }

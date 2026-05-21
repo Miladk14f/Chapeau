@@ -1,14 +1,15 @@
 @model List<Chapeau.Models.Staff>
+@using Chapeau.Models.Enums
 @{
     Layout = null;
     int selectedId = ViewBag.SelectedStaffId ?? 0;
 
     var roleGroups = new[]
     {
-        new { Label = "Manager", Icon = "📊", Key = "manager" },
-        new { Label = "Chef",    Icon = "🍽",  Key = "chef"    },
-        new { Label = "Bar",     Icon = "🍷",  Key = "bar"     },
-        new { Label = "Service", Icon = "⊞",  Key = "waiter"  },
+        new { Label = "Manager", Icon = "📊", Key = EStaffRole.Manager },
+        new { Label = "Chef",    Icon = "🍽",  Key = EStaffRole.Chef    },
+        new { Label = "Bar",     Icon = "🍷",  Key = EStaffRole.Bar     },
+        new { Label = "Service", Icon = "⊞",  Key = EStaffRole.Waiter  },
     };
 
     string Initials(string name) =>

@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Microsoft.Data.SqlClient;
 
 namespace Chapeau.Repositories
@@ -48,7 +49,7 @@ namespace Chapeau.Repositories
             cmd.Parameters.AddWithValue("@Qty", item.Qty);
             cmd.Parameters.AddWithValue("@Price", item.Price);
             cmd.Parameters.AddWithValue("@Vat", item.Vat);
-            cmd.Parameters.AddWithValue("@ItemType", (object?)item.ItemType ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
             cmd.ExecuteNonQuery();
         }
 
@@ -64,7 +65,7 @@ namespace Chapeau.Repositories
             cmd.Parameters.AddWithValue("@Qty", item.Qty);
             cmd.Parameters.AddWithValue("@Price", item.Price);
             cmd.Parameters.AddWithValue("@Vat", item.Vat);
-            cmd.Parameters.AddWithValue("@ItemType", (object?)item.ItemType ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Id", item.Id);
             cmd.ExecuteNonQuery();
         }
@@ -96,7 +97,7 @@ namespace Chapeau.Repositories
                 (int)reader["Qty"],
                 (decimal)reader["Price"],
                 (int)reader["Vat"],
-                reader["ItemType"] == DBNull.Value ? null : reader["ItemType"].ToString()
+                Enum.Parse<EItemType>(reader["ItemType"] == DBNull.Value ? "Food" : reader["ItemType"].ToString(), ignoreCase: true)
             );
     }
 }

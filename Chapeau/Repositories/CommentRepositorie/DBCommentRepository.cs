@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Microsoft.Data.SqlClient;
 
 namespace Chapeau.Repositories
@@ -41,7 +42,7 @@ namespace Chapeau.Repositories
 
             using SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@OrderId", comment.OrderId);
-            cmd.Parameters.AddWithValue("@Type", (object?)comment.Type ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Type", comment.Type.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Text", (object?)comment.Text ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@CreatedAt", comment.CreatedAt);
 
@@ -66,7 +67,7 @@ namespace Chapeau.Repositories
             return new Comment(
                 id: (int)reader["Id"],
                 orderId: (int)reader["OrderId"],
-                type: reader["Type"] == DBNull.Value ? null : reader["Type"].ToString(),
+                type: Enum.Parse<ECommentType>(reader["Type"] == DBNull.Value ? "Comment" : reader["Type"].ToString(), ignoreCase: true),
                 text: reader["Text"] == DBNull.Value ? null : reader["Text"].ToString(),
                 createdAt: (DateTime)reader["CreatedAt"]
             );

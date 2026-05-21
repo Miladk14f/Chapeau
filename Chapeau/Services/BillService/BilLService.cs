@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Chapeau.Repositories.BillRepository;
 
 namespace Chapeau.Services.BillService
@@ -29,7 +30,7 @@ namespace Chapeau.Services.BillService
 
         public void Add(Bill bill)
         {
-            bill.Status = "unpaid";
+            bill.Status = EBillStatus.Unpaid;
 
             _billRepository.Add(bill);
         }

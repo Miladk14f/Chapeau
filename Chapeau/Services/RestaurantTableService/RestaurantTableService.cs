@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Chapeau.Repositories;
 
 namespace Chapeau.Services
@@ -32,7 +33,7 @@ namespace Chapeau.Services
             _repository.FreeTable(tableId);
         }
 
-        public void UpdateStatus(int tableId, string status)
+        public void UpdateStatus(int tableId, ETableStatus status)
         {
             _repository.UpdateStatus(tableId, status);
         }

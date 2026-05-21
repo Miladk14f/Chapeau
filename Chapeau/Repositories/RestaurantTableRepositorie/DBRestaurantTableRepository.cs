@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Microsoft.Data.SqlClient;
 
 namespace Chapeau.Repositories
@@ -84,7 +85,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateStatus(int tableId, string status)
+        public void UpdateStatus(int tableId, ETableStatus status)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -92,7 +93,7 @@ namespace Chapeau.Repositories
             string query = "UPDATE [TABLE] SET Status = @Status WHERE Id = @Id";
 
             using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Status", status);
+            cmd.Parameters.AddWithValue("@Status", status.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Id", tableId);
 
             cmd.ExecuteNonQuery();
@@ -104,7 +105,7 @@ namespace Chapeau.Repositories
                 id: (int)reader["Id"],
                 seats: (int)reader["Seats"],
                 guests: reader["Guests"] == DBNull.Value ? null : (int?)reader["Guests"],
-                status: reader["Status"] == DBNull.Value ? null : reader["Status"].ToString(),
+                status: Enum.Parse<ETableStatus>(reader["Status"] == DBNull.Value ? "Free" : reader["Status"].ToString(), ignoreCase: true),
                 seatedAt: reader["SeatedAt"] == DBNull.Value ? null : (DateTime?)reader["SeatedAt"],
                 waiterId: reader["WaiterId"] == DBNull.Value ? null : (int?)reader["WaiterId"],
                 reservationName: reader["ReservationName"] == DBNull.Value ? null : reader["ReservationName"].ToString()

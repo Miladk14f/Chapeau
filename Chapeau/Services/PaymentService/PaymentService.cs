@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Chapeau.Repositories;
 using Chapeau.Repositories.BillRepository;
 
@@ -32,7 +33,7 @@ namespace Chapeau.Services
 
         public void Add(Payment payment)
         {
-            payment.Status = "Paid";
+            payment.Status = EBillStatus.Paid;
             payment.PaidAt = DateTime.Now;
 
             _paymentRepository.Add(payment);
@@ -76,15 +77,15 @@ namespace Chapeau.Services
 
             if (totalPaid >= bill.Amount)
             {
-                bill.Status = "Paid";
+                bill.Status = EBillStatus.Paid;
             }
             else if (totalPaid > 0)
             {
-                bill.Status = "Partially Paid";
+                bill.Status = EBillStatus.Partial;
             }
             else
             {
-                bill.Status = "Unpaid";
+                bill.Status = EBillStatus.Unpaid;
             }
 
             _billRepository.Update(bill);

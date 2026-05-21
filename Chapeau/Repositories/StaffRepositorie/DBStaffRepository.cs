@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Microsoft.Data.SqlClient;
 
 namespace Chapeau.Repositories
@@ -116,7 +117,7 @@ namespace Chapeau.Repositories
             return new Staff(
                 id: (int)reader["Id"],
                 name: reader["Name"].ToString(),
-                role: reader["Role"].ToString(),
+                role: Enum.Parse<EStaffRole>(reader["Role"].ToString(), ignoreCase: true),
                 pin: reader["Pin"].ToString()
             );
         }
