@@ -12,34 +12,34 @@ namespace Chapeau.Services
             _repository = repository;
         }
 
-        public List<StockItem> GetAll()
+        public List<StockItem> GetAllStockItems()
         {
-            return _repository.GetAll();
+            return _repository.GetAllStockItems();
         }
 
-        public StockItem GetById(int id)
+        public StockItem GetStockItemById(int id)
         {
-            return _repository.GetById(id);
+            return _repository.GetStockItemById(id);
         }
 
-        public void Add(StockItem item)
+        public void AddStockItem(StockItem item)
         {
-            _repository.Add(item);
+            _repository.AddStockItem(item);
         }
 
-        public void Update(StockItem item)
+        public void UpdateStockItem(StockItem item)
         {
-            _repository.Update(item);
+            _repository.UpdateStockItem(item);
         }
 
-        public void Delete(int id)
+        public void DeleteStockItem(int id)
         {
-            _repository.Delete(id);
+            _repository.DeleteStockItem(id);
         }
 
-        public void UpdateQuantity(int id, int quantity)
+        public void UpdateStockItemQuantity(int id, int quantity)
         {
-            _repository.UpdateQuantity(id, quantity);
+            _repository.UpdateStockItemQuantity(id, quantity);
         }
     }
 }

@@ -14,40 +14,40 @@ namespace Chapeau.Services
             _repository = repository;
         }
 
-        public List<Staff> GetAll()
+        public List<Staff> GetAllStaff()
         {
-            return _repository.GetAll();
+            return _repository.GetAllStaff();
         }
 
-        public Staff GetById(int id)
+        public Staff GetStaffById(int id)
         {
-            return _repository.GetById(id);
+            return _repository.GetStaffById(id);
         }
 
-        public Staff Login(string name, string pin)
+        public Staff LoginStaff(string name, string pin)
         {
             string hashedPin = HashPin(pin);
-            return _repository.GetByCredentials(name, hashedPin);
+            return _repository.GetStaffByCredentials(name, hashedPin);
         }
 
-        public void Add(Staff staff)
+        public void AddStaff(Staff staff)
         {
             staff.Pin = HashPin(staff.Pin);
-            _repository.Add(staff);
+            _repository.AddStaff(staff);
         }
 
-        public void Update(Staff staff)
+        public void UpdateStaff(Staff staff)
         {
             staff.Pin = HashPin(staff.Pin);
-            _repository.Update(staff);
+            _repository.UpdateStaff(staff);
         }
 
-        public void Delete(int id)
+        public void DeleteStaff(int id)
         {
-            _repository.Delete(id);
+            _repository.DeleteStaff(id);
         }
 
-        public bool VerifyPin(Staff staff, string pin)
+        public bool VerifyStaffPin(Staff staff, string pin)
         {
             return staff.Pin == HashPin(pin);
         }

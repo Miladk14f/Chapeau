@@ -15,13 +15,13 @@ namespace Chapeau.Controllers
 
         public IActionResult Index()
         {
-            List<RestaurantTable> tables = _tableService.GetAll();
+            List<RestaurantTable> tables = _tableService.GetAllTables();
             return View(tables);
         }
 
         public IActionResult Details(int id)
         {
-            RestaurantTable table = _tableService.GetById(id);
+            RestaurantTable table = _tableService.GetTableById(id);
 
             if (table == null)
                 return NotFound();
@@ -33,14 +33,14 @@ namespace Chapeau.Controllers
         public IActionResult SeatGuests(int tableId, int guests)
         {
             int staffId = HttpContext.Session.GetInt32("StaffId") ?? 0;
-            _tableService.SeatGuests(tableId, guests, staffId);
+            _tableService.SeatGuestsAtTable(tableId, guests, staffId);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public IActionResult FreeTable(int tableId)
         {
-            _tableService.FreeTable(tableId);
+            _tableService.ClearTable(tableId);
             return RedirectToAction("Index");
         }
     }

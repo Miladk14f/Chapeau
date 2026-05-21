@@ -12,7 +12,7 @@ namespace Chapeau.Repositories
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
 
-        public List<StockItem> GetAll()
+        public List<StockItem> GetAllStockItems()
         {
             List<StockItem> items = new List<StockItem>();
 
@@ -30,7 +30,7 @@ namespace Chapeau.Repositories
             return items;
         }
 
-        public StockItem GetById(int id)
+        public StockItem GetStockItemById(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -48,7 +48,7 @@ namespace Chapeau.Repositories
             return null;
         }
 
-        public void Add(StockItem item)
+        public void AddStockItem(StockItem item)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -63,7 +63,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Update(StockItem item)
+        public void UpdateStockItem(StockItem item)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -79,7 +79,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Delete(int id)
+        public void DeleteStockItem(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -92,7 +92,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateQuantity(int id, int quantity)
+        public void UpdateStockItemQuantity(int id, int quantity)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();

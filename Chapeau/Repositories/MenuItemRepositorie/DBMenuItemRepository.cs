@@ -12,7 +12,7 @@ namespace Chapeau.Repositories
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
 
-        public List<MenuItem> GetAll()
+        public List<MenuItem> GetAllMenuItems()
         {
             var list = new List<MenuItem>();
             using SqlConnection conn = new SqlConnection(_connectionString);
@@ -24,7 +24,7 @@ namespace Chapeau.Repositories
             return list;
         }
 
-        public List<MenuItem> GetByCategory(string category)
+        public List<MenuItem> GetMenuItemsByCategory(string category)
         {
             var list = new List<MenuItem>();
             using SqlConnection conn = new SqlConnection(_connectionString);
@@ -37,7 +37,7 @@ namespace Chapeau.Repositories
             return list;
         }
 
-        public MenuItem GetById(int id)
+        public MenuItem GetMenuItemById(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -48,7 +48,7 @@ namespace Chapeau.Repositories
             return reader.Read() ? MapReader(reader) : null;
         }
 
-        public void Add(MenuItem item)
+        public void AddMenuItem(MenuItem item)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -64,7 +64,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Update(MenuItem item)
+        public void UpdateMenuItem(MenuItem item)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -81,7 +81,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Delete(int id)
+        public void DeleteMenuItem(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -90,7 +90,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateStock(int id, bool inStock)
+        public void UpdateMenuItemStock(int id, bool inStock)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();

@@ -13,7 +13,7 @@ namespace Chapeau.Repositories.BillRepository
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
 
-        public List<Bill> GetAll()
+        public List<Bill> GetAllBills()
         {
             List<Bill> bills = new List<Bill>();
 
@@ -33,7 +33,7 @@ namespace Chapeau.Repositories.BillRepository
             return bills;
         }
 
-        public Bill GetById(int id)
+        public Bill GetBillById(int id)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -53,7 +53,7 @@ namespace Chapeau.Repositories.BillRepository
             return null;
         }
 
-        public Bill GetByOrderId(int orderId)
+        public Bill GetBillByOrderId(int orderId)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -73,7 +73,7 @@ namespace Chapeau.Repositories.BillRepository
             return null;
         }
 
-        public void Add(Bill bill)
+        public void AddBill(Bill bill)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -93,7 +93,7 @@ namespace Chapeau.Repositories.BillRepository
             cmd.ExecuteNonQuery();
         }
 
-        public void Update(Bill bill)
+        public void UpdateBill(Bill bill)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -117,7 +117,7 @@ namespace Chapeau.Repositories.BillRepository
             cmd.ExecuteNonQuery();
         }
 
-        public void Delete(int id)
+        public void DeleteBill(int id)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();

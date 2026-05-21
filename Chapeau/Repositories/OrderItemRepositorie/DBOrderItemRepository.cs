@@ -13,7 +13,7 @@ namespace Chapeau.Repositories
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
 
-        public List<OrderItem> GetByOrderId(int orderId)
+        public List<OrderItem> GetOrderItemsByOrderId(int orderId)
         {
             var list = new List<OrderItem>();
             using SqlConnection conn = new SqlConnection(_connectionString);
@@ -26,7 +26,7 @@ namespace Chapeau.Repositories
             return list;
         }
 
-        public OrderItem GetById(int id)
+        public OrderItem GetOrderItemById(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -37,7 +37,7 @@ namespace Chapeau.Repositories
             return reader.Read() ? MapReader(reader) : null;
         }
 
-        public void Add(OrderItem item)
+        public void AddOrderItem(OrderItem item)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -53,7 +53,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Update(OrderItem item)
+        public void UpdateOrderItem(OrderItem item)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -70,7 +70,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Delete(int id)
+        public void DeleteOrderItem(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -79,7 +79,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void DeleteByOrderId(int orderId)
+        public void DeleteOrderItemsByOrderId(int orderId)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();

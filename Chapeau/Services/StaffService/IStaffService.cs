@@ -4,12 +4,12 @@ namespace Chapeau.Services
 {
     public interface IStaffService
     {
-        List<Staff> GetAll();
-        Staff GetById(int id);
-        Staff Login(string name, string pin);
-        void Add(Staff staff);
-        void Update(Staff staff);
-        void Delete(int id);
-        bool VerifyPin(Staff staff, string pin);
+        List<Staff> GetAllStaff();
+        Staff GetStaffById(int id);
+        Staff LoginStaff(string name, string pin);
+        void AddStaff(Staff staff);
+        void UpdateStaff(Staff staff);
+        void DeleteStaff(int id);
+        bool VerifyStaffPin(Staff staff, string pin);
     }
 }

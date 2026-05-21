@@ -4,11 +4,11 @@ namespace Chapeau.Repositories
 {
     public interface IStaffRepository
     {
-        List<Staff> GetAll();
-        Staff GetById(int id);
-        Staff GetByCredentials(string name, string pin);
-        void Add(Staff staff);
-        void Update(Staff staff);
-        void Delete(int id);
+        List<Staff> GetAllStaff();
+        Staff GetStaffById(int id);
+        Staff GetStaffByCredentials(string name, string pin);
+        void AddStaff(Staff staff);
+        void UpdateStaff(Staff staff);
+        void DeleteStaff(int id);
     }
 }

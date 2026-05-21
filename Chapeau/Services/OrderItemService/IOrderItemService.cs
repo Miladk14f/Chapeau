@@ -4,11 +4,11 @@ namespace Chapeau.Services
 {
     public interface IOrderItemService
     {
-        List<OrderItem> GetByOrderId(int orderId);
-        OrderItem GetById(int id);
-        void Add(OrderItem item);
-        void Update(OrderItem item);
-        void Delete(int id);
-        void DeleteByOrderId(int orderId);
+        List<OrderItem> GetOrderItemsByOrderId(int orderId);
+        OrderItem GetOrderItemById(int id);
+        void AddOrderItem(OrderItem item);
+        void UpdateOrderItem(OrderItem item);
+        void DeleteOrderItem(int id);
+        void DeleteOrderItemsByOrderId(int orderId);
     }
 }

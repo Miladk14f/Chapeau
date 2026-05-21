@@ -13,36 +13,36 @@ namespace Chapeau.Services.BillService
             _billRepository = billRepository;
         }
 
-        public List<Bill> GetAll()
+        public List<Bill> GetAllBills()
         {
-            return _billRepository.GetAll();
+            return _billRepository.GetAllBills();
         }
 
-        public Bill GetById(int id)
+        public Bill GetBillById(int id)
         {
-            return _billRepository.GetById(id);
+            return _billRepository.GetBillById(id);
         }
 
-        public Bill GetByOrderId(int orderId)
+        public Bill GetBillByOrderId(int orderId)
         {
-            return _billRepository.GetByOrderId(orderId);
+            return _billRepository.GetBillByOrderId(orderId);
         }
 
-        public void Add(Bill bill)
+        public void AddBill(Bill bill)
         {
             bill.Status = EBillStatus.Unpaid;
 
-            _billRepository.Add(bill);
+            _billRepository.AddBill(bill);
         }
 
-        public void Update(Bill bill)
+        public void UpdateBill(Bill bill)
         {
-            _billRepository.Update(bill);
+            _billRepository.UpdateBill(bill);
         }
 
-        public void Delete(int id)
+        public void DeleteBill(int id)
         {
-            _billRepository.Delete(id);
+            _billRepository.DeleteBill(id);
         }
     }
 }

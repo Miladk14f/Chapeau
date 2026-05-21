@@ -13,7 +13,7 @@ namespace Chapeau.Repositories
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
 
-        public List<RestaurantTable> GetAll()
+        public List<RestaurantTable> GetAllTables()
         {
             List<RestaurantTable> tables = new List<RestaurantTable>();
 
@@ -33,7 +33,7 @@ namespace Chapeau.Repositories
             return tables;
         }
 
-        public RestaurantTable GetById(int id)
+        public RestaurantTable GetTableById(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -51,7 +51,7 @@ namespace Chapeau.Repositories
             return null;
         }
 
-        public void SeatGuests(int tableId, int guests, int waiterId)
+        public void SeatGuestsAtTable(int tableId, int guests, int waiterId)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -69,7 +69,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void FreeTable(int tableId)
+        public void ClearTable(int tableId)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -85,7 +85,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateStatus(int tableId, ETableStatus status)
+        public void UpdateTableStatus(int tableId, ETableStatus status)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();

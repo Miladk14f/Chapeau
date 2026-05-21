@@ -16,47 +16,47 @@ namespace Chapeau.Services
             _billRepository = billRepository;
         }
 
-        public List<Payment> GetAll()
+        public List<Payment> GetAllPayments()
         {
-            return _paymentRepository.GetAll();
+            return _paymentRepository.GetAllPayments();
         }
 
-        public List<Payment> GetByBillId(int billId)
+        public List<Payment> GetPaymentsByBillId(int billId)
         {
-            return _paymentRepository.GetByBillId(billId);
+            return _paymentRepository.GetPaymentsByBillId(billId);
         }
 
-        public Payment GetById(int id)
+        public Payment GetPaymentById(int id)
         {
-            return _paymentRepository.GetById(id);
+            return _paymentRepository.GetPaymentById(id);
         }
 
-        public void Add(Payment payment)
+        public void AddPayment(Payment payment)
         {
             payment.Status = EBillStatus.Paid;
             payment.PaidAt = DateTime.Now;
 
-            _paymentRepository.Add(payment);
+            _paymentRepository.AddPayment(payment);
 
             UpdateBillStatus(payment.BillId);
         }
 
-        public void Update(Payment payment)
+        public void UpdatePayment(Payment payment)
         {
-            _paymentRepository.Update(payment);
+            _paymentRepository.UpdatePayment(payment);
 
             UpdateBillStatus(payment.BillId);
         }
 
-        public void Delete(int id)
+        public void DeletePayment(int id)
         {
-            Payment payment = _paymentRepository.GetById(id);
+            Payment payment = _paymentRepository.GetPaymentById(id);
 
             if (payment != null)
             {
                 int billId = payment.BillId;
 
-                _paymentRepository.Delete(id);
+                _paymentRepository.DeletePayment(id);
 
                 UpdateBillStatus(billId);
             }
@@ -64,14 +64,14 @@ namespace Chapeau.Services
 
         private void UpdateBillStatus(int billId)
         {
-            Bill bill = _billRepository.GetById(billId);
+            Bill bill = _billRepository.GetBillById(billId);
 
             if (bill == null)
             {
                 return;
             }
 
-            List<Payment> payments = _paymentRepository.GetByBillId(billId);
+            List<Payment> payments = _paymentRepository.GetPaymentsByBillId(billId);
 
             decimal totalPaid = payments.Sum(payment => payment.Amount);
 
@@ -88,7 +88,7 @@ namespace Chapeau.Services
                 bill.Status = EBillStatus.Unpaid;
             }
 
-            _billRepository.Update(bill);
+            _billRepository.UpdateBill(bill);
         }
     }
 }

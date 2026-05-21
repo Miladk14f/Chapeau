@@ -13,29 +13,29 @@ namespace Chapeau.Services
             _repository = repository;
         }
 
-        public List<RestaurantTable> GetAll()
+        public List<RestaurantTable> GetAllTables()
         {
-            return _repository.GetAll();
+            return _repository.GetAllTables();
         }
 
-        public RestaurantTable GetById(int id)
+        public RestaurantTable GetTableById(int id)
         {
-            return _repository.GetById(id);
+            return _repository.GetTableById(id);
         }
 
-        public void SeatGuests(int tableId, int guests, int waiterId)
+        public void SeatGuestsAtTable(int tableId, int guests, int waiterId)
         {
-            _repository.SeatGuests(tableId, guests, waiterId);
+            _repository.SeatGuestsAtTable(tableId, guests, waiterId);
         }
 
-        public void FreeTable(int tableId)
+        public void ClearTable(int tableId)
         {
-            _repository.FreeTable(tableId);
+            _repository.ClearTable(tableId);
         }
 
-        public void UpdateStatus(int tableId, ETableStatus status)
+        public void UpdateTableStatus(int tableId, ETableStatus status)
         {
-            _repository.UpdateStatus(tableId, status);
+            _repository.UpdateTableStatus(tableId, status);
         }
     }
 }

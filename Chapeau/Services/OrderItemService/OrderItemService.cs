@@ -12,34 +12,34 @@ namespace Chapeau.Services
             _repository = repository;
         }
 
-        public List<OrderItem> GetByOrderId(int orderId)
+        public List<OrderItem> GetOrderItemsByOrderId(int orderId)
         {
-            return _repository.GetByOrderId(orderId);
+            return _repository.GetOrderItemsByOrderId(orderId);
         }
 
-        public OrderItem GetById(int id)
+        public OrderItem GetOrderItemById(int id)
         {
-            return _repository.GetById(id);
+            return _repository.GetOrderItemById(id);
         }
 
-        public void Add(OrderItem item)
+        public void AddOrderItem(OrderItem item)
         {
-            _repository.Add(item);
+            _repository.AddOrderItem(item);
         }
 
-        public void Update(OrderItem item)
+        public void UpdateOrderItem(OrderItem item)
         {
-            _repository.Update(item);
+            _repository.UpdateOrderItem(item);
         }
 
-        public void Delete(int id)
+        public void DeleteOrderItem(int id)
         {
-            _repository.Delete(id);
+            _repository.DeleteOrderItem(id);
         }
 
-        public void DeleteByOrderId(int orderId)
+        public void DeleteOrderItemsByOrderId(int orderId)
         {
-            _repository.DeleteByOrderId(orderId);
+            _repository.DeleteOrderItemsByOrderId(orderId);
         }
     }
 }

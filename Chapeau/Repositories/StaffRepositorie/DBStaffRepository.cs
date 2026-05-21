@@ -13,7 +13,7 @@ namespace Chapeau.Repositories
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
 
-        public List<Staff> GetAll()
+        public List<Staff> GetAllStaff()
         {
             List<Staff> staffList = new List<Staff>();
 
@@ -31,7 +31,7 @@ namespace Chapeau.Repositories
             return staffList;
         }
 
-        public Staff GetById(int id)
+        public Staff GetStaffById(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -49,7 +49,7 @@ namespace Chapeau.Repositories
             return null;
         }
 
-        public Staff GetByCredentials(string name, string pin)
+        public Staff GetStaffByCredentials(string name, string pin)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -68,7 +68,7 @@ namespace Chapeau.Repositories
             return null;
         }
 
-        public void Add(Staff staff)
+        public void AddStaff(Staff staff)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -83,7 +83,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Update(Staff staff)
+        public void UpdateStaff(Staff staff)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -99,7 +99,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Delete(int id)
+        public void DeleteStaff(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();

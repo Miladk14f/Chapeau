@@ -4,12 +4,12 @@ namespace Chapeau.Repositories
 {
     public interface IMenuItemRepository
     {
-        List<MenuItem> GetAll();
-        List<MenuItem> GetByCategory(string category);
-        MenuItem GetById(int id);
-        void Add(MenuItem item);
-        void Update(MenuItem item);
-        void Delete(int id);
-        void UpdateStock(int id, bool inStock);
+        List<MenuItem> GetAllMenuItems();
+        List<MenuItem> GetMenuItemsByCategory(string category);
+        MenuItem GetMenuItemById(int id);
+        void AddMenuItem(MenuItem item);
+        void UpdateMenuItem(MenuItem item);
+        void DeleteMenuItem(int id);
+        void UpdateMenuItemStock(int id, bool inStock);
     }
 }

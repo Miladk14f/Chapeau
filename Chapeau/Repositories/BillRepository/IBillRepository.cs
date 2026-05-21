@@ -3,11 +3,11 @@ namespace Chapeau.Repositories.BillRepository
 {
     public interface IBillRepository
     {
-        List<Bill> GetAll();
-        Bill GetById(int id);
-        Bill GetByOrderId(int orderId);
-        void Add(Bill bill);
-        void Update(Bill bill);
-        void Delete(int id);
+        List<Bill> GetAllBills();
+        Bill GetBillById(int id);
+        Bill GetBillByOrderId(int orderId);
+        void AddBill(Bill bill);
+        void UpdateBill(Bill bill);
+        void DeleteBill(int id);
     }
 }

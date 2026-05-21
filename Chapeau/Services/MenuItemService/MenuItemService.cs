@@ -12,39 +12,39 @@ namespace Chapeau.Services
             _repository = repository;
         }
 
-        public List<MenuItem> GetAll()
+        public List<MenuItem> GetAllMenuItems()
         {
-            return _repository.GetAll();
+            return _repository.GetAllMenuItems();
         }
 
-        public List<MenuItem> GetByCategory(string category)
+        public List<MenuItem> GetMenuItemsByCategory(string category)
         {
-            return _repository.GetByCategory(category);
+            return _repository.GetMenuItemsByCategory(category);
         }
 
-        public MenuItem GetById(int id)
+        public MenuItem GetMenuItemById(int id)
         {
-            return _repository.GetById(id);
+            return _repository.GetMenuItemById(id);
         }
 
-        public void Add(MenuItem item)
+        public void AddMenuItem(MenuItem item)
         {
-            _repository.Add(item);
+            _repository.AddMenuItem(item);
         }
 
-        public void Update(MenuItem item)
+        public void UpdateMenuItem(MenuItem item)
         {
-            _repository.Update(item);
+            _repository.UpdateMenuItem(item);
         }
 
-        public void Delete(int id)
+        public void DeleteMenuItem(int id)
         {
-            _repository.Delete(id);
+            _repository.DeleteMenuItem(id);
         }
 
-        public void UpdateStock(int id, bool inStock)
+        public void UpdateMenuItemStock(int id, bool inStock)
         {
-            _repository.UpdateStock(id, inStock);
+            _repository.UpdateMenuItemStock(id, inStock);
         }
     }
 }

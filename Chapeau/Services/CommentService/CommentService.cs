@@ -12,19 +12,19 @@ namespace Chapeau.Services
             _repository = repository;
         }
 
-        public List<Comment> GetByOrderId(int orderId)
+        public List<Comment> GetCommentsByOrderId(int orderId)
         {
-            return _repository.GetByOrderId(orderId);
+            return _repository.GetCommentsByOrderId(orderId);
         }
 
-        public void Add(Comment comment)
+        public void AddComment(Comment comment)
         {
-            _repository.Add(comment);
+            _repository.AddComment(comment);
         }
 
-        public void Delete(int id)
+        public void DeleteComment(int id)
         {
-            _repository.Delete(id);
+            _repository.DeleteComment(id);
         }
     }
 }

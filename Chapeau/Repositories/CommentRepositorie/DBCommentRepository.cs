@@ -13,7 +13,7 @@ namespace Chapeau.Repositories
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
 
-        public List<Comment> GetByOrderId(int orderId)
+        public List<Comment> GetCommentsByOrderId(int orderId)
         {
             List<Comment> comments = new List<Comment>();
 
@@ -33,7 +33,7 @@ namespace Chapeau.Repositories
             return comments;
         }
 
-        public void Add(Comment comment)
+        public void AddComment(Comment comment)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -49,7 +49,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Delete(int id)
+        public void DeleteComment(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();

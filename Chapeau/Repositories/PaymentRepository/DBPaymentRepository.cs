@@ -13,7 +13,7 @@ namespace Chapeau.Repositories
             _connectionString = config.GetConnectionString("ChapeauDb");
         }
 
-        public List<Payment> GetAll()
+        public List<Payment> GetAllPayments()
         {
             List<Payment> payments = new List<Payment>();
 
@@ -33,7 +33,7 @@ namespace Chapeau.Repositories
             return payments;
         }
 
-        public List<Payment> GetByBillId(int billId)
+        public List<Payment> GetPaymentsByBillId(int billId)
         {
             List<Payment> payments = new List<Payment>();
 
@@ -55,7 +55,7 @@ namespace Chapeau.Repositories
             return payments;
         }
 
-        public Payment GetById(int id)
+        public Payment GetPaymentById(int id)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -75,7 +75,7 @@ namespace Chapeau.Repositories
             return null;
         }
 
-        public void Add(Payment payment)
+        public void AddPayment(Payment payment)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -95,7 +95,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Update(Payment payment)
+        public void UpdatePayment(Payment payment)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -119,7 +119,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void Delete(int id)
+        public void DeletePayment(int id)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
