@@ -120,5 +120,67 @@ namespace Chapeau.Controllers
 
             return View(vm);
         }
+
+        [HttpGet]
+        public IActionResult StaffManagement()
+        {
+            List<Staff> staff = _staffService.GetAllStaff();
+            return View(staff);
+        }
+
+        [HttpPost]
+        public IActionResult CreateStaff(string name, string role, string pin)
+        {
+            Staff staff = new Staff
+            {
+                Name = name,
+                Role = Enum.Parse<EStaffRole>(role, ignoreCase: true),
+                Pin = pin
+            };
+
+            _staffService.AddStaff(staff);
+            return RedirectToAction("StaffManagement");
+        }
+
+        [HttpGet]
+        public IActionResult EditStaff(int id)
+        {
+            Staff staff = _staffService.GetStaffById(id);
+
+            if (staff == null)
+                return NotFound();
+
+            return View(staff);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateStaff(int id, string name, string role, string pin)
+        {
+            Staff staff = _staffService.GetStaffById(id);
+
+            if (staff == null)
+                return NotFound();
+
+            staff.Name = name;
+            staff.Role = Enum.Parse<EStaffRole>(role, ignoreCase: true);
+
+            if (!string.IsNullOrWhiteSpace(pin))
+            {
+                staff.Pin = pin;
+                _staffService.UpdateStaff(staff);
+            }
+            else
+            {
+                _staffService.UpdateStaffInfo(staff);
+            }
+            return RedirectToAction("StaffManagement");
+        }
+
+        [HttpPost]
+        public IActionResult DeleteStaff(int id)
+        {
+            _staffService.DeleteStaff(id);
+            return RedirectToAction("StaffManagement");
+        }
     }
 }

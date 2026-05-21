@@ -182,10 +182,15 @@
 
         @if (Context.Session.GetString("StaffRole") == "manager")
         {
-            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Manager" ? "active" : "")"
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Manager" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                asp-controller="Manager" asp-action="Index">
                 <span class="nav-icon">📊</span>
                 Manager
+            </a>
+            <a class="nav-item @(ViewContext.RouteData.Values["action"]?.ToString() == "StaffManagement" || ViewContext.RouteData.Values["action"]?.ToString() == "EditStaff" ? "active" : "")"
+               asp-controller="Manager" asp-action="StaffManagement">
+                <span class="nav-icon">👥</span>
+                Staff
             </a>
         }
     </nav>

@@ -42,6 +42,11 @@ namespace Chapeau.Services
             _repository.UpdateStaff(staff);
         }
 
+        public void UpdateStaffInfo(Staff staff)
+        {
+            _repository.UpdateStaff(staff);
+        }
+
         public void DeleteStaff(int id)
         {
             _repository.DeleteStaff(id);
