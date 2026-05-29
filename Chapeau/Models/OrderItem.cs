@@ -4,9 +4,7 @@ namespace Chapeau.Models
 {
     public class OrderItem
     {
-        public int Id { get; set; }
-        public int OrderId { get; set; }
-        public int MenuId { get; set; }
+        public int OrderItemId { get; set; }
         public string Name { get; set; }
         public int Qty { get; set; }
         public decimal Price { get; set; }
@@ -18,11 +16,9 @@ namespace Chapeau.Models
 
         public OrderItem() { }
 
-        public OrderItem(int id, int orderId, int menuId, string name, int qty, decimal price, int vat, EItemType itemType)
+        public OrderItem(int orderItemId, string name, int qty, decimal price, int vat, EItemType itemType)
         {
-            Id = id;
-            OrderId = orderId;
-            MenuId = menuId;
+            OrderItemId = orderItemId;
             Name = name;
             Qty = qty;
             Price = price;

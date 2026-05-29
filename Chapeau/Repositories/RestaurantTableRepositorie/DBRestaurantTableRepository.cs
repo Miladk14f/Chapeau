@@ -102,14 +102,16 @@ namespace Chapeau.Repositories
         private RestaurantTable MapReader(SqlDataReader reader)
         {
             return new RestaurantTable(
-                id: (int)reader["Id"],
+                tableId: (int)reader["Id"],
                 seats: (int)reader["Seats"],
                 guests: reader["Guests"] == DBNull.Value ? null : (int?)reader["Guests"],
                 status: Enum.Parse<ETableStatus>(reader["Status"] == DBNull.Value ? "Free" : reader["Status"].ToString(), ignoreCase: true),
                 seatedAt: reader["SeatedAt"] == DBNull.Value ? null : (DateTime?)reader["SeatedAt"],
-                waiterId: reader["WaiterId"] == DBNull.Value ? null : (int?)reader["WaiterId"],
                 reservationName: reader["ReservationName"] == DBNull.Value ? null : reader["ReservationName"].ToString()
-            );
+            )
+            {
+                Waiter = reader["WaiterId"] == DBNull.Value ? null : new Staff { StaffId = (int)reader["WaiterId"] }
+            };
         }
     }
 }

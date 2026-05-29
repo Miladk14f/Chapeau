@@ -74,7 +74,7 @@ namespace Chapeau.Repositories
             cmd.Parameters.AddWithValue("@Name", item.Name);
             cmd.Parameters.AddWithValue("@Quantity", item.Quantity);
             cmd.Parameters.AddWithValue("@MaxQuantity", item.MaxQuantity);
-            cmd.Parameters.AddWithValue("@Id", item.Id);
+            cmd.Parameters.AddWithValue("@Id", item.StockItemId);
 
             cmd.ExecuteNonQuery();
         }
@@ -109,7 +109,7 @@ namespace Chapeau.Repositories
         private StockItem MapReader(SqlDataReader reader)
         {
             return new StockItem(
-                id: (int)reader["Id"],
+                stockItemId: (int)reader["Id"],
                 name: reader["Name"].ToString(),
                 quantity: (int)reader["Quantity"],
                 maxQuantity: (int)reader["MaxQuantity"]

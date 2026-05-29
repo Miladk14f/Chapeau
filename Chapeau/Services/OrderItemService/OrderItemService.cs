@@ -12,6 +12,11 @@ namespace Chapeau.Services
             _repository = repository;
         }
 
+        public List<OrderItem> GetAllOrderItems()
+        {
+            return _repository.GetAllOrderItems();
+        }
+
         public List<OrderItem> GetOrderItemsByOrderId(int orderId)
         {
             return _repository.GetOrderItemsByOrderId(orderId);

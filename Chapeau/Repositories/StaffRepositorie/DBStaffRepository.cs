@@ -94,7 +94,7 @@ namespace Chapeau.Repositories
             cmd.Parameters.AddWithValue("@Name", staff.Name);
             cmd.Parameters.AddWithValue("@Role", staff.Role);
             cmd.Parameters.AddWithValue("@Pin", staff.Pin);
-            cmd.Parameters.AddWithValue("@Id", staff.Id);
+            cmd.Parameters.AddWithValue("@Id", staff.StaffId);
 
             cmd.ExecuteNonQuery();
         }
@@ -115,7 +115,7 @@ namespace Chapeau.Repositories
         private Staff MapReader(SqlDataReader reader)
         {
             return new Staff(
-                id: (int)reader["Id"],
+                staffId: (int)reader["Id"],
                 name: reader["Name"].ToString(),
                 role: Enum.Parse<EStaffRole>(reader["Role"].ToString(), ignoreCase: true),
                 pin: reader["Pin"].ToString()

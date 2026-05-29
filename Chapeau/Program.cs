@@ -33,6 +33,9 @@ builder.Services.AddScoped<IStockItemService, StockItemService>();
 builder.Services.AddScoped<ICommentRepository, DBCommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 
+builder.Services.AddScoped<IOrderRepository, DBOrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

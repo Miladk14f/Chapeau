@@ -4,8 +4,7 @@ namespace Chapeau.Models
 {
     public class Bill
     {
-        public int Id { get; set; }
-        public int OrderId { get; set; }
+        public int BillId { get; set; }
         public decimal Tip { get; set; }
         public ESplitMethod SplitedMethod { get; set; }
         public decimal Amount { get; set; }
@@ -16,10 +15,9 @@ namespace Chapeau.Models
 
         public Bill() { }
 
-        public Bill(int id, int orderId, decimal tip, ESplitMethod splitedMethod, decimal amount, EBillStatus status)
+        public Bill(int billId, decimal tip, ESplitMethod splitedMethod, decimal amount, EBillStatus status)
         {
-            Id = id;
-            OrderId = orderId;
+            BillId = billId;
             Tip = tip;
             SplitedMethod = splitedMethod;
             Amount = amount;

@@ -4,6 +4,7 @@ namespace Chapeau.Repositories
 {
     public interface IOrderItemRepository
     {
+        List<OrderItem> GetAllOrderItems();
         List<OrderItem> GetOrderItemsByOrderId(int orderId);
         OrderItem GetOrderItemById(int id);
         void AddOrderItem(OrderItem item);

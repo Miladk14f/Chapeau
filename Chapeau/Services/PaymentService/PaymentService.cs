@@ -38,14 +38,14 @@ namespace Chapeau.Services
 
             _paymentRepository.AddPayment(payment);
 
-            UpdateBillStatus(payment.BillId);
+            UpdateBillStatus(payment.Bill?.BillId ?? 0);
         }
 
         public void UpdatePayment(Payment payment)
         {
             _paymentRepository.UpdatePayment(payment);
 
-            UpdateBillStatus(payment.BillId);
+            UpdateBillStatus(payment.Bill?.BillId ?? 0);
         }
 
         public void DeletePayment(int id)
@@ -54,7 +54,7 @@ namespace Chapeau.Services
 
             if (payment != null)
             {
-                int billId = payment.BillId;
+                int billId = payment.Bill?.BillId ?? 0;
 
                 _paymentRepository.DeletePayment(id);
 

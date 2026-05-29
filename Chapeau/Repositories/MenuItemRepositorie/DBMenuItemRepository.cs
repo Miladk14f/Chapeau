@@ -77,7 +77,7 @@ namespace Chapeau.Repositories
             cmd.Parameters.AddWithValue("@Vat", item.Vat);
             cmd.Parameters.AddWithValue("@Allergens", (object?)item.Allergens ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@InStock", item.InStock);
-            cmd.Parameters.AddWithValue("@Id", item.Id);
+            cmd.Parameters.AddWithValue("@Id", item.MenuItemId);
             cmd.ExecuteNonQuery();
         }
 

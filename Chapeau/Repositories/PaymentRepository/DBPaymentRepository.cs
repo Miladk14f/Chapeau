@@ -86,7 +86,7 @@ namespace Chapeau.Repositories
                             (@BillId, @PaymentMethod, @Amount, @Status, @PaidAt)";
 
             using SqlCommand cmd = new SqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@BillId", payment.BillId);
+            cmd.Parameters.AddWithValue("@BillId", payment.Bill?.BillId ?? 0);
             cmd.Parameters.AddWithValue("@PaymentMethod", payment.PaymentMethod.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Amount", payment.Amount);
             cmd.Parameters.AddWithValue("@Status", payment.Status.ToString().ToLower());
@@ -109,12 +109,12 @@ namespace Chapeau.Repositories
                             WHERE Id = @Id";
 
             using SqlCommand cmd = new SqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@BillId", payment.BillId);
+            cmd.Parameters.AddWithValue("@BillId", payment.Bill?.BillId ?? 0);
             cmd.Parameters.AddWithValue("@PaymentMethod", payment.PaymentMethod.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Amount", payment.Amount);
             cmd.Parameters.AddWithValue("@Status", payment.Status.ToString().ToLower());
             cmd.Parameters.AddWithValue("@PaidAt", payment.PaidAt);
-            cmd.Parameters.AddWithValue("@Id", payment.Id);
+            cmd.Parameters.AddWithValue("@Id", payment.PaymentId);
 
             cmd.ExecuteNonQuery();
         }
@@ -134,14 +134,15 @@ namespace Chapeau.Repositories
 
         private Payment MapReader(SqlDataReader reader)
         {
-            return new Payment
+            return new Payment(
+                paymentId:     (int)reader["Id"],
+                paymentMethod: Enum.Parse<EPaymentMethod>(reader["payment_method"] == DBNull.Value ? "Cash" : reader["payment_method"].ToString(), ignoreCase: true),
+                amount:        (decimal)reader["amount"],
+                status:        Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true),
+                paidAt:        reader["PaidAt"] == DBNull.Value ? null : (DateTime?)reader["PaidAt"]
+            )
             {
-                Id = (int)reader["Id"],
-                BillId = (int)reader["BillId"],
-                PaymentMethod = Enum.Parse<EPaymentMethod>(reader["payment_method"] == DBNull.Value ? "Cash" : reader["payment_method"].ToString(), ignoreCase: true),
-                Amount = (decimal)reader["amount"],
-                Status = Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true),
-                PaidAt = reader["PaidAt"] == DBNull.Value ? null : (DateTime)reader["PaidAt"]
+                Bill = new Bill { BillId = (int)reader["BillId"] }
             };
         }
     }

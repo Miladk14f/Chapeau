@@ -59,7 +59,7 @@ namespace Chapeau.Repositories
             string query = "INSERT INTO COMMENT (OrderId, Type, Text, CreatedAt) VALUES (@OrderId, @Type, @Text, @CreatedAt)";
 
             using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@OrderId", comment.OrderId);
+            cmd.Parameters.AddWithValue("@OrderId", comment.Order?.OrderId ?? 0);
             cmd.Parameters.AddWithValue("@Type", comment.Type.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Text", (object?)comment.Text ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@CreatedAt", comment.CreatedAt);
@@ -83,12 +83,14 @@ namespace Chapeau.Repositories
         private Comment MapReader(SqlDataReader reader)
         {
             return new Comment(
-                id: (int)reader["Id"],
-                orderId: (int)reader["OrderId"],
+                commentId: (int)reader["Id"],
                 type: Enum.Parse<ECommentType>(reader["Type"] == DBNull.Value ? "Comment" : reader["Type"].ToString(), ignoreCase: true),
                 text: reader["Text"] == DBNull.Value ? null : reader["Text"].ToString(),
                 createdAt: (DateTime)reader["CreatedAt"]
-            );
+            )
+            {
+                Order = new Order { OrderId = (int)reader["OrderId"] }
+            };
         }
     }
 }

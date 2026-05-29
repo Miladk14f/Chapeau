@@ -4,16 +4,16 @@ namespace Chapeau.Models
 {
     public class Staff
     {
-        public int Id { get; set; }
+        public int StaffId { get; set; }
         public string Name { get; set; }
         public EStaffRole Role { get; set; }
         public string Pin { get; set; }
 
         public Staff() { }
 
-        public Staff(int id, string name, EStaffRole role, string pin)
+        public Staff(int staffId, string name, EStaffRole role, string pin)
         {
-            Id = id;
+            StaffId = staffId;
             Name = name;
             Role = role;
             Pin = pin;

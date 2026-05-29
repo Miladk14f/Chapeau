@@ -52,7 +52,7 @@ namespace Chapeau.Controllers
 
             HttpContext.Session.SetString("StaffName", staff.Name);
             HttpContext.Session.SetString("StaffRole", staff.Role.ToString().ToLower());
-            HttpContext.Session.SetInt32("StaffId", staff.Id);
+            HttpContext.Session.SetInt32("StaffId", staff.StaffId);
 
             Response.Cookies.Delete("SelectedStaffId");
 

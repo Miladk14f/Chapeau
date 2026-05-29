@@ -197,9 +197,9 @@
             var badgeClass = isOccupied ? "badge-occupied" : isReserved ? "badge-reserved" : "badge-available";
             var badgeText  = isOccupied ? "Occupied" : isReserved ? "Reserved" : "Available";
 
-            <a class="table-card @cardClass" asp-controller="RestaurantTable" asp-action="Details" asp-route-id="@table.Id">
+            <a class="table-card @cardClass" asp-controller="RestaurantTable" asp-action="Details" asp-route-id="@table.TableId">
                 <span class="status-badge @badgeClass">@badgeText</span>
-                <div class="table-name">Table @table.Id</div>
+                <div class="table-name">Table @table.TableId</div>
                 <div class="table-persons">👥 @(table.Guests ?? table.Seats) persons</div>
                 <span class="table-action">+ Open table</span>
                 <span class="table-arrow">›</span>

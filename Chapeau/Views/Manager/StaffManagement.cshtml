@@ -118,9 +118,9 @@
                     <span class="role-badge @roleClass">@s.Role</span>
                 </td>
                 <td>
-                    <a class="btn-edit" asp-controller="Manager" asp-action="EditStaff" asp-route-id="@s.Id">Edit</a>
+                    <a class="btn-edit" asp-controller="Manager" asp-action="EditStaff" asp-route-id="@s.StaffId">Edit</a>
                     <form method="post" asp-controller="Manager" asp-action="DeleteStaff" style="display:inline">
-                        <input type="hidden" name="id" value="@s.Id" />
+                        <input type="hidden" name="id" value="@s.StaffId" />
                         <button type="submit" class="btn-delete">Delete</button>
                     </form>
                 </td>

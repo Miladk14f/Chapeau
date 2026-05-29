@@ -2,7 +2,7 @@ namespace Chapeau.Models
 {
     public class MenuItem
     {
-        public int Id { get; set; }
+        public int MenuItemId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string Category { get; set; }
@@ -13,9 +13,9 @@ namespace Chapeau.Models
 
         public MenuItem() { }
 
-        public MenuItem(int id, string name, string description, string category, decimal price, int vat, string allergens, bool inStock)
+        public MenuItem(int menuItemId, string name, string description, string category, decimal price, int vat, string allergens, bool inStock)
         {
-            Id = id;
+            MenuItemId = menuItemId;
             Name = name;
             Description = description;
             Category = category;

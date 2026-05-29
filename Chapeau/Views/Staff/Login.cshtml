@@ -272,9 +272,9 @@
                     @foreach (var staff in members)
                     {
                         <form method="post" action="/Staff/Select">
-                            <input type="hidden" name="staffId" value="@staff.Id" />
-                            <button type="submit" class="staff-card @(staff.Id == selectedId ? "active" : "")">
-                                <div class="avatar" style="background:@AvatarColor(staff.Id)">@Initials(staff.Name)</div>
+                            <input type="hidden" name="staffId" value="@staff.StaffId" />
+                            <button type="submit" class="staff-card @(staff.StaffId == selectedId ? "active" : "")">
+                                <div class="avatar" style="background:@AvatarColor(staff.StaffId)">@Initials(staff.Name)</div>
                                 <div class="card-info">
                                     <div class="card-firstname">@staff.Name.Split(' ').FirstOrDefault()</div>
                                     <div class="card-lastname">@staff.Name.Split(' ').Skip(1).FirstOrDefault()</div>
@@ -291,7 +291,7 @@
             <div class="password-section">
                 @if (selectedId > 0)
                 {
-                    var selected = Model?.FirstOrDefault(s => s.Id == selectedId);
+                    var selected = Model?.FirstOrDefault(s => s.StaffId == selectedId);
                     if (selected != null)
                     {
                         <p class="selected-staff-hint">Signing in as <span>@selected.Name</span></p>

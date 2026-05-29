@@ -4,8 +4,7 @@ namespace Chapeau.Models
 {
     public class Payment
     {
-        public int Id { get; set; }
-        public int BillId { get; set; }
+        public int PaymentId { get; set; }
         public EPaymentMethod PaymentMethod { get; set; }
         public decimal Amount { get; set; }
         public EBillStatus Status { get; set; }
@@ -15,10 +14,9 @@ namespace Chapeau.Models
 
         public Payment() { }
 
-        public Payment(int id, int billId, EPaymentMethod paymentMethod, decimal amount, EBillStatus status, DateTime? paidAt)
+        public Payment(int paymentId, EPaymentMethod paymentMethod, decimal amount, EBillStatus status, DateTime? paidAt)
         {
-            Id = id;
-            BillId = billId;
+            PaymentId = paymentId;
             PaymentMethod = paymentMethod;
             Amount = amount;
             Status = status;
