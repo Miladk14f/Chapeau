@@ -13,6 +13,7 @@ namespace Chapeau.Controllers
             _stockService = stockService;
         }
 
+
         public IActionResult Index()
         {
             List<StockItem> inventory = _stockService.GetAllStockItems();
@@ -20,3 +21,4 @@ namespace Chapeau.Controllers
         }
     }
 }
+

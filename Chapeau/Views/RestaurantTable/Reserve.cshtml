@@ -1,0 +1,144 @@
+@model List<Chapeau.Models.RestaurantTable>
+@{
+    ViewData["Title"] = "Reserve Table";
+}
+
+<style>
+    .res-wrap {
+        max-width: 560px;
+        margin: 0 auto;
+    }
+    .res-header {
+        display: flex; align-items: center; gap: 16px; margin-bottom: 32px;
+    }
+    .res-header-icon {
+        width: 48px; height: 48px; border-radius: 12px;
+        background: #3a5fd9; display: flex; align-items: center;
+        justify-content: center; font-size: 22px;
+    }
+    .res-header h1 {
+        font-size: 26px; font-weight: 700; color: #2a1a1f;
+        font-family: Georgia, serif; margin-bottom: 2px;
+    }
+    .res-header p { font-size: 13px; color: #9a8a90; }
+
+    .res-card {
+        background: #fff; border: 1px solid #ede8e4;
+        border-radius: 16px; padding: 28px;
+    }
+
+    .form-group { margin-bottom: 20px; }
+    .form-label {
+        display: block; font-size: 13px; font-weight: 600;
+        color: #6b5560; margin-bottom: 6px;
+        text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .form-control {
+        width: 100%; padding: 12px 14px;
+        border: 1px solid #ddd8d4; border-radius: 10px;
+        font-size: 14px; color: #2a1a1f;
+        background: #faf8f6; box-sizing: border-box;
+        appearance: auto;
+    }
+    .form-control:focus {
+        outline: none; border-color: #3a5fd9;
+        background: #fff;
+    }
+
+    .table-grid-select {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+    }
+    .table-option { display: none; }
+    .table-option + label {
+        display: block; padding: 14px 12px; border: 2px solid #ede8e4;
+        border-radius: 12px; text-align: center; cursor: pointer;
+        transition: border-color 0.15s, background 0.15s;
+    }
+    .table-option + label:hover { border-color: #3a5fd9; background: #f0f4ff; }
+    .table-option:checked + label {
+        border-color: #3a5fd9; background: #eef2ff; color: #3a5fd9;
+    }
+    .table-option-num { font-size: 16px; font-weight: 700; display: block; }
+    .table-option-seats { font-size: 12px; color: #9a8a90; }
+    .table-option:checked + label .table-option-seats { color: #3a5fd9; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    .btn-reserve {
+        width: 100%; padding: 14px;
+        background: #3a5fd9; color: #fff;
+        border: none; border-radius: 10px;
+        font-size: 15px; font-weight: 700;
+        cursor: pointer; margin-top: 8px;
+    }
+    .btn-reserve:hover { background: #2a4fc0; }
+
+    .btn-cancel {
+        display: block; text-align: center;
+        margin-top: 12px; font-size: 13px;
+        color: #9a8a90; text-decoration: none;
+    }
+    .btn-cancel:hover { color: #2a1a1f; }
+</style>
+
+<div class="res-wrap">
+    <div class="res-header">
+        <div class="res-header-icon">⊞</div>
+        <div>
+            <h1>New Reservation</h1>
+            <p>Select table, guests and date/time</p>
+        </div>
+    </div>
+
+    <div class="res-card">
+        <form method="post" asp-action="Reserve">
+            <div class="form-group">
+                <label class="form-label">Table</label>
+                @if (Model != null && Model.Any())
+                {
+                    <div class="table-grid-select">
+                        @foreach (var table in Model)
+                        {
+                            <div>
+                                <input class="table-option" type="radio" name="tableId"
+                                       id="t@(table.TableId)" value="@table.TableId" required />
+                                <label for="t@(table.TableId)">
+                                    <span class="table-option-num">Table @table.TableId</span>
+                                    <span class="table-option-seats">👥 @table.Seats seats</span>
+                                </label>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p style="color:#e87d3e;font-size:14px;">No tables available for reservation.</p>
+                }
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="reservationName">Name</label>
+                <input class="form-control" type="text" id="reservationName"
+                       name="reservationName" placeholder="Guest name" required />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="guests">Guests</label>
+                    <input class="form-control" type="number" id="guests"
+                           name="guests" min="1" max="20" placeholder="2" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="reservationAt">Date &amp; Time</label>
+                    <input class="form-control" type="datetime-local" id="reservationAt"
+                           name="reservationAt"
+                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
+                </div>
+            </div>
+
+            <button type="submit" class="btn-reserve">Confirm Reservation</button>
+        </form>
+
+        <a class="btn-cancel" asp-controller="RestaurantTable" asp-action="Index">← Back to floor plan</a>
+    </div>
+</div>
