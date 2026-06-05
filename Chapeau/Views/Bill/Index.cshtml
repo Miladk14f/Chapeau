@@ -1,0 +1,515 @@
+@model Chapeau.ViewModels.BillViewModel
+@{
+    ViewData["Title"] = "Bill";
+    // flatten items by qty for by-item split
+    var flatItems = Model.Items9.Concat(Model.Items21)
+        .SelectMany(i => Enumerable.Repeat(i, i.Qty))
+        .ToList();
+}
+
+<style>
+    .bill-wrap { max-width: 620px; margin: 0 auto; }
+
+    .bill-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 24px;
+    }
+    .bill-header-left { display: flex; align-items: center; gap: 12px; }
+    .back-btn {
+        width: 36px; height: 36px; border-radius: 50%;
+        border: 1px solid #e0d8d0; background: #fff;
+        display: flex; align-items: center; justify-content: center;
+        text-decoration: none; color: #2a1a1f; font-size: 18px;
+    }
+    .bill-title { font-size: 22px; font-weight: 700; color: #2a1a1f; font-family: Georgia, serif; }
+    .bill-sub   { font-size: 13px; color: #9a8a90; }
+    .bill-actions { display: flex; gap: 8px; align-items: center; }
+    .btn-split {
+        display: flex; align-items: center; gap: 6px;
+        padding: 8px 16px; border-radius: 10px;
+        border: 2px solid #7a2a3e; background: #fff;
+        color: #7a2a3e; font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-split:hover { background: #7a2a3e; color: #fff; }
+    .btn-print-icon {
+        width: 36px; height: 36px; border-radius: 10px;
+        border: 1px solid #e0d8d0; background: #fff;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; font-size: 16px;
+    }
+
+    /* Receipt */
+    .receipt {
+        background: #fff; border: 1px solid #e8e0da;
+        border-radius: 16px; overflow: hidden; margin-bottom: 16px;
+    }
+    .receipt-head {
+        background: #2a1218; padding: 28px 24px; text-align: center;
+    }
+    .receipt-head h2 { font-family: Georgia, serif; font-size: 22px; color: #c9a96e; margin-bottom: 4px; }
+    .receipt-head p  { font-size: 13px; color: #6b4a52; }
+    .receipt-head .receipt-date { font-size: 12px; color: #6b4a52; margin-top: 12px; }
+
+    .receipt-body { padding: 0 24px; }
+    .vat-section { padding: 16px 0; border-bottom: 1px solid #f0ebe8; }
+    .vat-section-title {
+        font-size: 11px; font-weight: 700; color: #9a8a90;
+        text-transform: uppercase; letter-spacing: 0.08em;
+        text-align: center; margin-bottom: 12px;
+    }
+    .item-line { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; }
+    .item-line-left { font-size: 14px; color: #2a1a1f; }
+    .item-line-by   { font-size: 12px; color: #b0a0a8; }
+    .item-line-price { font-size: 14px; font-weight: 600; color: #2a1a1f; }
+    .vat-line {
+        display: flex; justify-content: space-between;
+        font-size: 12px; color: #9a8a90; margin-top: 4px;
+    }
+    .receipt-totals { padding: 16px 24px; border-top: 2px solid #e8e0da; }
+    .total-line { display: flex; justify-content: space-between; font-size: 14px; color: #2a1a1f; margin-bottom: 4px; }
+    .total-line.grand { font-size: 18px; font-weight: 700; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e8e0da; }
+    .total-line.grand .price { color: #7a2a3e; }
+    .receipt-footer { padding: 16px 24px; text-align: center; border-top: 1px dashed #e8e0da; }
+    .receipt-footer .vat-info { font-size: 11px; color: #b0a0a8; margin-bottom: 4px; }
+    .receipt-footer .merci    { font-size: 13px; color: #c9a96e; font-style: italic; }
+
+    /* Tip */
+    .section-card { background: #fff; border: 1px solid #e8e0da; border-radius: 16px; padding: 20px 24px; margin-bottom: 16px; }
+    .section-title { font-size: 16px; font-weight: 700; color: #2a1a1f; margin-bottom: 14px; }
+    .tip-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tip-radio { position: absolute; opacity: 0; width: 0; height: 0; }
+    .tip-pill {
+        padding: 8px 18px; border-radius: 20px;
+        border: 2px solid #e8e0da; background: #f5f0eb;
+        font-size: 14px; font-weight: 600; color: #6b5560;
+        cursor: pointer;
+    }
+    .tip-radio:checked + .tip-pill { background: #7a2a3e; border-color: #7a2a3e; color: #fff; }
+    .tip-other { display: flex; align-items: center; gap: 8px; }
+    .tip-other-label { font-size: 14px; color: #6b5560; }
+    .tip-other-input {
+        flex: 1; padding: 10px 14px; border: 1px solid #e0d8d0;
+        border-radius: 10px; font-size: 14px; background: #f5f0eb;
+    }
+
+    /* Payment method */
+    .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .method-option { position: relative; }
+    .method-radio  { position: absolute; opacity: 0; width: 0; height: 0; }
+    .method-card {
+        display: block; border: 2px solid #e8e0da; border-radius: 12px;
+        padding: 20px; text-align: center; cursor: pointer;
+        background: #faf8f6; transition: all 0.15s;
+    }
+    .method-card-icon  { font-size: 28px; margin-bottom: 8px; }
+    .method-card-label { font-size: 14px; font-weight: 600; color: #6b5560; }
+    .method-radio:checked ~ .method-card {
+        border-color: #7a2a3e; background: #7a2a3e;
+    }
+    .method-radio:checked ~ .method-card .method-card-label { color: #fff; }
+
+    /* Process button */
+    .btn-process {
+        width: 100%; padding: 16px; background: #7a2a3e; color: #fff;
+        border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+        margin-top: 8px;
+    }
+    .btn-process:hover { background: #5a1a2e; }
+
+    /* Modal */
+    .modal-overlay {
+        display: none; position: fixed; inset: 0;
+        background: rgba(0,0,0,0.5); z-index: 100;
+        align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+        background: #fff; border-radius: 20px;
+        width: 560px; max-width: 95vw; max-height: 88vh; overflow-y: auto;
+    }
+    .modal-head {
+        background: #7a2a3e; padding: 18px 24px;
+        display: flex; align-items: center; justify-content: space-between;
+        border-radius: 20px 20px 0 0; position: sticky; top: 0;
+    }
+    .modal-head h3 { font-size: 16px; font-weight: 700; color: #fff; }
+    .modal-close { background: none; border: none; color: #fff; font-size: 22px; cursor: pointer; }
+    .modal-body { padding: 24px; }
+
+    .split-tabs {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+        background: #f5f0eb; border-radius: 10px; padding: 4px; margin-bottom: 20px;
+    }
+    .split-tab-btn {
+        padding: 10px; border-radius: 8px; border: none; background: transparent;
+        font-size: 14px; font-weight: 600; color: #9a8a90; cursor: pointer;
+    }
+    .split-tab-btn.active { background: #2a1218; color: #fff; }
+
+    .ways-row {
+        display: flex; align-items: center; justify-content: space-between;
+        background: #f5f0eb; border-radius: 10px; padding: 14px 16px; margin-bottom: 16px;
+    }
+    .ways-label { font-size: 14px; color: #6b5560; }
+    .ways-ctrl  { display: flex; align-items: center; gap: 12px; }
+    .ways-btn {
+        width: 32px; height: 32px; border-radius: 50%; border: none;
+        font-size: 18px; font-weight: 700; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .ways-btn.minus { background: #e8e0da; color: #6b5560; }
+    .ways-btn.plus  { background: #7a2a3e; color: #fff; }
+    .ways-count { font-size: 16px; font-weight: 700; color: #2a1a1f; }
+
+    .per-person-box {
+        border: 1px solid #e8e0da; border-radius: 12px;
+        padding: 20px; text-align: center; margin-bottom: 16px;
+    }
+    .per-person-label  { font-size: 12px; color: #9a8a90; margin-bottom: 4px; }
+    .per-person-amount { font-size: 32px; font-weight: 700; color: #7a2a3e; margin-bottom: 4px; }
+    .per-person-sub    { font-size: 12px; color: #9a8a90; }
+
+    .guest-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 0; border-bottom: 1px solid #f0ebe8;
+    }
+    .guest-row:last-child { border-bottom: none; }
+    .guest-av {
+        width: 30px; height: 30px; border-radius: 50%;
+        color: #fff; font-size: 12px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center; margin-right: 10px; flex-shrink: 0;
+    }
+
+    /* By item */
+    .byitem-hint { font-size: 13px; color: #9a8a90; margin-bottom: 12px; }
+    .byitem-list { margin-bottom: 16px; }
+    .byitem-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px; border: 2px solid #e8e0da; border-radius: 10px;
+        margin-bottom: 8px; cursor: pointer; background: #faf8f6;
+    }
+    .byitem-row:hover { border-color: #c8b8be; }
+    .byitem-name { font-size: 14px; font-weight: 600; color: #2a1a1f; }
+    .byitem-price { font-size: 14px; color: #6b5560; }
+    .byitem-assign {
+        display: flex; gap: 6px;
+    }
+    .assign-chip {
+        width: 26px; height: 26px; border-radius: 50%;
+        font-size: 11px; font-weight: 700; color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0.3;
+    }
+    .assign-chip.active { opacity: 1; }
+
+    .byitem-totals { display: flex; gap: 12px; margin-bottom: 16px; }
+    .byitem-total-box {
+        flex: 1; padding: 14px; border-radius: 10px; text-align: center;
+    }
+    .byitem-total-name  { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .byitem-total-amt   { font-size: 20px; font-weight: 700; color: #fff; }
+</style>
+
+<div class="bill-wrap">
+    <div class="bill-header">
+        <div class="bill-header-left">
+            <a class="back-btn" asp-controller="RestaurantTable" asp-action="Index">‹</a>
+            <div>
+                <div class="bill-title">Bill — Table @Model.TableId</div>
+                <div class="bill-sub">@Model.Guests guests · @Model.WaiterName</div>
+            </div>
+        </div>
+        <div class="bill-actions">
+            <button type="button" class="btn-split" onclick="openSplit()">⋈ Split bill</button>
+            <button type="button" class="btn-print-icon" onclick="window.print()">🖨</button>
+        </div>
+    </div>
+
+    <!-- Receipt -->
+    <div class="receipt">
+        <div class="receipt-head">
+            <h2>Restaurant Chapeau</h2>
+            <p>Centrum, Zeewolde · Tel: (036) 522 1234</p>
+            <div class="receipt-date">
+                @Model.GeneratedAt.ToString("dddd, d MMMM yyyy") · @Model.GeneratedAt.ToString("HH:mm")<br/>
+                Table @Model.TableId · @Model.Guests guests
+            </div>
+        </div>
+        <div class="receipt-body">
+            @if (Model.Items9.Any())
+            {
+                <div class="vat-section">
+                    <div class="vat-section-title">Food &amp; Soft Drinks · 9% VAT</div>
+                    @foreach (var item in Model.Items9)
+                    {
+                        <div class="item-line">
+                            <div>
+                                <div class="item-line-left">@item.Qty× @item.Name</div>
+                                @if (!string.IsNullOrEmpty(item.StaffName))
+                                { <div class="item-line-by">By: @item.StaffName</div> }
+                            </div>
+                            <div class="item-line-price">€@item.LineTotal.ToString("0.00")</div>
+                        </div>
+                    }
+                    <div class="vat-line"><span>Excl. VAT</span><span>€@Model.Excl9.ToString("0.00")</span></div>
+                    <div class="vat-line"><span>VAT 9%</span><span>€@Model.Vat9Amount.ToString("0.00")</span></div>
+                </div>
+            }
+            @if (Model.Items21.Any())
+            {
+                <div class="vat-section">
+                    <div class="vat-section-title">Alcoholic Beverages · 21% VAT</div>
+                    @foreach (var item in Model.Items21)
+                    {
+                        <div class="item-line">
+                            <div>
+                                <div class="item-line-left">@item.Qty× @item.Name</div>
+                                @if (!string.IsNullOrEmpty(item.StaffName))
+                                { <div class="item-line-by">By: @item.StaffName</div> }
+                            </div>
+                            <div class="item-line-price">€@item.LineTotal.ToString("0.00")</div>
+                        </div>
+                    }
+                    <div class="vat-line"><span>Excl. VAT</span><span>€@Model.Excl21.ToString("0.00")</span></div>
+                    <div class="vat-line"><span>VAT 21%</span><span>€@Model.Vat21Amount.ToString("0.00")</span></div>
+                </div>
+            }
+        </div>
+        <div class="receipt-totals">
+            <div class="total-line">
+                <span>Subtotal (incl. VAT)</span><span>€@Model.Subtotal.ToString("0.00")</span>
+            </div>
+            <div class="total-line" style="font-size:12px;color:#9a8a90">
+                <span>incl. VAT 9%: €@Model.Vat9Amount.ToString("0.00") · VAT 21%: €@Model.Vat21Amount.ToString("0.00")</span>
+                <span>€@Model.TotalVat.ToString("0.00")</span>
+            </div>
+            <div class="total-line grand">
+                <span>Total to pay</span><span class="price">€@Model.TotalToPay.ToString("0.00")</span>
+            </div>
+        </div>
+        <div class="receipt-footer">
+            <div class="vat-info">VAT no: NL123456789B01 · KvK: 12345678</div>
+            <div class="merci">Merci et à bientôt!</div>
+        </div>
+    </div>
+
+    <!-- Payment form -->
+    <form method="post" asp-action="Process" id="payForm">
+        <input type="hidden" name="tableId"     value="@Model.TableId" />
+        <input type="hidden" name="orderId"     value="@Model.OrderId" />
+        <input type="hidden" name="splitWays"   value="1"    id="splitWaysInput" />
+        <input type="hidden" name="splitMethod" value="none" />
+
+        <!-- Tip -->
+        <div class="section-card">
+            <div class="section-title">Tip (optional)</div>
+            <div class="tip-pills">
+                @foreach (var t in new[] { ("0","None"), ("1","€1"), ("2","€2"), ("5","€5"), ("10","€10") })
+                {
+                    <input class="tip-radio" type="radio" name="tip" id="tip@(t.Item1)" value="@t.Item1" @(t.Item1=="0"?"checked":"") />
+                    <label class="tip-pill" for="tip@(t.Item1)">@t.Item2</label>
+                }
+            </div>
+            <div class="tip-other">
+                <span class="tip-other-label">Other:</span>
+                <input class="tip-other-input" type="number" name="tipOther" min="0" step="0.01"
+                       placeholder="0,00" id="tipOtherInput" />
+            </div>
+        </div>
+
+        <!-- Payment method -->
+        <div class="section-card">
+            <div class="section-title">Payment method</div>
+            <div class="method-grid">
+                <div class="method-option">
+                    <input class="method-radio" type="radio" name="paymentMethod" id="methodCard" value="pin" checked />
+                    <label class="method-card" for="methodCard">
+                        <div class="method-card-icon">💳</div>
+                        <div class="method-card-label">Card / PIN</div>
+                    </label>
+                </div>
+                <div class="method-option">
+                    <input class="method-radio" type="radio" name="paymentMethod" id="methodCash" value="cash" />
+                    <label class="method-card" for="methodCash">
+                        <div class="method-card-icon">💵</div>
+                        <div class="method-card-label">Cash</div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-process" id="processBtn">
+            💳 Process payment — €@Model.TotalToPay.ToString("0.00")
+        </button>
+    </form>
+</div>
+
+<!-- Split modal -->
+<div class="modal-overlay" id="splitModal">
+    <div class="modal">
+        <div class="modal-head">
+            <h3>⋈ Split bill</h3>
+            <button type="button" class="modal-close" onclick="closeSplit()">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="split-tabs">
+                <button type="button" class="split-tab-btn active" id="tabEvenBtn" onclick="switchTab('even')">Even split</button>
+                <button type="button" class="split-tab-btn"        id="tabItemBtn" onclick="switchTab('item')">By item</button>
+            </div>
+
+            <!-- Even split panel -->
+            <div id="panelEven">
+                <div class="ways-row">
+                    <span class="ways-label">Even split</span>
+                    <div class="ways-ctrl">
+                        <button type="button" class="ways-btn minus" onclick="changeWays(-1)">−</button>
+                        <span class="ways-count" id="waysDisplay">2 ways</span>
+                        <button type="button" class="ways-btn plus"  onclick="changeWays(1)">+</button>
+                    </div>
+                </div>
+                <div class="per-person-box">
+                    <div class="per-person-label">Each pays</div>
+                    <div class="per-person-amount" id="perPersonAmount">€@((Model.TotalToPay / 2).ToString("0.00"))</div>
+                    <div class="per-person-sub">per person · Total €@Model.TotalToPay.ToString("0.00")</div>
+                </div>
+                <div id="guestList"></div>
+            </div>
+
+            <!-- By item panel -->
+            <div id="panelItem" style="display:none">
+                <div class="ways-row">
+                    <span class="ways-label">By item</span>
+                    <div class="ways-ctrl">
+                        <button type="button" class="ways-btn minus" onclick="changeWays(-1)">−</button>
+                        <span class="ways-count" id="waysDisplayItem">2 ways</span>
+                        <button type="button" class="ways-btn plus"  onclick="changeWays(1)">+</button>
+                    </div>
+                </div>
+                <div class="byitem-hint">Tap an item to assign it to a guest</div>
+                <div class="byitem-list" id="byitemList"></div>
+                <div class="byitem-totals" id="byitemTotals"></div>
+            </div>
+
+            <button type="button" class="btn-process" onclick="applySplit()">Apply split &amp; pay</button>
+        </div>
+    </div>
+</div>
+
+<script>
+var total   = @Model.TotalToPay.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+var ways    = 2;
+var curTab  = 'even';
+var colors  = ['#7a2a3e','#1a3a5c','#2a5c3a','#5c3a1a','#3a1a5c','#5c1a3a'];
+
+// flat items: name + price each unit
+var allItems = [
+    @foreach (var item in flatItems)
+    {
+        @:{ name: "@Html.Raw(item.Name.Replace("\"","\\\""))", price: @item.UnitPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
+    }
+];
+// assigned[i] = guest index (0-based), -1 = unassigned
+var assigned = allItems.map(function() { return -1; });
+
+function openSplit() {
+    document.getElementById('splitModal').classList.add('open');
+    renderEven(); renderByItem();
+}
+function closeSplit() {
+    document.getElementById('splitModal').classList.remove('open');
+}
+
+function switchTab(tab) {
+    curTab = tab;
+    document.getElementById('tabEvenBtn').className = 'split-tab-btn' + (tab==='even'?' active':'');
+    document.getElementById('tabItemBtn').className  = 'split-tab-btn' + (tab==='item'?' active':'');
+    document.getElementById('panelEven').style.display = tab==='even' ? '' : 'none';
+    document.getElementById('panelItem').style.display = tab==='item' ? '' : 'none';
+}
+
+function changeWays(delta) {
+    ways = Math.max(2, Math.min(10, ways + delta));
+    assigned = assigned.map(function() { return -1; });
+    renderEven(); renderByItem();
+}
+
+function renderEven() {
+    document.getElementById('waysDisplay').textContent = ways + ' ways';
+    var per = Math.round(total / ways * 100) / 100;
+    document.getElementById('perPersonAmount').textContent = '€' + per.toFixed(2);
+    var html = '';
+    for (var i = 0; i < ways; i++) {
+        var amt = i === ways-1 ? (total - per*(ways-1)).toFixed(2) : per.toFixed(2);
+        html += '<div class="guest-row"><div style="display:flex;align-items:center">' +
+            '<div class="guest-av" style="background:' + colors[i] + '">' + (i+1) + '</div>' +
+            '<span style="font-size:14px;color:#2a1a1f">Guest ' + (i+1) + '</span></div>' +
+            '<span style="font-size:14px;font-weight:700;color:#2a1a1f">€' + amt + '</span></div>';
+    }
+    document.getElementById('guestList').innerHTML = html;
+}
+
+function renderByItem() {
+    document.getElementById('waysDisplayItem').textContent = ways + ' ways';
+    var listHtml = '';
+    allItems.forEach(function(item, idx) {
+        var chips = '';
+        for (var g = 0; g < ways; g++) {
+            chips += '<div class="assign-chip ' + (assigned[idx]===g?'active':'') + '" ' +
+                'style="background:' + colors[g] + '" data-idx="' + idx + '" data-g="' + g + '" ' +
+                'onclick="assignItem(' + idx + ',' + g + ')">' + (g+1) + '</div>';
+        }
+        listHtml += '<div class="byitem-row">' +
+            '<div><div class="byitem-name">' + item.name + '</div></div>' +
+            '<div style="display:flex;align-items:center;gap:10px">' +
+            '<span class="byitem-price">€' + item.price.toFixed(2) + '</span>' +
+            '<div class="byitem-assign">' + chips + '</div></div></div>';
+    });
+    document.getElementById('byitemList').innerHTML = listHtml;
+
+    var totals = new Array(ways).fill(0);
+    allItems.forEach(function(item, idx) {
+        if (assigned[idx] >= 0) totals[assigned[idx]] += item.price;
+    });
+    var totHtml = '';
+    for (var g = 0; g < ways; g++) {
+        totHtml += '<div class="byitem-total-box" style="background:' + colors[g] + '">' +
+            '<div class="byitem-total-name">Guest ' + (g+1) + '</div>' +
+            '<div class="byitem-total-amt">€' + totals[g].toFixed(2) + '</div></div>';
+    }
+    document.getElementById('byitemTotals').innerHTML = totHtml;
+}
+
+function assignItem(idx, g) {
+    assigned[idx] = assigned[idx] === g ? -1 : g;
+    renderByItem();
+}
+
+function applySplit() {
+    document.getElementById('splitWaysInput').value = ways;
+    closeSplit();
+    document.getElementById('payForm').submit();
+}
+
+// Update process button when tip changes
+document.querySelectorAll('.tip-radio').forEach(function(r) {
+    r.addEventListener('change', function() {
+        document.getElementById('tipOtherInput').value = '';
+        updateProcessBtn();
+    });
+});
+document.getElementById('tipOtherInput').addEventListener('input', function() {
+    document.querySelectorAll('.tip-radio').forEach(function(r) { r.checked = false; });
+    updateProcessBtn();
+});
+function updateProcessBtn() {
+    var tipRadio = document.querySelector('.tip-radio:checked');
+    var tipOther = parseFloat(document.getElementById('tipOtherInput').value) || 0;
+    var tip = tipOther > 0 ? tipOther : (tipRadio ? parseFloat(tipRadio.value) : 0);
+    var t = total + tip;
+    document.getElementById('processBtn').innerHTML = '💳 Process payment — €' + t.toFixed(2);
+}
+
+// init even split list on load
+renderEven();
+</script>
