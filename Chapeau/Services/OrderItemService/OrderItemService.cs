@@ -29,6 +29,7 @@ namespace Chapeau.Services
 
         public void AddOrderItem(OrderItem item)
         {
+            item.CreatedAt = DateTime.Now;
             _repository.AddOrderItem(item);
         }
 

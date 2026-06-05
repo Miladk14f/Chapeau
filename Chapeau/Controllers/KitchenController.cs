@@ -5,13 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chapeau.Controllers
 {
-    public class BarController : Controller
+    public class KitchenController : Controller
     {
         private readonly IOrderService _orderService;
         private readonly IOrderItemService _orderItemService;
         private readonly IStaffService _staffService;
 
-        public BarController(
+        public KitchenController(
             IOrderService orderService,
             IOrderItemService orderItemService,
             IStaffService staffService)
@@ -29,7 +29,7 @@ namespace Chapeau.Controllers
                 .ToList();
 
             var allItems = _orderItemService.GetAllOrderItems()
-                .Where(i => i.ItemType == EItemType.Drink)
+                .Where(i => i.ItemType == EItemType.Food)
                 .GroupBy(i => i.Order?.OrderId ?? 0)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -41,7 +41,7 @@ namespace Chapeau.Controllers
                     var member    = staff.FirstOrDefault(s => s.StaffId == (o.Staff?.StaffId ?? 0));
                     var orderedAt = items.Min(i => i.CreatedAt);
 
-                    return new BarOrderCard
+                    return new KitchenOrderCard
                     {
                         OrderId   = o.OrderId,
                         TableId   = o.Table?.TableId ?? 0,

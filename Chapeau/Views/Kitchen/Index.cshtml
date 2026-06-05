@@ -1,24 +1,27 @@
-@model List<Chapeau.ViewModels.BarOrderCard>
+@model List<Chapeau.ViewModels.KitchenOrderCard>
 @{
-    ViewData["Title"] = "Bar";
-    int urgent = Model?.Count(c => c.IsUrgent)  ?? 0;
+    ViewData["Title"] = "Kitchen";
+    int pending = Model?.Count(c => !c.IsUrgent && !c.IsWarning) ?? 0;
+    int warning = Model?.Count(c => c.IsWarning) ?? 0;
+    int urgent  = Model?.Count(c => c.IsUrgent)  ?? 0;
 }
 
 <style>
-    .bar-header {
+    .kitchen-header {
         display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
     }
-    .bar-icon {
+    .kitchen-icon {
         width: 48px; height: 48px; border-radius: 14px;
-        background: #1a3a5c; display: flex; align-items: center;
+        background: #2a5c3a; display: flex; align-items: center;
         justify-content: center; font-size: 22px;
     }
-    .bar-header h1 {
+    .kitchen-header h1 {
         font-size: 26px; font-weight: 700; color: #2a1a1f;
         font-family: Georgia, serif; margin-bottom: 4px;
     }
-    .bar-sub { font-size: 13px; color: #9a8a90; }
-    .bar-sub .urgent-txt { color: #d94040; font-weight: 700; }
+    .kitchen-sub { font-size: 13px; color: #9a8a90; }
+    .kitchen-sub span { color: #e87d3e; font-weight: 700; }
+    .kitchen-sub .urgent-txt { color: #d94040; }
 
     .cards-grid {
         display: grid;
@@ -41,7 +44,7 @@
         justify-content: space-between; margin-bottom: 12px;
     }
     .table-badge {
-        background: #1a3a5c; color: #fff;
+        background: #2a1a1f; color: #fff;
         padding: 4px 12px; border-radius: 20px;
         font-size: 12px; font-weight: 700;
     }
@@ -68,18 +71,12 @@
     .item-row:last-child { border-bottom: none; }
     .item-left { display: flex; align-items: center; gap: 10px; }
     .item-qty {
-        background: #1a3a5c; color: #fff;
+        background: #2a5c3a; color: #fff;
         width: 32px; height: 32px; border-radius: 8px;
         display: flex; align-items: center; justify-content: center;
         font-size: 12px; font-weight: 700; flex-shrink: 0;
     }
-    .item-info { display: flex; flex-direction: column; gap: 2px; }
     .item-name { font-size: 14px; font-weight: 600; color: #2a1a1f; }
-    .item-type-badge {
-        display: inline-block; padding: 1px 8px;
-        border-radius: 20px; font-size: 11px; font-weight: 600;
-        background: #e8f0ff; color: #3a5fd9;
-    }
     .item-time { font-size: 11px; color: #b0a0a8; }
 
     .card-footer {
@@ -91,11 +88,11 @@
     .btn-ready {
         display: flex; align-items: center; gap: 6px;
         padding: 8px 18px;
-        background: #1a3a5c; color: #fff;
+        background: #2a5c3a; color: #fff;
         border: none; border-radius: 20px;
         font-size: 13px; font-weight: 700; cursor: pointer;
     }
-    .btn-ready:hover { background: #102840; }
+    .btn-ready:hover { background: #1e4a2e; }
 
     .empty-state {
         text-align: center; color: #9a8a90;
@@ -117,15 +114,19 @@
     .legend-box.urgent  { border-color: #d94040; background: #fff8f8; }
 </style>
 
-<div class="bar-header">
-    <div class="bar-icon">🍷</div>
+<div class="kitchen-header">
+    <div class="kitchen-icon">🍳</div>
     <div>
-        <h1>Bar</h1>
-        <div class="bar-sub">
-            @(Model?.Count ?? 0) pending
+        <h1>Kitchen</h1>
+        <div class="kitchen-sub">
+            @(Model?.Count ?? 0) orders ·
             @if (urgent > 0)
             {
-                <span> · </span><span class="urgent-txt">@urgent urgent!</span>
+                <span class="urgent-txt">@urgent urgent!</span>
+            }
+            else
+            {
+                <span>0 urgent</span>
             }
         </div>
     </div>
@@ -133,16 +134,16 @@
 
 @if (Model == null || !Model.Any())
 {
-    <div class="empty-state">No pending drink orders.</div>
+    <div class="empty-state">No pending food orders.</div>
 }
 else
 {
     <div class="cards-grid">
         @foreach (var card in Model)
         {
-            string cardClass = card.IsUrgent ? "urgent" : card.IsWarning ? "warning" : "";
-            string timeClass = card.IsUrgent ? "urgent" : card.IsWarning ? "warning" : "";
-            string timeText  = card.MinutesAgo < 1 ? "just now" : $"{card.MinutesAgo} min ago";
+            string cardClass  = card.IsUrgent ? "urgent" : card.IsWarning ? "warning" : "";
+            string timeClass  = card.IsUrgent ? "urgent" : card.IsWarning ? "warning" : "";
+            string timeText   = card.MinutesAgo < 1 ? "just now" : $"{card.MinutesAgo} min ago";
 
             <div class="order-card @cardClass">
                 <div class="card-top">
@@ -162,10 +163,7 @@ else
                         <div class="item-row">
                             <div class="item-left">
                                 <span class="item-qty">@(item.Qty)×</span>
-                                <div class="item-info">
-                                    <span class="item-name">@item.Name</span>
-                                    <span class="item-type-badge">Drink</span>
-                                </div>
+                                <span class="item-name">@item.Name</span>
                             </div>
                             <span class="item-time">@itemTime</span>
                         </div>
@@ -185,7 +183,7 @@ else
 }
 
 <div class="legend">
-    <div class="legend-item"><div class="legend-box normal"></div> &lt; 6 min</div>
-    <div class="legend-item"><div class="legend-box warning"></div> 6–9 min</div>
-    <div class="legend-item"><div class="legend-box urgent"></div> ≥ 10 min (urgent)</div>
+    <div class="legend-item"><div class="legend-box normal"></div> &lt; 12 min</div>
+    <div class="legend-item"><div class="legend-box warning"></div> 12–19 min</div>
+    <div class="legend-item"><div class="legend-box urgent"></div> ≥ 20 min (urgent)</div>
 </div>
