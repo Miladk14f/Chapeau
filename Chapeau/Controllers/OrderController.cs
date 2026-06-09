@@ -7,7 +7,6 @@ namespace Chapeau.Controllers
 {
     public class OrderController : Controller
     {
-
         private readonly IOrderService _orderService;
         private readonly IMenuItemService _menuItemService;
         private readonly IStaffService _staffService;
@@ -26,18 +25,14 @@ namespace Chapeau.Controllers
             return View();
         }
 
-        public IActionResult CreateOrder(int tableId) // int staffId
+        public IActionResult CreateOrder(int tableId)
         {
             RestaurantTable tableOrder = _tableService.GetTableById(tableId);
-
             List<OrderItem> orderItems = new List<OrderItem>();
-
             List<MenuItem> menuItems = _menuItemService.GetAllMenuItems();
-
-            Staff staff = _staffService.GetStaffById(2); // staffId
+            Staff staff = _staffService.GetStaffById(2);
 
             OrderViewModel orderViewModel = new OrderViewModel(menuItems, orderItems, tableOrder, staff);
-
 
             return View("CreateOrder", orderViewModel);
         }

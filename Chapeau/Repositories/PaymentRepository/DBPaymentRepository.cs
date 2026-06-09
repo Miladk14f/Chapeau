@@ -135,11 +135,11 @@ namespace Chapeau.Repositories
         private Payment MapReader(SqlDataReader reader)
         {
             return new Payment(
-                paymentId:     (int)reader["Id"],
+                paymentId: (int)reader["Id"],
                 paymentMethod: Enum.Parse<EPaymentMethod>(reader["payment_method"] == DBNull.Value ? "Cash" : reader["payment_method"].ToString(), ignoreCase: true),
-                amount:        (decimal)reader["amount"],
-                status:        Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true),
-                paidAt:        reader["PaidAt"] == DBNull.Value ? null : (DateTime?)reader["PaidAt"]
+                amount: (decimal)reader["amount"],
+                status: Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true),
+                paidAt: reader["PaidAt"] == DBNull.Value ? null : (DateTime?)reader["PaidAt"]
             )
             {
                 Bill = new Bill { BillId = (int)reader["BillId"] }
