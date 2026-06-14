@@ -55,13 +55,13 @@ namespace Chapeau.Repositories
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
                 "INSERT INTO ORDER_ITEM (OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt) VALUES (@OrderId, @MenuId, @Name, @Qty, @Price, @Vat, @ItemType, @CreatedAt)", conn);
-            cmd.Parameters.AddWithValue("@OrderId", item.Order?.OrderId ?? 0);
-            cmd.Parameters.AddWithValue("@MenuId", item.MenuItem?.MenuItemId ?? 0);
-            cmd.Parameters.AddWithValue("@Name", item.Name);
-            cmd.Parameters.AddWithValue("@Qty", item.Qty);
-            cmd.Parameters.AddWithValue("@Price", item.Price);
-            cmd.Parameters.AddWithValue("@Vat", item.Vat);
-            cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
+            cmd.Parameters.AddWithValue("@OrderId",   item.Order?.OrderId ?? 0);
+            cmd.Parameters.AddWithValue("@MenuId",    item.MenuItem?.MenuItemId ?? 0);
+            cmd.Parameters.AddWithValue("@Name",      item.Name);
+            cmd.Parameters.AddWithValue("@Qty",       item.Qty);
+            cmd.Parameters.AddWithValue("@Price",     item.Price);
+            cmd.Parameters.AddWithValue("@Vat",       item.Vat);
+            cmd.Parameters.AddWithValue("@ItemType",  item.ItemType.ToString().ToLower());
             cmd.Parameters.AddWithValue("@CreatedAt", item.CreatedAt);
             cmd.ExecuteNonQuery();
         }
@@ -72,14 +72,14 @@ namespace Chapeau.Repositories
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
                 "UPDATE ORDER_ITEM SET OrderId=@OrderId, MenuId=@MenuId, Name=@Name, Qty=@Qty, Price=@Price, Vat=@Vat, ItemType=@ItemType WHERE Id=@Id", conn);
-            cmd.Parameters.AddWithValue("@OrderId", item.Order?.OrderId ?? 0);
-            cmd.Parameters.AddWithValue("@MenuId", item.MenuItem?.MenuItemId ?? 0);
-            cmd.Parameters.AddWithValue("@Name", item.Name);
-            cmd.Parameters.AddWithValue("@Qty", item.Qty);
-            cmd.Parameters.AddWithValue("@Price", item.Price);
-            cmd.Parameters.AddWithValue("@Vat", item.Vat);
+            cmd.Parameters.AddWithValue("@OrderId",  item.Order?.OrderId ?? 0);
+            cmd.Parameters.AddWithValue("@MenuId",   item.MenuItem?.MenuItemId ?? 0);
+            cmd.Parameters.AddWithValue("@Name",     item.Name);
+            cmd.Parameters.AddWithValue("@Qty",      item.Qty);
+            cmd.Parameters.AddWithValue("@Price",    item.Price);
+            cmd.Parameters.AddWithValue("@Vat",      item.Vat);
             cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@Id", item.OrderItemId);
+            cmd.Parameters.AddWithValue("@Id",       item.OrderItemId);
             cmd.ExecuteNonQuery();
         }
 
@@ -111,8 +111,8 @@ namespace Chapeau.Repositories
                 Enum.Parse<EItemType>(reader["ItemType"] == DBNull.Value ? "Food" : reader["ItemType"].ToString(), ignoreCase: true)
             )
             {
-                Order = new Order { OrderId = (int)reader["OrderId"] },
-                MenuItem = new MenuItem { MenuItemId = (int)reader["MenuId"] },
+                Order     = new Order    { OrderId    = (int)reader["OrderId"] },
+                MenuItem  = new MenuItem { MenuItemId = (int)reader["MenuId"]  },
                 CreatedAt = (DateTime)reader["CreatedAt"]
             };
     }

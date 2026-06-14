@@ -1,25 +1,71 @@
-using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Chapeau.Services;
+using Chapeau.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chapeau.Controllers
 {
     public class KitchenController : Controller
     {
-        private readonly ICommentService _commentService;
+        private readonly IOrderService _orderService;
+        private readonly IOrderItemService _orderItemService;
+        private readonly IStaffService _staffService;
 
-        public KitchenController(ICommentService commentService)
+        public KitchenController(
+            IOrderService orderService,
+            IOrderItemService orderItemService,
+            IStaffService staffService)
         {
-            _commentService = commentService;
+            _orderService     = orderService;
+            _orderItemService = orderItemService;
+            _staffService     = staffService;
         }
 
-        public IActionResult Index(int orderId = 0)
+        public IActionResult Index()
         {
-            List<Comment> comments = orderId > 0
-                ? _commentService.GetByOrderId(orderId)
-                : new List<Comment>();
+            var staff  = _staffService.GetAllStaff();
+            var orders = _orderService.GetAllOrders()
+                .Where(o => o.Status == EOrderStatus.Pending || o.Status == EOrderStatus.InProgress)
+                .ToList();
 
-            return View(comments);
+            var allItems = _orderItemService.GetAllOrderItems()
+                .Where(i => i.ItemType == EItemType.Food)
+                .GroupBy(i => i.Order?.OrderId ?? 0)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var cards = orders
+                .Where(o => allItems.ContainsKey(o.OrderId))
+                .Select(o =>
+                {
+                    var items     = allItems[o.OrderId];
+                    var member    = staff.FirstOrDefault(s => s.StaffId == (o.Staff?.StaffId ?? 0));
+                    var orderedAt = items.Min(i => i.CreatedAt);
+
+                    return new KitchenOrderCard
+                    {
+                        OrderId   = o.OrderId,
+                        TableId   = o.Table?.TableId ?? 0,
+                        StaffName = member?.Name ?? "Unknown",
+                        OrderedAt = orderedAt,
+                        Items     = items.Select(i => new KitchenItemRow
+                        {
+                            Name      = i.Name,
+                            Qty       = i.Qty,
+                            CreatedAt = i.CreatedAt
+                        }).ToList()
+                    };
+                })
+                .OrderByDescending(c => c.MinutesAgo)
+                .ToList();
+
+            return View(cards);
+        }
+
+        [HttpPost]
+        public IActionResult MarkReady(int orderId)
+        {
+            _orderService.UpdateOrderStatus(orderId, EOrderStatus.Prepared);
+            return RedirectToAction("Index");
         }
     }
 }
