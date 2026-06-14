@@ -83,11 +83,11 @@ namespace Chapeau.Repositories.BillRepository
                             SELECT SCOPE_IDENTITY();";
 
             using SqlCommand cmd = new SqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@OrderId",    bill.Order?.OrderId ?? 0);
-            cmd.Parameters.AddWithValue("@Tip",        bill.Tip);
+            cmd.Parameters.AddWithValue("@OrderId", bill.Order?.OrderId ?? 0);
+            cmd.Parameters.AddWithValue("@Tip", bill.Tip);
             cmd.Parameters.AddWithValue("@SplitMethod", bill.SplitedMethod.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@Amount",     bill.Amount);
-            cmd.Parameters.AddWithValue("@Status",     bill.Status.ToString().ToLower());
+            cmd.Parameters.AddWithValue("@Amount", bill.Amount);
+            cmd.Parameters.AddWithValue("@Status", bill.Status.ToString().ToLower());
 
             return Convert.ToInt32(cmd.ExecuteScalar());
         }

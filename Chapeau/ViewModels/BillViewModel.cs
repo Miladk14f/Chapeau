@@ -8,16 +8,16 @@ namespace Chapeau.ViewModels
         public string WaiterName { get; set; }
         public DateTime GeneratedAt { get; set; } = DateTime.Now;
 
-        public List<BillItemRow> Items9  { get; set; } = new();
+        public List<BillItemRow> Items9 { get; set; } = new();
         public List<BillItemRow> Items21 { get; set; } = new();
 
-        public decimal Excl9      { get; set; }
+        public decimal Excl9 { get; set; }
         public decimal Vat9Amount { get; set; }
-        public decimal Excl21     { get; set; }
+        public decimal Excl21 { get; set; }
         public decimal Vat21Amount { get; set; }
 
-        public decimal Subtotal  => Excl9 + Vat9Amount + Excl21 + Vat21Amount;
-        public decimal TotalVat  => Vat9Amount + Vat21Amount;
+        public decimal Subtotal => Excl9 + Vat9Amount + Excl21 + Vat21Amount;
+        public decimal TotalVat => Vat9Amount + Vat21Amount;
         public decimal TotalToPay => Subtotal;
     }
 

@@ -24,12 +24,12 @@ namespace Chapeau.Controllers
             IRestaurantTableService tableService,
             IStaffService staffService)
         {
-            _orderService     = orderService;
+            _orderService = orderService;
             _orderItemService = orderItemService;
-            _billService      = billService;
-            _paymentService   = paymentService;
-            _tableService     = tableService;
-            _staffService     = staffService;
+            _billService = billService;
+            _paymentService = paymentService;
+            _tableService = tableService;
+            _staffService = staffService;
         }
 
         [HttpGet]
@@ -56,12 +56,12 @@ namespace Chapeau.Controllers
                 waiterName = waiter?.Name ?? "";
             }
 
-            var items9  = items.Where(i => i.Vat == 9).ToList();
+            var items9 = items.Where(i => i.Vat == 9).ToList();
             var items21 = items.Where(i => i.Vat == 21).ToList();
 
-            decimal sum9   = items9.Sum(i => i.Price * i.Qty);
-            decimal sum21  = items21.Sum(i => i.Price * i.Qty);
-            decimal excl9  = sum9  > 0 ? Math.Round(sum9  / 1.09m, 2) : 0;
+            decimal sum9 = items9.Sum(i => i.Price * i.Qty);
+            decimal sum21 = items21.Sum(i => i.Price * i.Qty);
+            decimal excl9 = sum9 > 0 ? Math.Round(sum9 / 1.09m, 2) : 0;
             decimal excl21 = sum21 > 0 ? Math.Round(sum21 / 1.21m, 2) : 0;
 
             BillItemRow ToRow(OrderItem item)
@@ -69,26 +69,26 @@ namespace Chapeau.Controllers
                 var member = staff.FirstOrDefault(s => s.StaffId == (activeOrder.Staff?.StaffId ?? 0));
                 return new BillItemRow
                 {
-                    Name      = item.Name,
-                    Qty       = item.Qty,
+                    Name = item.Name,
+                    Qty = item.Qty,
                     UnitPrice = item.Price,
                     StaffName = member?.Name ?? "",
-                    Vat       = item.Vat
+                    Vat = item.Vat
                 };
             }
 
             var vm = new BillViewModel
             {
-                TableId     = tableId,
-                OrderId     = activeOrder.OrderId,
-                Guests      = table.Guests ?? 0,
-                WaiterName  = waiterName,
+                TableId = tableId,
+                OrderId = activeOrder.OrderId,
+                Guests = table.Guests ?? 0,
+                WaiterName = waiterName,
                 GeneratedAt = DateTime.Now,
-                Items9      = items9.Select(ToRow).ToList(),
-                Items21     = items21.Select(ToRow).ToList(),
-                Excl9       = excl9,
-                Vat9Amount  = Math.Round(sum9  - excl9,  2),
-                Excl21      = excl21,
+                Items9 = items9.Select(ToRow).ToList(),
+                Items21 = items21.Select(ToRow).ToList(),
+                Excl9 = excl9,
+                Vat9Amount = Math.Round(sum9 - excl9, 2),
+                Excl21 = excl21,
                 Vat21Amount = Math.Round(sum21 - excl21, 2)
             };
 
@@ -106,10 +106,10 @@ namespace Chapeau.Controllers
 
             var bill = new Bill
             {
-                Tip          = tip,
+                Tip = tip,
                 SplitedMethod = split,
-                Amount       = total,
-                Order        = new Order { OrderId = orderId }
+                Amount = total,
+                Order = new Order { OrderId = orderId }
             };
 
             int billId = _billService.AddBill(bill);
@@ -117,7 +117,7 @@ namespace Chapeau.Controllers
             PaymentMethod method = paymentMethod?.ToLower() switch
             {
                 "cash" => PaymentMethod.Cash,
-                _      => PaymentMethod.Pin
+                _ => PaymentMethod.Pin
             };
 
             int ways = Math.Max(1, splitWays);
@@ -129,21 +129,21 @@ namespace Chapeau.Controllers
                 _paymentService.AddPayment(new Payment
                 {
                     PaymentMethod = method,
-                    Amount        = amount,
-                    Status        = BillStatus.Paid,
-                    PaidAt        = DateTime.Now,
-                    Bill          = new Bill { BillId = billId }
+                    Amount = amount,
+                    Status = BillStatus.Paid,
+                    PaidAt = DateTime.Now,
+                    Bill = new Bill { BillId = billId }
                 });
             }
 
             _billService.UpdateBill(new Bill
             {
-                BillId        = billId,
-                Tip           = tip,
+                BillId = billId,
+                Tip = tip,
                 SplitedMethod = split,
-                Amount        = total,
-                Status        = BillStatus.Paid,
-                Order         = new Order { OrderId = orderId }
+                Amount = total,
+                Status = BillStatus.Paid,
+                Order = new Order { OrderId = orderId }
             });
 
             _orderService.UpdateOrderStatus(orderId, OrderStatus.Paid);

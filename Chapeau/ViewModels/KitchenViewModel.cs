@@ -9,7 +9,7 @@ namespace Chapeau.ViewModels
         public List<KitchenItemRow> Items { get; set; } = new();
 
         public int MinutesAgo => (int)(DateTime.Now - OrderedAt).TotalMinutes;
-        public bool IsUrgent  => MinutesAgo >= 10;
+        public bool IsUrgent => MinutesAgo >= 10;
         public bool IsWarning => MinutesAgo >= 6 && MinutesAgo < 10;
     }
 
@@ -22,7 +22,7 @@ namespace Chapeau.ViewModels
         public List<KitchenItemRow> Items { get; set; } = new();
 
         public int MinutesAgo => (int)(DateTime.Now - OrderedAt).TotalMinutes;
-        public bool IsUrgent  => MinutesAgo >= 20;
+        public bool IsUrgent => MinutesAgo >= 20;
         public bool IsWarning => MinutesAgo >= 12 && MinutesAgo < 20;
     }
 

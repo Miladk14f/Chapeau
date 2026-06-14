@@ -16,14 +16,14 @@ namespace Chapeau.Controllers
             IOrderItemService orderItemService,
             IStaffService staffService)
         {
-            _orderService     = orderService;
+            _orderService = orderService;
             _orderItemService = orderItemService;
-            _staffService     = staffService;
+            _staffService = staffService;
         }
 
         public IActionResult Index()
         {
-            var staff  = _staffService.GetAllStaff();
+            var staff = _staffService.GetAllStaff();
             var orders = _orderService.GetAllOrders()
                 .Where(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.InProgress)
                 .ToList();
@@ -37,20 +37,20 @@ namespace Chapeau.Controllers
                 .Where(o => allItems.ContainsKey(o.OrderId))
                 .Select(o =>
                 {
-                    var items     = allItems[o.OrderId];
-                    var member    = staff.FirstOrDefault(s => s.StaffId == (o.Staff?.StaffId ?? 0));
+                    var items = allItems[o.OrderId];
+                    var member = staff.FirstOrDefault(s => s.StaffId == (o.Staff?.StaffId ?? 0));
                     var orderedAt = items.Min(i => i.CreatedAt);
 
                     return new KitchenOrderCard
                     {
-                        OrderId   = o.OrderId,
-                        TableId   = o.Table?.TableId ?? 0,
+                        OrderId = o.OrderId,
+                        TableId = o.Table?.TableId ?? 0,
                         StaffName = member?.Name ?? "Unknown",
                         OrderedAt = orderedAt,
-                        Items     = items.Select(i => new KitchenItemRow
+                        Items = items.Select(i => new KitchenItemRow
                         {
-                            Name      = i.Name,
-                            Qty       = i.Qty,
+                            Name = i.Name,
+                            Qty = i.Qty,
                             CreatedAt = i.CreatedAt
                         }).ToList()
                     };
