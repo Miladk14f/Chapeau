@@ -6,9 +6,8 @@ namespace Chapeau.ViewModels
     {
         public List<MenuItem> MenuItems;
         public List<OrderItem> OrderItems;
-        public RestaurantTable TableOrder; // need to address table number 
+        public RestaurantTable TableOrder;
         public Staff StaffOrder;
-
 
         public OrderViewModel(List<MenuItem> menuItems, List<OrderItem> orderItems, RestaurantTable tableOrder, Staff staffOrder)
         {

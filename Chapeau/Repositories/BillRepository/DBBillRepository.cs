@@ -133,11 +133,11 @@ namespace Chapeau.Repositories.BillRepository
         private Bill MapReader(SqlDataReader reader)
         {
             return new Bill(
-                billId:        (int)reader["Id"],
-                tip:           (decimal)reader["Tip"],
+                billId: (int)reader["Id"],
+                tip: (decimal)reader["Tip"],
                 splitedMethod: Enum.Parse<ESplitMethod>(reader["splited_method"] == DBNull.Value ? "None" : reader["splited_method"].ToString(), ignoreCase: true),
-                amount:        (decimal)reader["amount"],
-                status:        Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true)
+                amount: (decimal)reader["amount"],
+                status: Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true)
             )
             {
                 Order = new Order { OrderId = (int)reader["OrderId"] }

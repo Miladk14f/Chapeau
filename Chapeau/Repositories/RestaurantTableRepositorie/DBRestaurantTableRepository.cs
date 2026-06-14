@@ -96,10 +96,10 @@ namespace Chapeau.Repositories
                              WHERE Id = @Id";
 
             using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Name",          reservationName);
-            cmd.Parameters.AddWithValue("@Guests",        guests);
+            cmd.Parameters.AddWithValue("@Name", reservationName);
+            cmd.Parameters.AddWithValue("@Guests", guests);
             cmd.Parameters.AddWithValue("@ReservationAt", reservationAt);
-            cmd.Parameters.AddWithValue("@Id",            tableId);
+            cmd.Parameters.AddWithValue("@Id", tableId);
 
             cmd.ExecuteNonQuery();
         }
