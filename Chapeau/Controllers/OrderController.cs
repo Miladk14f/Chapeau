@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Chapeau.Services;
 using Chapeau.ViewModels;
+using Chapeau.Extentions;
 
 namespace Chapeau.Controllers
 {
@@ -26,12 +27,17 @@ namespace Chapeau.Controllers
             return View();
         }
 
-        public IActionResult CreateOrder(int tableId) // int staffId
+        public IActionResult CreateOrder(int tableId) // int staffId from session (waiting on teammate)
         {
             RestaurantTable tableOrder = _tableService.GetTableById(tableId);
 
-            List<OrderItem> orderItems = new List<OrderItem>();
 
+            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("CurrentOrder");
+            if (orderItems == null)
+            {
+                orderItems = new List<OrderItem>();
+            }
+           
             List<MenuItem> menuItems = _menuItemService.GetAllMenuItems();
 
             Staff staff = _staffService.GetStaffById(2); // staffId
@@ -40,6 +46,30 @@ namespace Chapeau.Controllers
 
 
             return View("CreateOrder", orderViewModel);
+        }
+
+        public IActionResult AddItem(int menueItemId)
+        {
+            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("CurrentOrder");
+            if (orderItems == null)
+            {
+                orderItems = new List<OrderItem>();
+            }
+
+            MenuItem menuItemToAdd = _menuItemService.GetMenuItemById(menueItemId);
+
+
+
+            //orderItems.Add(menuItemToAdd);
+
+
+
+
+            HttpContext.Session.SetObject("OrderItemsList", orderItems);
+
+            return RedirectToAction("CreateOrder");
+
+
         }
     }
 }
