@@ -37,5 +37,10 @@ namespace Chapeau.Services
         {
             _repository.UpdateTableStatus(tableId, status);
         }
+
+        public void ReserveTable(int tableId, string reservationName, int guests, DateTime reservationAt)
+        {
+            _repository.ReserveTable(tableId, reservationName, guests, reservationAt);
+        }
     }
 }
