@@ -6,16 +6,16 @@ namespace Chapeau.Models
     {
         public int BillId { get; set; }
         public decimal Tip { get; set; }
-        public ESplitMethod SplitedMethod { get; set; }
+        public SplitMethod SplitedMethod { get; set; }
         public decimal Amount { get; set; }
-        public EBillStatus Status { get; set; }
+        public BillStatus Status { get; set; }
 
         public Order? Order { get; set; }
         public List<Payment>? Payments { get; set; }
 
         public Bill() { }
 
-        public Bill(int billId, decimal tip, ESplitMethod splitedMethod, decimal amount, EBillStatus status)
+        public Bill(int billId, decimal tip, SplitMethod splitedMethod, decimal amount, BillStatus status)
         {
             BillId = billId;
             Tip = tip;

@@ -6,12 +6,12 @@ namespace Chapeau.Models
     {
         public int StaffId { get; set; }
         public string Name { get; set; }
-        public EStaffRole Role { get; set; }
+        public StaffRole Role { get; set; }
         public string Pin { get; set; }
 
         public Staff() { }
 
-        public Staff(int staffId, string name, EStaffRole role, string pin)
+        public Staff(int staffId, string name, StaffRole role, string pin)
         {
             StaffId = staffId;
             Name = name;

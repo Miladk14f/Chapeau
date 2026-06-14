@@ -30,7 +30,7 @@ namespace Chapeau.Services.BillService
 
         public int AddBill(Bill bill)
         {
-            bill.Status = EBillStatus.Unpaid;
+            bill.Status = BillStatus.Unpaid;
             return _billRepository.AddBill(bill);
         }
 

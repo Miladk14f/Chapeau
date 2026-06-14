@@ -33,7 +33,7 @@ namespace Chapeau.Services
 
         public void AddPayment(Payment payment)
         {
-            payment.Status = EBillStatus.Paid;
+            payment.Status = BillStatus.Paid;
             payment.PaidAt = DateTime.Now;
 
             _paymentRepository.AddPayment(payment);
@@ -77,15 +77,15 @@ namespace Chapeau.Services
 
             if (totalPaid >= bill.Amount)
             {
-                bill.Status = EBillStatus.Paid;
+                bill.Status = BillStatus.Paid;
             }
             else if (totalPaid > 0)
             {
-                bill.Status = EBillStatus.Partial;
+                bill.Status = BillStatus.Partial;
             }
             else
             {
-                bill.Status = EBillStatus.Unpaid;
+                bill.Status = BillStatus.Unpaid;
             }
 
             _billRepository.UpdateBill(bill);

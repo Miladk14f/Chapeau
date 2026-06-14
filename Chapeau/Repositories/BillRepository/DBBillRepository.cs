@@ -134,9 +134,9 @@ namespace Chapeau.Repositories.BillRepository
             return new Bill(
                 billId: (int)reader["Id"],
                 tip: (decimal)reader["Tip"],
-                splitedMethod: Enum.Parse<ESplitMethod>(reader["splited_method"] == DBNull.Value ? "None" : reader["splited_method"].ToString(), ignoreCase: true),
+                splitedMethod: Enum.Parse<SplitMethod>(reader["splited_method"] == DBNull.Value ? "None" : reader["splited_method"].ToString(), ignoreCase: true),
                 amount: (decimal)reader["amount"],
-                status: Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true)
+                status: Enum.Parse<BillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true)
             )
             {
                 Order = new Order { OrderId = (int)reader["OrderId"] }

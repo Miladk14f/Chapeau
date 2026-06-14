@@ -117,7 +117,7 @@ namespace Chapeau.Repositories
             return new Staff(
                 staffId: (int)reader["Id"],
                 name: reader["Name"].ToString(),
-                role: Enum.Parse<EStaffRole>(reader["Role"].ToString(), ignoreCase: true),
+                role: Enum.Parse<StaffRole>(reader["Role"].ToString(), ignoreCase: true),
                 pin: reader["Pin"].ToString()
             );
         }

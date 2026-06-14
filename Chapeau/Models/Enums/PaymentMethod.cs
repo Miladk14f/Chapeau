@@ -1,6 +1,6 @@
 namespace Chapeau.Models.Enums
 {
-    public enum EPaymentMethod
+    public enum PaymentMethod
     {
         Cash,
         Pin,

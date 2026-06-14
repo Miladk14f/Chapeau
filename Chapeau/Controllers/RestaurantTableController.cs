@@ -49,7 +49,7 @@ namespace Chapeau.Controllers
         public IActionResult Reserve()
         {
             List<RestaurantTable> tables = _tableService.GetAllTables()
-                .Where(t => t.Status != ETableStatus.Occupied)
+                .Where(t => t.Status != TableStatus.Occupied)
                 .ToList();
             return View(tables);
         }

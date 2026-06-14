@@ -108,7 +108,7 @@ namespace Chapeau.Repositories
                 (int)reader["Qty"],
                 (decimal)reader["Price"],
                 (int)reader["Vat"],
-                Enum.Parse<EItemType>(reader["ItemType"] == DBNull.Value ? "Food" : reader["ItemType"].ToString(), ignoreCase: true)
+                Enum.Parse<ItemType>(reader["ItemType"] == DBNull.Value ? "Food" : reader["ItemType"].ToString(), ignoreCase: true)
             )
             {
                 Order     = new Order    { OrderId    = (int)reader["OrderId"] },

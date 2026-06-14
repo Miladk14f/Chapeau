@@ -36,7 +36,7 @@ namespace Chapeau.Services
         public int AddOrder(Order order)
         {
             order.CreatedAt = DateTime.Now;
-            order.Status = EOrderStatus.Pending;
+            order.Status = OrderStatus.Pending;
             return _repository.AddOrder(order);
         }
 
@@ -45,7 +45,7 @@ namespace Chapeau.Services
             _repository.UpdateOrder(order);
         }
 
-        public void UpdateOrderStatus(int orderId, EOrderStatus status)
+        public void UpdateOrderStatus(int orderId, OrderStatus status)
         {
             _repository.UpdateOrderStatus(orderId, status);
         }

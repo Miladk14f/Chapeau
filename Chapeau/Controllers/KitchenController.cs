@@ -25,11 +25,11 @@ namespace Chapeau.Controllers
         {
             var staff  = _staffService.GetAllStaff();
             var orders = _orderService.GetAllOrders()
-                .Where(o => o.Status == EOrderStatus.Pending || o.Status == EOrderStatus.InProgress)
+                .Where(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.InProgress)
                 .ToList();
 
             var allItems = _orderItemService.GetAllOrderItems()
-                .Where(i => i.ItemType == EItemType.Food)
+                .Where(i => i.ItemType == ItemType.Food)
                 .GroupBy(i => i.Order?.OrderId ?? 0)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -64,7 +64,7 @@ namespace Chapeau.Controllers
         [HttpPost]
         public IActionResult MarkReady(int orderId)
         {
-            _orderService.UpdateOrderStatus(orderId, EOrderStatus.Prepared);
+            _orderService.UpdateOrderStatus(orderId, OrderStatus.Prepared);
             return RedirectToAction("Index");
         }
     }

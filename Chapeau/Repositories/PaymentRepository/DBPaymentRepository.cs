@@ -136,9 +136,9 @@ namespace Chapeau.Repositories
         {
             return new Payment(
                 paymentId: (int)reader["Id"],
-                paymentMethod: Enum.Parse<EPaymentMethod>(reader["payment_method"] == DBNull.Value ? "Cash" : reader["payment_method"].ToString(), ignoreCase: true),
+                paymentMethod: Enum.Parse<PaymentMethod>(reader["payment_method"] == DBNull.Value ? "Cash" : reader["payment_method"].ToString(), ignoreCase: true),
                 amount: (decimal)reader["amount"],
-                status: Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true),
+                status: Enum.Parse<BillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true),
                 paidAt: reader["PaidAt"] == DBNull.Value ? null : (DateTime?)reader["PaidAt"]
             )
             {

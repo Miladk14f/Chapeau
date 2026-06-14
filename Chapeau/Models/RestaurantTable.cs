@@ -7,7 +7,7 @@ namespace Chapeau.Models
         public int TableId { get; set; }
         public int Seats { get; set; }
         public int? Guests { get; set; }
-        public ETableStatus Status { get; set; }
+        public TableStatus Status { get; set; }
         public DateTime? SeatedAt { get; set; }
         public string ReservationName { get; set; }
 
@@ -15,7 +15,7 @@ namespace Chapeau.Models
 
         public RestaurantTable() { }
 
-        public RestaurantTable(int tableId, int seats, int? guests, ETableStatus status, DateTime? seatedAt, string reservationName)
+        public RestaurantTable(int tableId, int seats, int? guests, TableStatus status, DateTime? seatedAt, string reservationName)
         {
             TableId = tableId;
             Seats = seats;

@@ -104,7 +104,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateTableStatus(int tableId, ETableStatus status)
+        public void UpdateTableStatus(int tableId, TableStatus status)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -124,7 +124,7 @@ namespace Chapeau.Repositories
                 tableId: (int)reader["Id"],
                 seats: (int)reader["Seats"],
                 guests: reader["Guests"] == DBNull.Value ? null : (int?)reader["Guests"],
-                status: Enum.Parse<ETableStatus>(reader["Status"] == DBNull.Value ? "Free" : reader["Status"].ToString(), ignoreCase: true),
+                status: Enum.Parse<TableStatus>(reader["Status"] == DBNull.Value ? "Free" : reader["Status"].ToString(), ignoreCase: true),
                 seatedAt: reader["SeatedAt"] == DBNull.Value ? null : (DateTime?)reader["SeatedAt"],
                 reservationName: reader["ReservationName"] == DBNull.Value ? null : reader["ReservationName"].ToString()
             )

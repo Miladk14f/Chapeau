@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chapeau.Controllers
 {
-    public class BillController : Controller
+    public class PaymentController : Controller
     {
         private readonly IOrderService _orderService;
         private readonly IOrderItemService _orderItemService;
@@ -16,7 +16,7 @@ namespace Chapeau.Controllers
         private readonly IRestaurantTableService _tableService;
         private readonly IStaffService _staffService;
 
-        public BillController(
+        public PaymentController(
             IOrderService orderService,
             IOrderItemService orderItemService,
             IBillService billService,
@@ -39,7 +39,7 @@ namespace Chapeau.Controllers
             if (table == null) return NotFound();
 
             var orders = _orderService.GetOrdersByTableId(tableId)
-                .Where(o => o.Status != EOrderStatus.Paid)
+                .Where(o => o.Status != OrderStatus.Paid)
                 .ToList();
 
             if (!orders.Any())
@@ -102,7 +102,7 @@ namespace Chapeau.Controllers
             if (tipOther > 0) tip = tipOther;
             decimal total = items.Sum(i => i.Price * i.Qty) + tip;
 
-            ESplitMethod split = splitWays > 1 ? ESplitMethod.Equal : ESplitMethod.None;
+            SplitMethod split = splitWays > 1 ? SplitMethod.Equal : SplitMethod.None;
 
             var bill = new Bill
             {
@@ -114,10 +114,10 @@ namespace Chapeau.Controllers
 
             int billId = _billService.AddBill(bill);
 
-            EPaymentMethod method = paymentMethod?.ToLower() switch
+            PaymentMethod method = paymentMethod?.ToLower() switch
             {
-                "cash" => EPaymentMethod.Cash,
-                _      => EPaymentMethod.Pin
+                "cash" => PaymentMethod.Cash,
+                _      => PaymentMethod.Pin
             };
 
             int ways = Math.Max(1, splitWays);
@@ -130,7 +130,7 @@ namespace Chapeau.Controllers
                 {
                     PaymentMethod = method,
                     Amount        = amount,
-                    Status        = EBillStatus.Paid,
+                    Status        = BillStatus.Paid,
                     PaidAt        = DateTime.Now,
                     Bill          = new Bill { BillId = billId }
                 });
@@ -142,11 +142,11 @@ namespace Chapeau.Controllers
                 Tip           = tip,
                 SplitedMethod = split,
                 Amount        = total,
-                Status        = EBillStatus.Paid,
+                Status        = BillStatus.Paid,
                 Order         = new Order { OrderId = orderId }
             });
 
-            _orderService.UpdateOrderStatus(orderId, EOrderStatus.Paid);
+            _orderService.UpdateOrderStatus(orderId, OrderStatus.Paid);
             _tableService.ClearTable(tableId);
 
             return RedirectToAction("Index", "RestaurantTable");

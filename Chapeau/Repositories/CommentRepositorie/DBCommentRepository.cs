@@ -84,7 +84,7 @@ namespace Chapeau.Repositories
         {
             return new Comment(
                 commentId: (int)reader["Id"],
-                type: Enum.Parse<ECommentType>(reader["Type"] == DBNull.Value ? "Comment" : reader["Type"].ToString(), ignoreCase: true),
+                type: Enum.Parse<CommentType>(reader["Type"] == DBNull.Value ? "Comment" : reader["Type"].ToString(), ignoreCase: true),
                 text: reader["Text"] == DBNull.Value ? null : reader["Text"].ToString(),
                 createdAt: (DateTime)reader["CreatedAt"]
             )

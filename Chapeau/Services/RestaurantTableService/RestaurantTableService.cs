@@ -33,7 +33,7 @@ namespace Chapeau.Services
             _repository.ClearTable(tableId);
         }
 
-        public void UpdateTableStatus(int tableId, ETableStatus status)
+        public void UpdateTableStatus(int tableId, TableStatus status)
         {
             _repository.UpdateTableStatus(tableId, status);
         }

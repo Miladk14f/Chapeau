@@ -131,7 +131,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateOrderStatus(int orderId, EOrderStatus status)
+        public void UpdateOrderStatus(int orderId, OrderStatus status)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -162,7 +162,7 @@ namespace Chapeau.Repositories
         {
             return new Order(
                 orderId: (int)reader["Id"],
-                status: Enum.Parse<EOrderStatus>((reader["Status"] == DBNull.Value ? "Pending" : reader["Status"].ToString()).Replace("_", "").Replace(" ", ""), ignoreCase: true),
+                status: Enum.Parse<OrderStatus>((reader["Status"] == DBNull.Value ? "Pending" : reader["Status"].ToString()).Replace("_", "").Replace(" ", ""), ignoreCase: true),
                 note: reader["Note"] == DBNull.Value ? null : reader["Note"].ToString(),
                 createdAt: (DateTime)reader["CreatedAt"],
                 totalPrice: (decimal)reader["total_price"]

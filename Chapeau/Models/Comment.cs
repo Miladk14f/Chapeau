@@ -5,7 +5,7 @@ namespace Chapeau.Models
     public class Comment
     {
         public int CommentId { get; set; }
-        public ECommentType Type { get; set; }
+        public CommentType Type { get; set; }
         public string Text { get; set; }
         public DateTime CreatedAt { get; set; }
 
@@ -13,7 +13,7 @@ namespace Chapeau.Models
 
         public Comment() { }
 
-        public Comment(int commentId, ECommentType type, string text, DateTime createdAt)
+        public Comment(int commentId, CommentType type, string text, DateTime createdAt)
         {
             CommentId = commentId;
             Type = type;

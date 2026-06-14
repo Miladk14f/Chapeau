@@ -54,13 +54,13 @@ namespace Chapeau.Controllers
             List<Order> orders = _orderService.GetAllOrders();
             List<OrderItem> allItems = _orderItemService.GetAllOrderItems();
 
-            var paidBills = bills.Where(b => b.Status == EBillStatus.Paid).ToList();
-            var unpaidBills = bills.Where(b => b.Status != EBillStatus.Paid).ToList();
+            var paidBills = bills.Where(b => b.Status == BillStatus.Paid).ToList();
+            var unpaidBills = bills.Where(b => b.Status != BillStatus.Paid).ToList();
             decimal revPaid = paidBills.Sum(b => b.Amount);
             decimal revOpen = unpaidBills.Sum(b => b.Amount);
             decimal tips = paidBills.Sum(b => b.Tip);
 
-            var occupiedTables = tables.Where(t => t.Status == ETableStatus.Occupied).ToList();
+            var occupiedTables = tables.Where(t => t.Status == TableStatus.Occupied).ToList();
             int coversSeated = occupiedTables.Sum(t => t.Guests ?? 0);
             int coversTotal = tables.Sum(t => t.Guests ?? 0);
 
@@ -135,7 +135,7 @@ namespace Chapeau.Controllers
                 }
 
                 var tableOrderIds = orders
-                    .Where(o => o.Table?.TableId == t.TableId && o.Status != EOrderStatus.Paid)
+                    .Where(o => o.Table?.TableId == t.TableId && o.Status != OrderStatus.Paid)
                     .Select(o => o.OrderId)
                     .ToHashSet();
 
@@ -201,9 +201,9 @@ namespace Chapeau.Controllers
 
                 StockItems = stockItems,
 
-                CommentCount = comments.Count(c => c.Type == ECommentType.Comment),
-                ComplaintCount = comments.Count(c => c.Type == ECommentType.Complaint),
-                PraiseCount = comments.Count(c => c.Type == ECommentType.Praise),
+                CommentCount = comments.Count(c => c.Type == CommentType.Comment),
+                ComplaintCount = comments.Count(c => c.Type == CommentType.Complaint),
+                PraiseCount = comments.Count(c => c.Type == CommentType.Praise),
                 FeedbackItems = feedbackItems,
 
                 OpenTables = openTables
@@ -225,7 +225,7 @@ namespace Chapeau.Controllers
             Staff staff = new Staff
             {
                 Name = name,
-                Role = Enum.Parse<EStaffRole>(role, ignoreCase: true),
+                Role = Enum.Parse<StaffRole>(role, ignoreCase: true),
                 Pin = pin
             };
 
@@ -253,7 +253,7 @@ namespace Chapeau.Controllers
                 return NotFound();
 
             staff.Name = name;
-            staff.Role = Enum.Parse<EStaffRole>(role, ignoreCase: true);
+            staff.Role = Enum.Parse<StaffRole>(role, ignoreCase: true);
 
             if (!string.IsNullOrWhiteSpace(pin))
             {
