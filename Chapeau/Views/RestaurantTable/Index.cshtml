@@ -3,7 +3,8 @@
 @{
     ViewData["Title"] = "Tables";
     var occupied  = Model?.Count(t => t.Status == ETableStatus.Occupied) ?? 0;
-    var available = Model?.Count(t => t.Status != ETableStatus.Occupied) ?? 0;
+    var reserved  = Model?.Count(t => t.Status == ETableStatus.Reserved || (t.ReservationName != null && t.Status != ETableStatus.Occupied)) ?? 0;
+    var available = Model?.Count(t => t.Status != ETableStatus.Occupied && t.ReservationName == null) ?? 0;
 }
 
 <style>
@@ -63,6 +64,7 @@
 
     .dot-occupied  { background: #e87d3e; }
     .dot-available { background: #3db87a; }
+    .dot-reserved  { background: #7c5cbf; }
 
     /* ── Table grid ── */
     .table-grid {
@@ -178,12 +180,13 @@
 
 <div class="fp-header">
     <h1>Floor plan</h1>
-    <a href="#" class="btn-reservation">⊞ Reservation</a>
+    <a asp-controller="RestaurantTable" asp-action="Reserve" class="btn-reservation">⊞ Reservation</a>
 </div>
 
 <div class="fp-stats">
     <div class="stat-badge"><span class="dot dot-occupied"></span> @occupied occupied</div>
     <div class="stat-badge"><span class="dot dot-available"></span> @available available</div>
+    <div class="stat-badge"><span class="dot dot-reserved"></span> @reserved reserved</div>
 </div>
 
 <div class="table-grid">
@@ -197,7 +200,8 @@
             var badgeClass = isOccupied ? "badge-occupied" : isReserved ? "badge-reserved" : "badge-available";
             var badgeText  = isOccupied ? "Occupied" : isReserved ? "Reserved" : "Available";
 
-            <a class="table-card @cardClass" asp-controller="RestaurantTable" asp-action="Details" asp-route-id="@table.TableId">
+            @* <a class="table-card @cardClass" asp-controller="RestaurantTable" asp-action="Details" asp-route-id="@table.TableId"> *@
+                <a class="table-card @cardClass" asp-controller="Order" asp-action="CreateOrder" asp-route-tableId="@table.TableId">
                 <span class="status-badge @badgeClass">@badgeText</span>
                 <div class="table-name">Table @table.TableId</div>
                 <div class="table-persons">👥 @(table.Guests ?? table.Seats) persons</div>

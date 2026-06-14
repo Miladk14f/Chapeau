@@ -85,6 +85,25 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
+        public void ReserveTable(int tableId, string reservationName, int guests, DateTime reservationAt)
+        {
+            using SqlConnection conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            string query = @"UPDATE [TABLE]
+                             SET Status = 'reserved', ReservationName = @Name,
+                                 Guests = @Guests, SeatedAt = @ReservationAt
+                             WHERE Id = @Id";
+
+            using SqlCommand cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@Name", reservationName);
+            cmd.Parameters.AddWithValue("@Guests", guests);
+            cmd.Parameters.AddWithValue("@ReservationAt", reservationAt);
+            cmd.Parameters.AddWithValue("@Id", tableId);
+
+            cmd.ExecuteNonQuery();
+        }
+
         public void UpdateTableStatus(int tableId, ETableStatus status)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);

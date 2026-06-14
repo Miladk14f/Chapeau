@@ -21,6 +21,7 @@ namespace Chapeau.Controllers
             _staffService     = staffService;
         }
 
+
         public IActionResult Index()
         {
             var staff  = _staffService.GetAllStaff();
@@ -69,3 +70,4 @@ namespace Chapeau.Controllers
         }
     }
 }
+
