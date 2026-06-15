@@ -7,7 +7,7 @@ namespace Chapeau.Models
         public int MenuItemId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public EItemType Category { get; set; }
+        public ItemType Category { get; set; }
         public decimal Price { get; set; }
         public int Vat { get; set; }
         public string Allergens { get; set; }
@@ -20,10 +20,22 @@ namespace Chapeau.Models
             MenuItemId = menuItemId;
             Name = name;
             Description = description;
+            Category = MapCategory(category);
             Price = price;
             Vat = vat;
             Allergens = allergens;
             InStock = inStock;
+        }
+
+        private static ItemType MapCategory(string category)
+        {
+            string[] drinkCategories =
+            {
+                "soft drinks", "coffee/tea", "beer", "wine", "spirits"
+            };
+
+            string normalized = (category ?? "").Trim().ToLower();
+            return drinkCategories.Contains(normalized) ? ItemType.Drink : ItemType.Food;
         }
     }
 }

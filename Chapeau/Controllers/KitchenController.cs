@@ -29,7 +29,7 @@ namespace Chapeau.Controllers
                 .ToList();
 
             var allItems = _orderItemService.GetAllOrderItems()
-                .Where(i => i.ItemType == ItemType.Food)
+                .Where(i => i.ItemType == ItemType.Food && i.Status == OrderItemStatus.Ordered)
                 .GroupBy(i => i.Order?.OrderId ?? 0)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -51,7 +51,8 @@ namespace Chapeau.Controllers
                         {
                             Name = i.Name,
                             Qty = i.Qty,
-                            CreatedAt = i.CreatedAt
+                            CreatedAt = i.CreatedAt,
+                            Note = i.Note
                         }).ToList()
                     };
                 })
@@ -64,7 +65,7 @@ namespace Chapeau.Controllers
         [HttpPost]
         public IActionResult MarkReady(int orderId)
         {
-            _orderService.UpdateOrderStatus(orderId, OrderStatus.Prepared);
+            _orderItemService.MarkOrderItemsReady(orderId, ItemType.Food);
             return RedirectToAction("Index");
         }
     }

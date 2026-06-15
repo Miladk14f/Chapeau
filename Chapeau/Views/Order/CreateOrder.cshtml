@@ -95,7 +95,21 @@
         min-width: 28px; text-align: center;
         font-size: 14px; font-weight: 700; color: #2a1a1f;
     }
-    .order-item-name { flex: 1; font-size: 14px; font-weight: 600; color: #2a1a1f; }
+    .order-item-info { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .order-item-name { font-size: 14px; font-weight: 600; color: #2a1a1f; }
+    .note-form { display: flex; align-items: center; gap: 6px; margin: 0; }
+    .note-input {
+        flex: 1; padding: 6px 10px;
+        border: 1px solid #e0d8d0; border-radius: 8px;
+        font-size: 12px; background: #faf8f6; min-width: 0;
+    }
+    .note-input:focus { outline: none; border-color: #7a2a3e; }
+    .btn-note-save {
+        padding: 6px 12px; border-radius: 8px;
+        background: #f5f0eb; border: 1px solid #e0d8d0;
+        font-size: 12px; font-weight: 600; color: #6b5560; cursor: pointer;
+    }
+    .btn-note-save:hover { background: #7a2a3e; border-color: #7a2a3e; color: #fff; }
     .order-item-price { font-size: 14px; font-weight: 700; color: #7a2a3e; min-width: 64px; text-align: right; }
     .btn-del {
         width: 28px; height: 28px; border-radius: 8px;
@@ -109,6 +123,35 @@
         text-align: center; color: #9a8a90;
         padding: 40px 0; font-size: 14px;
     }
+
+    /* Status cards */
+    .status-label {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 700; letter-spacing: 0.06em;
+        text-transform: uppercase; margin: 16px 0 8px;
+    }
+    .status-label.ready  { color: #2a8c4a; }
+    .status-label.served { color: #9a8a90; }
+
+    .status-card {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 16px; border-radius: 12px; margin-bottom: 8px;
+        border: 1px solid;
+    }
+    .status-card.ready  { background: #f0faf3; border-color: #b8e6c8; }
+    .status-card.served { background: #f7f5f3; border-color: #ece6e2; }
+    .status-card-name { font-size: 14px; font-weight: 600; color: #2a1a1f; }
+    .status-card.served .status-card-name { color: #9a8a90; }
+    .status-card-price { font-size: 14px; font-weight: 700; color: #9a8a90; }
+    .status-card-note { font-size: 12px; color: #9a8a90; font-style: italic; margin-top: 2px; }
+
+    .btn-served {
+        padding: 8px 18px; border-radius: 10px;
+        background: #2a8c4a; color: #fff; border: none;
+        font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-served:hover { background: #1f7038; }
+    .status-card form { margin: 0; }
     .order-total {
         display: flex; align-items: center; justify-content: space-between;
         margin-top: 18px; padding-top: 18px; border-top: 2px solid #ede8e4;
@@ -163,7 +206,11 @@
 
         @if (Model.OrderItems.Any())
         {
-            @foreach (var orderItem in Model.OrderItems)
+            var orderedItems = Model.OrderItems.Where(i => i.Status == Chapeau.Models.Enums.OrderItemStatus.Ordered).ToList();
+            var readyItems   = Model.OrderItems.Where(i => i.Status == Chapeau.Models.Enums.OrderItemStatus.Ready).ToList();
+            var servedItems  = Model.OrderItems.Where(i => i.Status == Chapeau.Models.Enums.OrderItemStatus.Served).ToList();
+
+            @foreach (var orderItem in orderedItems)
             {
                 <div class="order-row">
                     <div class="qty-ctrl">
@@ -180,7 +227,15 @@
                         </form>
                     </div>
 
-                    <span class="order-item-name">@orderItem.Name</span>
+                    <div class="order-item-info">
+                        <span class="order-item-name">@orderItem.Name</span>
+                        <form asp-action="UpdateItemNote" method="post" class="note-form">
+                            <input type="hidden" name="orderItemId" value="@orderItem.OrderItemId" />
+                            <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                            <input type="text" name="note" class="note-input" placeholder="Add note…" value="@orderItem.Note" />
+                            <button type="submit" class="btn-note-save">Save</button>
+                        </form>
+                    </div>
                     <span class="order-item-price">€@((orderItem.Price * orderItem.Qty).ToString("0.00"))</span>
 
                     <form asp-action="DeleteItem" method="post">
@@ -189,6 +244,46 @@
                         <button type="submit" class="btn-del">✕</button>
                     </form>
                 </div>
+            }
+
+            @if (readyItems.Any())
+            {
+                <div class="status-label ready">✓ Ready to serve</div>
+                @foreach (var item in readyItems)
+                {
+                    <div class="status-card ready">
+                        <div>
+                            <span class="status-card-name">@item.Qty× @item.Name</span>
+                            @if (!string.IsNullOrEmpty(item.Note))
+                            {
+                                <div class="status-card-note">📝 @item.Note</div>
+                            }
+                        </div>
+                        <form asp-action="ServeItem" method="post">
+                            <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                            <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                            <button type="submit" class="btn-served">Served</button>
+                        </form>
+                    </div>
+                }
+            }
+
+            @if (servedItems.Any())
+            {
+                <div class="status-label served">✓ Served</div>
+                @foreach (var item in servedItems)
+                {
+                    <div class="status-card served">
+                        <div>
+                            <span class="status-card-name">@item.Qty× @item.Name</span>
+                            @if (!string.IsNullOrEmpty(item.Note))
+                            {
+                                <div class="status-card-note">📝 @item.Note</div>
+                            }
+                        </div>
+                        <span class="status-card-price">€@((item.Price * item.Qty).ToString("0.00"))</span>
+                    </div>
+                }
             }
 
             <div class="order-total">
