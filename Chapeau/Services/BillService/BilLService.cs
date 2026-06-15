@@ -28,11 +28,10 @@ namespace Chapeau.Services.BillService
             return _billRepository.GetBillByOrderId(orderId);
         }
 
-        public void AddBill(Bill bill)
+        public int AddBill(Bill bill)
         {
-            bill.Status = EBillStatus.Unpaid;
-
-            _billRepository.AddBill(bill);
+            bill.Status = BillStatus.Unpaid;
+            return _billRepository.AddBill(bill);
         }
 
         public void UpdateBill(Bill bill)

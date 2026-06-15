@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Chapeau.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -41,6 +42,22 @@ namespace Chapeau.Controllers
         public IActionResult FreeTable(int tableId)
         {
             _tableService.ClearTable(tableId);
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public IActionResult Reserve()
+        {
+            List<RestaurantTable> tables = _tableService.GetAllTables()
+                .Where(t => t.Status != TableStatus.Occupied)
+                .ToList();
+            return View(tables);
+        }
+
+        [HttpPost]
+        public IActionResult Reserve(int tableId, string reservationName, int guests, DateTime reservationAt)
+        {
+            _tableService.ReserveTable(tableId, reservationName, guests, reservationAt);
             return RedirectToAction("Index");
         }
     }

@@ -9,6 +9,7 @@ namespace Chapeau.Repositories
         RestaurantTable GetTableById(int id);
         void SeatGuestsAtTable(int tableId, int guests, int waiterId);
         void ClearTable(int tableId);
-        void UpdateTableStatus(int tableId, ETableStatus status);
+        void UpdateTableStatus(int tableId, TableStatus status);
+        void ReserveTable(int tableId, string reservationName, int guests, DateTime reservationAt);
     }
 }

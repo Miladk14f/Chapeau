@@ -5,7 +5,7 @@ namespace Chapeau.Models
     public class Order
     {
         public int OrderId { get; set; }
-        public EOrderStatus Status { get; set; }
+        public OrderStatus Status { get; set; }
         public string Note { get; set; }
         public DateTime CreatedAt { get; set; }
         public decimal TotalPrice { get; set; }
@@ -16,7 +16,7 @@ namespace Chapeau.Models
 
         public Order() { }
 
-        public Order(int orderId, EOrderStatus status, string note, DateTime createdAt, decimal totalPrice)
+        public Order(int orderId, OrderStatus status, string note, DateTime createdAt, decimal totalPrice)
         {
             OrderId = orderId;
             Status = status;

@@ -73,15 +73,14 @@ namespace Chapeau.Repositories.BillRepository
             return null;
         }
 
-        public void AddBill(Bill bill)
+        public int AddBill(Bill bill)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
 
-            string query = @"INSERT INTO BILL
-                            (OrderId, Tip, splited_method, amount, status)
-                            VALUES
-                            (@OrderId, @Tip, @SplitMethod, @Amount, @Status)";
+            string query = @"INSERT INTO BILL (OrderId, Tip, splited_method, amount, status)
+                            VALUES (@OrderId, @Tip, @SplitMethod, @Amount, @Status);
+                            SELECT SCOPE_IDENTITY();";
 
             using SqlCommand cmd = new SqlCommand(query, connection);
             cmd.Parameters.AddWithValue("@OrderId", bill.Order?.OrderId ?? 0);
@@ -90,7 +89,7 @@ namespace Chapeau.Repositories.BillRepository
             cmd.Parameters.AddWithValue("@Amount", bill.Amount);
             cmd.Parameters.AddWithValue("@Status", bill.Status.ToString().ToLower());
 
-            cmd.ExecuteNonQuery();
+            return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
         public void UpdateBill(Bill bill)
@@ -133,11 +132,11 @@ namespace Chapeau.Repositories.BillRepository
         private Bill MapReader(SqlDataReader reader)
         {
             return new Bill(
-                billId:        (int)reader["Id"],
-                tip:           (decimal)reader["Tip"],
-                splitedMethod: Enum.Parse<ESplitMethod>(reader["splited_method"] == DBNull.Value ? "None" : reader["splited_method"].ToString(), ignoreCase: true),
-                amount:        (decimal)reader["amount"],
-                status:        Enum.Parse<EBillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true)
+                billId: (int)reader["Id"],
+                tip: (decimal)reader["Tip"],
+                splitedMethod: Enum.Parse<SplitMethod>(reader["splited_method"] == DBNull.Value ? "None" : reader["splited_method"].ToString(), ignoreCase: true),
+                amount: (decimal)reader["amount"],
+                status: Enum.Parse<BillStatus>(reader["status"] == DBNull.Value ? "Unpaid" : reader["status"].ToString(), ignoreCase: true)
             )
             {
                 Order = new Order { OrderId = (int)reader["OrderId"] }

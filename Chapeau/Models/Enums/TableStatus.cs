@@ -1,6 +1,6 @@
 namespace Chapeau.Models.Enums
 {
-    public enum ETableStatus
+    public enum TableStatus
     {
         Free,
         Available,

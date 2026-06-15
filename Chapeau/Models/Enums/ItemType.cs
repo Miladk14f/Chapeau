@@ -1,6 +1,6 @@
 namespace Chapeau.Models.Enums
 {
-    public enum EItemType
+    public enum ItemType
     {
         Food,
         Drink

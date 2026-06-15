@@ -1,6 +1,6 @@
 namespace Chapeau.Models.Enums
 {
-    public enum ECommentType
+    public enum CommentType
     {
         Comment,
         Complaint,

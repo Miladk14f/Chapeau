@@ -104,9 +104,9 @@
             string initials = string.Concat(s.Name.Split(' ').Where(w => w.Length > 0).Take(2).Select(w => w[0].ToString().ToUpper()));
             string roleClass = s.Role switch
             {
-                EStaffRole.Manager => "role-manager",
-                EStaffRole.Chef    => "role-chef",
-                EStaffRole.Bar     => "role-bar",
+                StaffRole.Manager => "role-manager",
+                StaffRole.Chef    => "role-chef",
+                StaffRole.Bar     => "role-bar",
                 _                  => "role-waiter"
             };
             <tr>

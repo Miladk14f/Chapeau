@@ -1,6 +1,6 @@
 namespace Chapeau.Models.Enums
 {
-    public enum EBillStatus
+    public enum BillStatus
     {
         Unpaid,
         Paid,

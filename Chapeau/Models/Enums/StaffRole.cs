@@ -1,6 +1,6 @@
 namespace Chapeau.Models.Enums
 {
-    public enum EStaffRole
+    public enum StaffRole
     {
         Manager,
         Chef,

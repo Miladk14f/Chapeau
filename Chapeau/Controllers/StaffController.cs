@@ -17,6 +17,8 @@ namespace Chapeau.Controllers
         public IActionResult Login()
         {
             List<Staff> staff = _staffService.GetAllStaff();
+            foreach (Staff s in staff)
+                s.Pin = null;
 
             int.TryParse(Request.Cookies["SelectedStaffId"], out int selectedId);
             ViewBag.SelectedStaffId = selectedId;
@@ -47,7 +49,12 @@ namespace Chapeau.Controllers
             {
                 ViewBag.Error = "Invalid password.";
                 ViewBag.SelectedStaffId = staffId;
-                return View(_staffService.GetAllStaff());
+
+                List<Staff> allStaff = _staffService.GetAllStaff();
+                foreach (Staff s in allStaff)
+                    s.Pin = null;
+
+                return View(allStaff);
             }
 
             HttpContext.Session.SetString("StaffName", staff.Name);

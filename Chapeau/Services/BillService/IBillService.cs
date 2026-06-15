@@ -7,7 +7,7 @@ namespace Chapeau.Services.BillService
         List<Bill> GetAllBills();
         Bill GetBillById(int id);
         Bill GetBillByOrderId(int orderId);
-        void AddBill(Bill bill);
+        int AddBill(Bill bill);
         void UpdateBill(Bill bill);
         void DeleteBill(int id);
     }
