@@ -32,7 +32,7 @@ namespace Chapeau.Controllers
             RestaurantTable tableOrder = _tableService.GetTableById(tableId);
 
 
-            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("CurrentOrder");
+            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("OrderItemsList");
             if (orderItems == null)
             {
                 orderItems = new List<OrderItem>();
@@ -48,19 +48,77 @@ namespace Chapeau.Controllers
             return View("CreateOrder", orderViewModel);
         }
 
-        public IActionResult AddItem(int menueItemId)
+
+        [HttpPost]
+        public IActionResult AddItem(int menueItemId, int tableId)
         {
-            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("CurrentOrder");
+
+            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("OrderItemsList");
             if (orderItems == null)
             {
                 orderItems = new List<OrderItem>();
             }
 
-            MenuItem menuItemToAdd = _menuItemService.GetMenuItemById(menueItemId);
+            // check if item is in list?
+            foreach (OrderItem orderItem in orderItems)
+            {
+                if (orderItem.MenuItem.MenuItemId != menueItemId)
+                {
+                    orderItem.Qty++;
+                }
+                else
+                {
+                    // if not found in list -> create that item
+                    MenuItem menuItemForOrder = _menuItemService.GetMenuItemById(menueItemId);
+
+                    // creating new order item 
+                    OrderItem newOrderItem = new OrderItem
+                    {
+                        Name = menuItemForOrder.Name,
+                        Price = menuItemForOrder.Price,
+                        Vat = menuItemForOrder.Vat,
+                        ItemType = menuItemForOrder.Category,
+                        Qty = 1,
+                        CreatedAt = DateTime.Now,
+                        MenuItem = menuItemForOrder
+                    };
+
+                    orderItems.Add(newOrderItem);
+                }
+            }
+            HttpContext.Session.SetObject("OrderItemsList", orderItems);
+
+            return RedirectToAction("CreateOrder");
+        }
 
 
 
-            //orderItems.Add(menuItemToAdd);
+
+        [HttpPost]
+        public IActionResult RemoveItem(int orderItemId, int tableId)
+        {
+            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("OrderItemsList");
+
+            // if null??? if there is no list to get = show something? - dont think there is a way to get here without a list.. 
+
+            // how do you press "-" on an item that doesnt exist in the list?
+
+            foreach(OrderItem orderItem in orderItems)
+            {
+                if (orderItem.MenuItem.MenuItemId == orderItemId)
+                {
+                    if (orderItem.Qty > 1)
+                    {
+                        orderItem.Qty--;
+                    }
+                    else
+                    {
+                        // if qty becomes 0 after - than remove from list
+                        orderItems.Remove(orderItem);
+                    }
+                }
+            }
+
 
 
 
@@ -68,8 +126,6 @@ namespace Chapeau.Controllers
             HttpContext.Session.SetObject("OrderItemsList", orderItems);
 
             return RedirectToAction("CreateOrder");
-
-
         }
     }
 }
