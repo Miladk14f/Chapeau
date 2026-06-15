@@ -7,7 +7,7 @@ namespace Chapeau.Models
         public int MenuItemId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public EItemType Category { get; set; }
+        public ItemType Category { get; set; }
         public decimal Price { get; set; }
         public int Vat { get; set; }
         public string Allergens { get; set; }

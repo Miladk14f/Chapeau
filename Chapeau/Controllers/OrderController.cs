@@ -1,4 +1,5 @@
 ﻿using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Chapeau.Services;
 using Chapeau.ViewModels;
@@ -41,7 +42,7 @@ namespace Chapeau.Controllers
                 {
                     Table = tableOrder,
                     Staff = staff,
-                    Status = Models.Enums.EOrderStatus.InProgress,
+                    Status = Models.Enums.OrderStatus.InProgress,
                     CreatedAt = DateTime.Now
                 });
                 currentOrder = _orderService.GetOrderById(newOrderId);
@@ -88,6 +89,8 @@ namespace Chapeau.Controllers
                 _orderItemService.AddOrderItem(newItem);
             }
 
+            _tableService.UpdateTableStatus(tableId, Models.Enums.TableStatus.Occupied);
+
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
 
@@ -111,6 +114,8 @@ namespace Chapeau.Controllers
                 }
             }
 
+            UpdateTableStatusByItems(tableId);
+
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
 
@@ -120,7 +125,16 @@ namespace Chapeau.Controllers
         {
             _orderItemService.DeleteOrderItem(orderItemId);
 
+            UpdateTableStatusByItems(tableId);
+
             return RedirectToAction("CreateOrder", new { tableId = tableId });
+        }
+
+        private void UpdateTableStatusByItems(int tableId)
+        {
+            List<OrderItem> orderItems = _orderItemService.GetOrderItemsByTableId(tableId);
+            TableStatus status = orderItems.Any() ? TableStatus.Occupied : TableStatus.Free;
+            _tableService.UpdateTableStatus(tableId, status);
         }
 
     }
