@@ -31,6 +31,7 @@ namespace Chapeau.ViewModels
         public string Name { get; set; }
         public int Qty { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string Note { get; set; }
 
         public int MinutesAgo => (int)(DateTime.Now - CreatedAt).TotalMinutes;
     }

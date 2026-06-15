@@ -44,6 +44,21 @@ namespace Chapeau.Services
             _repository.UpdateOrderItem(item);
         }
 
+        public void UpdateOrderItemStatus(int id, Models.Enums.OrderItemStatus status)
+        {
+            _repository.UpdateOrderItemStatus(id, status);
+        }
+
+        public void UpdateOrderItemNote(int id, string note)
+        {
+            _repository.UpdateOrderItemNote(id, note);
+        }
+
+        public void MarkOrderItemsReady(int orderId, Models.Enums.ItemType type)
+        {
+            _repository.MarkOrderItemsReady(orderId, type);
+        }
+
         public void DeleteOrderItem(int id)
         {
             _repository.DeleteOrderItem(id);

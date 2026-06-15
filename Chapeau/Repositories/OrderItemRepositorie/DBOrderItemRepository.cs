@@ -19,7 +19,7 @@ namespace Chapeau.Repositories
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
-                "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt FROM ORDER_ITEM", conn);
+                "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note FROM ORDER_ITEM", conn);
             using SqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read()) list.Add(MapReader(reader));
             return list;
@@ -31,7 +31,7 @@ namespace Chapeau.Repositories
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
-                "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt FROM ORDER_ITEM WHERE OrderId = @OrderId", conn);
+                "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note FROM ORDER_ITEM WHERE OrderId = @OrderId", conn);
             cmd.Parameters.AddWithValue("@OrderId", orderId);
             using SqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read()) list.Add(MapReader(reader));
@@ -44,10 +44,10 @@ namespace Chapeau.Repositories
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
-                @"SELECT oi.Id, oi.OrderId, oi.MenuId, oi.Name, oi.Qty, oi.Price, oi.Vat, oi.ItemType, oi.CreatedAt 
+                @"SELECT oi.Id, oi.OrderId, oi.MenuId, oi.Name, oi.Qty, oi.Price, oi.Vat, oi.ItemType, oi.CreatedAt, oi.Status, oi.Note
           FROM ORDER_ITEM oi
           INNER JOIN [ORDER] o ON oi.OrderId = o.Id
-          WHERE o.TableId = @TableId AND o.Status = 'pending'", conn);
+          WHERE o.TableId = @TableId AND o.Status != 'paid'", conn);
             cmd.Parameters.AddWithValue("@TableId", tableId);
             using SqlDataReader reader = cmd.ExecuteReader();
             while (reader.Read()) list.Add(MapReader(reader));
@@ -60,7 +60,7 @@ namespace Chapeau.Repositories
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
-                "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt FROM ORDER_ITEM WHERE Id = @Id", conn);
+                "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note FROM ORDER_ITEM WHERE Id = @Id", conn);
             cmd.Parameters.AddWithValue("@Id", id);
             using SqlDataReader reader = cmd.ExecuteReader();
             return reader.Read() ? MapReader(reader) : null;
@@ -71,7 +71,7 @@ namespace Chapeau.Repositories
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
-                "INSERT INTO ORDER_ITEM (OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt) VALUES (@OrderId, @MenuId, @Name, @Qty, @Price, @Vat, @ItemType, @CreatedAt)", conn);
+                "INSERT INTO ORDER_ITEM (OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note) VALUES (@OrderId, @MenuId, @Name, @Qty, @Price, @Vat, @ItemType, @CreatedAt, @Status, @Note)", conn);
             cmd.Parameters.AddWithValue("@OrderId", item.Order?.OrderId ?? 0);
             cmd.Parameters.AddWithValue("@MenuId", item.MenuItem?.MenuItemId ?? 0);
             cmd.Parameters.AddWithValue("@Name", item.Name);
@@ -80,6 +80,8 @@ namespace Chapeau.Repositories
             cmd.Parameters.AddWithValue("@Vat", item.Vat);
             cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
             cmd.Parameters.AddWithValue("@CreatedAt", item.CreatedAt);
+            cmd.Parameters.AddWithValue("@Status", item.Status.ToString().ToLower());
+            cmd.Parameters.AddWithValue("@Note", (object)item.Note ?? DBNull.Value);
             cmd.ExecuteNonQuery();
         }
 
@@ -97,6 +99,37 @@ namespace Chapeau.Repositories
             cmd.Parameters.AddWithValue("@Vat", item.Vat);
             cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Id", item.OrderItemId);
+            cmd.ExecuteNonQuery();
+        }
+
+        public void UpdateOrderItemStatus(int id, OrderItemStatus status)
+        {
+            using SqlConnection conn = new SqlConnection(_connectionString);
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand("UPDATE ORDER_ITEM SET Status = @Status WHERE Id = @Id", conn);
+            cmd.Parameters.AddWithValue("@Status", status.ToString().ToLower());
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
+        }
+
+        public void UpdateOrderItemNote(int id, string note)
+        {
+            using SqlConnection conn = new SqlConnection(_connectionString);
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand("UPDATE ORDER_ITEM SET Note = @Note WHERE Id = @Id", conn);
+            cmd.Parameters.AddWithValue("@Note", (object)note ?? DBNull.Value);
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
+        }
+
+        public void MarkOrderItemsReady(int orderId, ItemType type)
+        {
+            using SqlConnection conn = new SqlConnection(_connectionString);
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(
+                "UPDATE ORDER_ITEM SET Status = 'ready' WHERE OrderId = @OrderId AND ItemType = @Type AND Status = 'ordered'", conn);
+            cmd.Parameters.AddWithValue("@OrderId", orderId);
+            cmd.Parameters.AddWithValue("@Type", type.ToString().ToLower());
             cmd.ExecuteNonQuery();
         }
 
@@ -130,9 +163,9 @@ namespace Chapeau.Repositories
             {
                 Order = new Order { OrderId = (int)reader["OrderId"] },
                 MenuItem = new MenuItem { MenuItemId = (int)reader["MenuId"] },
-                CreatedAt = (DateTime)reader["CreatedAt"]
+                CreatedAt = (DateTime)reader["CreatedAt"],
+                Status = Enum.Parse<OrderItemStatus>(reader["Status"] == DBNull.Value ? "Ordered" : reader["Status"].ToString(), ignoreCase: true),
+                Note = reader["Note"] == DBNull.Value ? null : reader["Note"].ToString()
             };
-
-        
     }
 }

@@ -11,6 +11,8 @@ namespace Chapeau.Models
         public int Vat { get; set; }
         public ItemType ItemType { get; set; }
         public DateTime CreatedAt { get; set; }
+        public OrderItemStatus Status { get; set; }
+        public string Note { get; set; }
 
         public Order? Order { get; set; }
         public MenuItem? MenuItem { get; set; }

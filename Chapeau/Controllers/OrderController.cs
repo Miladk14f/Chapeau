@@ -130,6 +130,23 @@ namespace Chapeau.Controllers
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
 
+        [HttpPost]
+        public IActionResult UpdateItemNote(int orderItemId, int tableId, string note)
+        {
+            note = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+            _orderItemService.UpdateOrderItemNote(orderItemId, note);
+
+            return RedirectToAction("CreateOrder", new { tableId = tableId });
+        }
+
+        [HttpPost]
+        public IActionResult ServeItem(int orderItemId, int tableId)
+        {
+            _orderItemService.UpdateOrderItemStatus(orderItemId, OrderItemStatus.Served);
+
+            return RedirectToAction("CreateOrder", new { tableId = tableId });
+        }
+
         private void UpdateTableStatusByItems(int tableId)
         {
             List<OrderItem> orderItems = _orderItemService.GetOrderItemsByTableId(tableId);
