@@ -1,175 +1,205 @@
-﻿    @* Views/Orders/Create.cshtml *@
+@model Chapeau.ViewModels.OrderViewModel;
 
-    @model Chapeau.ViewModels.OrderViewModel;
+@{
+    ViewData["Title"] = "Create Order";
+    decimal orderTotal = Model.OrderItems.Sum(i => i.Price * i.Qty);
+    int orderCount = Model.OrderItems.Sum(i => i.Qty);
+}
 
-    @{
-        ViewData["Title"] = "Create Order";
+<style>
+    .order-header {
+        display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+    }
+    .order-header-left { display: flex; align-items: center; gap: 16px; flex: 1; }
+    .order-header-icon {
+        width: 48px; height: 48px; border-radius: 14px;
+        background: #7a2a3e; display: flex; align-items: center;
+        justify-content: center; font-size: 22px;
+    }
+    .order-header h1 {
+        font-size: 26px; font-weight: 700; color: #2a1a1f;
+        font-family: Georgia, serif; margin-bottom: 2px;
+    }
+    .order-header p { font-size: 13px; color: #9a8a90; }
+    .btn-close {
+        width: 40px; height: 40px; border-radius: 50%;
+        border: 1px solid #e0d8d0; background: #fff;
+        display: flex; align-items: center; justify-content: center;
+        text-decoration: none; color: #6b5560; font-size: 20px;
+        transition: all 0.15s; flex-shrink: 0;
+    }
+    .btn-close:hover { background: #fff0f0; border-color: #f0d0d0; color: #d94040; }
+
+    .order-page {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        align-items: start;
+    }
+    .panel {
+        background: #fff;
+        border: 1px solid #ede8e4;
+        border-radius: 16px;
+        padding: 24px;
+    }
+    .panel h2 {
+        font-size: 18px; font-weight: 700; color: #2a1a1f;
+        font-family: Georgia, serif; margin-bottom: 18px;
     }
 
-    <style>
-        .order-page {
-            display: flex;
-            gap: 20px;
-            margin-top: 20px;
-        }
+    .category-buttons {
+        display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+    }
+    .category-buttons button {
+        padding: 8px 18px; border-radius: 22px;
+        border: 1px solid #ede8e4; background: #f5f0eb;
+        font-size: 13px; font-weight: 600; color: #6b5560;
+        cursor: pointer; transition: all 0.15s;
+    }
+    .category-buttons button:hover {
+        border-color: #7a2a3e; color: #7a2a3e;
+    }
 
-        .panel {
-            flex: 1;
-            border: 1px solid #ccc;
-            padding: 15px;
-        }
+    .menu-row {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 0; border-bottom: 1px solid #f0ebe8;
+    }
+    .menu-row:last-child { border-bottom: none; }
+    .menu-info { display: flex; flex-direction: column; gap: 2px; }
+    .menu-name { font-size: 14px; font-weight: 600; color: #2a1a1f; }
+    .menu-price { font-size: 13px; color: #9a8a90; }
+    .menu-row form { margin: 0; }
+    .btn-add {
+        width: 36px; height: 36px; border-radius: 10px;
+        background: #2a5c3a; color: #fff; border: none;
+        font-size: 20px; font-weight: 700; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .btn-add:hover { background: #1e4a2e; }
 
-            .panel h2 {
-                margin-top: 0;
-            }
+    .order-row {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 0; border-bottom: 1px solid #f0ebe8;
+    }
+    .order-row:last-child { border-bottom: none; }
+    .qty-ctrl { display: flex; align-items: center; gap: 6px; }
+    .qty-ctrl form { margin: 0; }
+    .btn-qty {
+        width: 28px; height: 28px; border-radius: 8px;
+        border: 1px solid #ede8e4; background: #f5f0eb;
+        font-size: 16px; font-weight: 700; color: #6b5560;
+        cursor: pointer; display: flex; align-items: center; justify-content: center;
+    }
+    .btn-qty:hover { background: #e8e0da; }
+    .qty-num {
+        min-width: 28px; text-align: center;
+        font-size: 14px; font-weight: 700; color: #2a1a1f;
+    }
+    .order-item-name { flex: 1; font-size: 14px; font-weight: 600; color: #2a1a1f; }
+    .order-item-price { font-size: 14px; font-weight: 700; color: #7a2a3e; min-width: 64px; text-align: right; }
+    .btn-del {
+        width: 28px; height: 28px; border-radius: 8px;
+        background: #fff; border: 1px solid #f0d0d0; color: #d94040;
+        font-size: 13px; font-weight: 700; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .btn-del:hover { background: #fff0f0; }
 
-        .category-buttons {
-            margin-bottom: 15px;
-        }
+    .order-empty {
+        text-align: center; color: #9a8a90;
+        padding: 40px 0; font-size: 14px;
+    }
+    .order-total {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-top: 18px; padding-top: 18px; border-top: 2px solid #ede8e4;
+    }
+    .order-total-label { font-size: 15px; font-weight: 700; color: #2a1a1f; }
+    .order-total-amount { font-size: 22px; font-weight: 700; color: #7a2a3e; font-family: Georgia, serif; }
+</style>
 
-            .category-buttons button {
-                margin-right: 5px;
-            }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-
-        .actions button {
-            margin-right: 5px;
-        }
-
-        .send-button {
-            margin-top: 20px;
-            width: 100%;
-            padding: 10px;
-        }
-    </style>
-
-    <div class="order-page">
-
-        <!-- LEFT SIDE - MENU ITEMS -->
-        <div class="panel">
-
-            <h2>Menu Items</h2>
-
-            <!-- Categories -->
-            <div class="category-buttons">
-                <button type="button">Starters</button>
-                <button type="button">Mains</button>
-                <button type="button">Drinks</button>
-                <button type="button">Desserts</button>
-            </div>
-
-            <!-- Menu Items Table -->
-            <table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th>Add</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (var item in Model.MenuItems)
-                    {
-                        <tr>
-                            <td>@item.Name</td>
-                            <td>@item.Price.ToString("0.00")</td>
-                            <td>
-                                <form asp-action="AddItem" method="post">
-                                    <input type="hidden" name="menuItemId" value="@item.MenuItemId" />
-                                    <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
-
-
-                                    <button type="submit">+</button>
-                                </form>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
+<div class="order-header">
+    <div class="order-header-left">
+        <div class="order-header-icon">🍽</div>
+        <div>
+            <h1>New Order</h1>
+            <p>Table @Model.TableOrder.TableId · @Model.StaffOrder?.Name</p>
         </div>
-
-
-        <!-- RIGHT SIDE - ORDER ITEMS -->
-        <div class="panel">
-
-            <h2>Order - Table #@Model.TableOrder.TableId</h2>
-
-            <!-- Order Items Table -->
-            <table>
-                <thead>
-                    <tr>
-                        <th>Actions</th>
-                        <th>Item</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (var orderItem in Model.OrderItems)
-                    {
-                        <tr>
-
-                            <!-- Quantity Actions -->
-                            <td class="actions">
-
-                                <!-- Increase -->
-                                <form asp-action="AddItem" method="post" style="display:inline;">
-                                    <input type="hidden" name="MenuItemId" value="@orderItem.MenuItem.MenuItemId" />
-                                    <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
-                                    <button type="submit">+</button>
-                                </form>
-
-                                <!-- Decrease -->
-                                <form asp-action="DecreaseItem" method="post" style="display:inline;">
-                                    <input type="hidden" name="orderItemId" value="@orderItem.OrderItemId" /> 
-                                    @* skf *@
-                                    <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
-                                    <button type="submit">-</button>
-                                </form>
-
-                            </td>
-
-                            <td>@orderItem.Name</td>
-
-                            <td>@orderItem.Qty</td>
-
-                            <td>
-                                @((orderItem.Price * orderItem.Qty).ToString("0.00"))
-                            </td>
-
-                            <!-- Delete -->
-                            <td>
-                                <form asp-action="DeleteItem" method="post">
-                                    <input type="hidden" name="orderItemId" value="@orderItem.OrderItemId" />
-                                    <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
-
-                                    <button type="submit">X</button>
-                                </form>
-                            </td>
-
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-        </div>
-
     </div>
+    <a class="btn-close" asp-controller="RestaurantTable" asp-action="Index" title="Back to tables">✕</a>
+</div>
+
+<div class="order-page">
+
+    <!-- LEFT SIDE - MENU ITEMS -->
+    <div class="panel">
+        <h2>Menu Items</h2>
+
+        <div class="category-buttons">
+            <button type="button">Starters</button>
+            <button type="button">Mains</button>
+            <button type="button">Drinks</button>
+            <button type="button">Desserts</button>
+        </div>
+
+        @foreach (var item in Model.MenuItems)
+        {
+            <div class="menu-row">
+                <div class="menu-info">
+                    <span class="menu-name">@item.Name</span>
+                    <span class="menu-price">€@item.Price.ToString("0.00")</span>
+                </div>
+                <form asp-action="AddItem" method="post">
+                    <input type="hidden" name="menuItemId" value="@item.MenuItemId" />
+                    <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                    <button type="submit" class="btn-add">+</button>
+                </form>
+            </div>
+        }
+    </div>
+
+    <!-- RIGHT SIDE - ORDER ITEMS -->
+    <div class="panel">
+        <h2>Order · Table @Model.TableOrder.TableId</h2>
+
+        @if (Model.OrderItems.Any())
+        {
+            @foreach (var orderItem in Model.OrderItems)
+            {
+                <div class="order-row">
+                    <div class="qty-ctrl">
+                        <form asp-action="DecreaseItem" method="post">
+                            <input type="hidden" name="orderItemId" value="@orderItem.OrderItemId" />
+                            <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                            <button type="submit" class="btn-qty">−</button>
+                        </form>
+                        <span class="qty-num">@orderItem.Qty</span>
+                        <form asp-action="AddItem" method="post">
+                            <input type="hidden" name="MenuItemId" value="@orderItem.MenuItem.MenuItemId" />
+                            <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                            <button type="submit" class="btn-qty">+</button>
+                        </form>
+                    </div>
+
+                    <span class="order-item-name">@orderItem.Name</span>
+                    <span class="order-item-price">€@((orderItem.Price * orderItem.Qty).ToString("0.00"))</span>
+
+                    <form asp-action="DeleteItem" method="post">
+                        <input type="hidden" name="orderItemId" value="@orderItem.OrderItemId" />
+                        <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                        <button type="submit" class="btn-del">✕</button>
+                    </form>
+                </div>
+            }
+
+            <div class="order-total">
+                <span class="order-total-label">Total (@orderCount items)</span>
+                <span class="order-total-amount">€@orderTotal.ToString("0.00")</span>
+            </div>
+        }
+        else
+        {
+            <div class="order-empty">No items yet. Add from the menu.</div>
+        }
+    </div>
+
+</div>
