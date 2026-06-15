@@ -1,0 +1,191 @@
+@model List<Chapeau.ViewModels.BarOrderCard>
+@{
+    ViewData["Title"] = "Bar";
+    int urgent = Model?.Count(c => c.IsUrgent)  ?? 0;
+}
+
+<style>
+    .bar-header {
+        display: flex; align-items: center; gap: 16px; margin-bottom: 28px;
+    }
+    .bar-icon {
+        width: 48px; height: 48px; border-radius: 14px;
+        background: #1a3a5c; display: flex; align-items: center;
+        justify-content: center; font-size: 22px;
+    }
+    .bar-header h1 {
+        font-size: 26px; font-weight: 700; color: #2a1a1f;
+        font-family: Georgia, serif; margin-bottom: 4px;
+    }
+    .bar-sub { font-size: 13px; color: #9a8a90; }
+    .bar-sub .urgent-txt { color: #d94040; font-weight: 700; }
+
+    .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+    }
+
+    .order-card {
+        background: #fff;
+        border: 2px solid #e8e0da;
+        border-radius: 14px;
+        padding: 18px;
+    }
+    .order-card.warning { border-color: #e87d3e; }
+    .order-card.urgent  { border-color: #d94040; background: #fff8f8; }
+
+    .card-top {
+        display: flex; align-items: center;
+        justify-content: space-between; margin-bottom: 12px;
+    }
+    .table-badge {
+        background: #1a3a5c; color: #fff;
+        padding: 4px 12px; border-radius: 20px;
+        font-size: 12px; font-weight: 700;
+    }
+    .time-ago {
+        display: flex; align-items: center; gap: 5px;
+        font-size: 13px; color: #9a8a90;
+    }
+    .time-ago.warning { color: #e87d3e; }
+    .time-ago.urgent  { color: #d94040; font-weight: 700; }
+
+    .wait-exceeded {
+        display: flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 600; color: #d94040;
+        margin-bottom: 12px;
+    }
+
+    .items-list { margin-bottom: 14px; }
+    .item-row {
+        display: flex; align-items: center;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0ebe8;
+    }
+    .item-row:last-child { border-bottom: none; }
+    .item-left { display: flex; align-items: center; gap: 10px; }
+    .item-qty {
+        background: #1a3a5c; color: #fff;
+        width: 32px; height: 32px; border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .item-info { display: flex; flex-direction: column; gap: 2px; }
+    .item-name { font-size: 14px; font-weight: 600; color: #2a1a1f; }
+    .item-type-badge {
+        display: inline-block; padding: 1px 8px;
+        border-radius: 20px; font-size: 11px; font-weight: 600;
+        background: #e8f0ff; color: #3a5fd9;
+    }
+    .item-time { font-size: 11px; color: #b0a0a8; }
+
+    .card-footer {
+        display: flex; align-items: center;
+        justify-content: space-between; margin-top: 4px;
+    }
+    .ordered-by { font-size: 13px; color: #9a8a90; }
+
+    .btn-ready {
+        display: flex; align-items: center; gap: 6px;
+        padding: 8px 18px;
+        background: #1a3a5c; color: #fff;
+        border: none; border-radius: 20px;
+        font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-ready:hover { background: #102840; }
+
+    .empty-state {
+        text-align: center; color: #9a8a90;
+        padding: 60px; font-size: 15px;
+    }
+
+    .legend {
+        display: flex; gap: 20px;
+    }
+    .legend-item {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 13px; color: #6b5560;
+    }
+    .legend-box {
+        width: 16px; height: 16px; border-radius: 4px; border: 2px solid;
+    }
+    .legend-box.normal  { border-color: #e8e0da; background: #fff; }
+    .legend-box.warning { border-color: #e87d3e; background: #fff; }
+    .legend-box.urgent  { border-color: #d94040; background: #fff8f8; }
+</style>
+
+<div class="bar-header">
+    <div class="bar-icon">🍷</div>
+    <div>
+        <h1>Bar</h1>
+        <div class="bar-sub">
+            @(Model?.Count ?? 0) pending
+            @if (urgent > 0)
+            {
+                <span> · </span><span class="urgent-txt">@urgent urgent!</span>
+            }
+        </div>
+    </div>
+</div>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="empty-state">No pending drink orders.</div>
+}
+else
+{
+    <div class="cards-grid">
+        @foreach (var card in Model)
+        {
+            string cardClass = card.IsUrgent ? "urgent" : card.IsWarning ? "warning" : "";
+            string timeClass = card.IsUrgent ? "urgent" : card.IsWarning ? "warning" : "";
+            string timeText  = card.MinutesAgo < 1 ? "just now" : $"{card.MinutesAgo} min ago";
+
+            <div class="order-card @cardClass">
+                <div class="card-top">
+                    <span class="table-badge">Table @card.TableId</span>
+                    <span class="time-ago @timeClass">🕐 @timeText</span>
+                </div>
+
+                @if (card.IsUrgent)
+                {
+                    <div class="wait-exceeded">⊘ Wait time exceeded!</div>
+                }
+
+                <div class="items-list">
+                    @foreach (var item in card.Items)
+                    {
+                        string itemTime = item.MinutesAgo < 1 ? "just now" : $"{item.MinutesAgo} min ago";
+                        <div class="item-row">
+                            <div class="item-left">
+                                <span class="item-qty">@(item.Qty)×</span>
+                                <div class="item-info">
+                                    <span class="item-name">@item.Name</span>
+                                    <span class="item-type-badge">Drink</span>
+                                </div>
+                            </div>
+                            <span class="item-time">@itemTime</span>
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer">
+                    <span class="ordered-by">Ordered by: @card.StaffName</span>
+                    <form method="post" asp-action="MarkReady" style="margin:0">
+                        <input type="hidden" name="orderId" value="@card.OrderId" />
+                        <button type="submit" class="btn-ready">✓ Ready</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<div class="legend">
+    <div class="legend-item"><div class="legend-box normal"></div> &lt; 6 min</div>
+    <div class="legend-item"><div class="legend-box warning"></div> 6–9 min</div>
+    <div class="legend-item"><div class="legend-box urgent"></div> ≥ 10 min (urgent)</div>
+</div>

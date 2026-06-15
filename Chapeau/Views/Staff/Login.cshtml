@@ -1,0 +1,321 @@
+@model List<Chapeau.Models.Staff>
+@using Chapeau.Models.Enums
+@{
+    Layout = null;
+    int selectedId = ViewBag.SelectedStaffId ?? 0;
+
+    var roleGroups = new[]
+    {
+        new { Label = "Manager", Icon = "📊", Key = StaffRole.Manager },
+        new { Label = "Chef",    Icon = "🍽",  Key = StaffRole.Chef    },
+        new { Label = "Bar",     Icon = "🍷",  Key = StaffRole.Bar     },
+        new { Label = "Service", Icon = "⊞",  Key = StaffRole.Waiter  },
+    };
+
+    string Initials(string name) =>
+        string.Concat(name.Split(' ').Where(w => w.Length > 0).Take(2).Select(w => w[0].ToString().ToUpper()));
+
+    string AvatarColor(int id)
+    {
+        return (id % 6) switch
+        {
+            0 => "#8b3a52",
+            1 => "#2d6e4e",
+            2 => "#2a4f7a",
+            3 => "#7a5a1a",
+            4 => "#4a2e7a",
+            _ => "#1e5c5c"
+        };
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chapeau – Sign In</title>
+    <style>
+            *, *::before, *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                background-color: #1a0d12;
+                color: #e8ddd5;
+                font-family: 'Segoe UI', system-ui, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 48px 16px 32px;
+            }
+
+            .logo-circle {
+                width: 72px;
+                height: 72px;
+                border-radius: 50%;
+                background: #8b3a52;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+                font-weight: 700;
+                color: #e8c9a0;
+                margin-bottom: 16px;
+            }
+
+            h1 {
+                font-size: 42px;
+                font-weight: 700;
+                color: #f0e6d8;
+                font-family: Georgia, serif;
+                margin-bottom: 6px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+                color: #c9843a;
+                margin-bottom: 12px;
+            }
+
+            .hint {
+                font-size: 14px;
+                color: #6b5560;
+                margin-bottom: 36px;
+            }
+
+            .login-wrap {
+                width: 100%;
+                max-width: 720px;
+            }
+
+            .role-section {
+                margin-bottom: 28px;
+            }
+
+            .role-label {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.12em;
+                color: #6b5560;
+                text-transform: uppercase;
+                margin-bottom: 10px;
+                padding-bottom: 8px;
+                border-bottom: 1px solid #2e1820;
+            }
+
+            .staff-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+                .staff-grid form {
+                    margin: 0;
+                    padding: 0;
+                }
+
+            .staff-card {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                background: #261119;
+                border: 1px solid #3a1e28;
+                border-radius: 10px;
+                padding: 14px 20px;
+                cursor: pointer;
+                min-width: 200px;
+                transition: border-color 0.15s, background 0.15s;
+                font-family: inherit;
+                color: inherit;
+                text-align: left;
+            }
+
+                .staff-card:hover {
+                    border-color: #8b3a52;
+                    background: #2e1520;
+                }
+
+                .staff-card.active {
+                    border-color: #8b3a52;
+                    background: #2e1520;
+                    box-shadow: 0 0 0 2px #8b3a5280;
+                }
+
+            .avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                font-weight: 700;
+                color: #fff;
+                flex-shrink: 0;
+            }
+
+            .card-firstname {
+                font-size: 15px;
+                font-weight: 600;
+                color: #f0e6d8;
+            }
+
+            .card-lastname {
+                font-size: 12px;
+                color: #6b5560;
+            }
+
+            /* ── Password section ── */
+            .password-section {
+                margin-top: 32px;
+                border-top: 1px solid #2e1820;
+                padding-top: 28px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .selected-staff-hint {
+                font-size: 13px;
+                color: #6b5560;
+            }
+
+                .selected-staff-hint span {
+                    color: #c9843a;
+                    font-weight: 600;
+                }
+
+            .password-section label {
+                font-size: 12px;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                color: #6b5560;
+            }
+
+            .password-section input[type="password"] {
+                width: 360px;
+                background: #261119;
+                border: 1px solid #3a1e28;
+                border-radius: 8px;
+                padding: 12px 16px;
+                font-size: 15px;
+                color: #f0e6d8;
+                outline: none;
+                transition: border-color 0.15s;
+                text-align: center;
+            }
+
+                .password-section input[type="password"]::placeholder {
+                    color: #4a2e3a;
+                }
+
+                .password-section input[type="password"]:focus {
+                    border-color: #8b3a52;
+                }
+
+            .btn-signin {
+                width: 360px;
+                padding: 12px 36px;
+                background: #8b3a52;
+                color: #f0e6d8;
+                border: none;
+                border-radius: 8px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.15s;
+            }
+
+                .btn-signin:hover {
+                    background: #a04560;
+                }
+
+            .error-msg {
+                color: #e87d7d;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            footer {
+                margin-top: auto;
+                padding-top: 48px;
+                font-size: 12px;
+                color: #3a2030;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="logo-circle">C</div>
+    <h1>Chapeau</h1>
+    <p class="subtitle">Zeewolde · Ordering System</p>
+    <p class="hint">Select your name to sign in</p>
+
+    <div class="login-wrap">
+
+        @foreach (var group in roleGroups)
+        {
+            var members = Model?.Where(s => s.Role == group.Key).ToList();
+            if (members == null || members.Count == 0) continue;
+
+            <div class="role-section">
+                <div class="role-label"><span>@group.Icon</span> @group.Label</div>
+                <div class="staff-grid">
+                    @foreach (var staff in members)
+                    {
+                        <form method="post" action="/Staff/Select">
+                            <input type="hidden" name="staffId" value="@staff.StaffId" />
+                            <button type="submit" class="staff-card @(staff.StaffId == selectedId ? "active" : "")">
+                                <div class="avatar" style="background:@AvatarColor(staff.StaffId)">@Initials(staff.Name)</div>
+                                <div class="card-info">
+                                    <div class="card-firstname">@staff.Name.Split(' ').FirstOrDefault()</div>
+                                    <div class="card-lastname">@staff.Name.Split(' ').Skip(1).FirstOrDefault()</div>
+                                </div>
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- PASSWORD -->
+        <form method="post" action="/Staff/Login">
+            <div class="password-section">
+                @if (selectedId > 0)
+                {
+                    var selected = Model?.FirstOrDefault(s => s.StaffId == selectedId);
+                    if (selected != null)
+                    {
+                        <p class="selected-staff-hint">Signing in as <span>@selected.Name</span></p>
+                    }
+                }
+                else
+                {
+                    <p class="selected-staff-hint">Select a staff member above first</p>
+                }
+
+                @if (!string.IsNullOrEmpty(ViewBag.Error as string))
+                {
+                    <p class="error-msg">@ViewBag.Error</p>
+                }
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" />
+                <button type="submit" class="btn-signin">Sign in →</button>
+            </div>
+        </form>
+
+    </div>
+
+    <footer>© 2025 Restaurant Chapeau, Zeewolde</footer>
+
+</body>
+</html>

@@ -1,29 +1,60 @@
+using Chapeau.Repositories;
+using Chapeau.Repositories.BillRepository;
+using Chapeau.Services;
+using Chapeau.Services.BillService;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSession();
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddScoped<IPaymentRepository, DBPaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+builder.Services.AddScoped<IBillRepository, DBBillRepository>();
+builder.Services.AddScoped<IBillService, BillService>();
+
+builder.Services.AddScoped<IRestaurantTableRepository, DBRestaurantTableRepository>();
+builder.Services.AddScoped<IRestaurantTableService, RestaurantTableService>();
+
+builder.Services.AddScoped<IStaffRepository, DBStaffRepository>();
+builder.Services.AddScoped<IStaffService, StaffService>();
+
+builder.Services.AddScoped<IMenuItemRepository, DBMenuItemRepository>();
+builder.Services.AddScoped<IMenuItemService, MenuItemService>();
+
+builder.Services.AddScoped<IOrderItemRepository, DBOrderItemRepository>();
+builder.Services.AddScoped<IOrderItemService, OrderItemService>();
+
+builder.Services.AddScoped<IStockItemRepository, DBStockItemRepository>();
+builder.Services.AddScoped<IStockItemService, StockItemService>();
+
+builder.Services.AddScoped<ICommentRepository, DBCommentRepository>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+
+builder.Services.AddScoped<IOrderRepository, DBOrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseRouting();
-
+app.UseSession();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Staff}/{action=Login}/{id?}")
     .WithStaticAssets();
-
 
 app.Run();
