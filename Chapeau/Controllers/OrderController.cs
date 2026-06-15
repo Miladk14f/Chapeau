@@ -2,24 +2,24 @@
 using Microsoft.AspNetCore.Mvc;
 using Chapeau.Services;
 using Chapeau.ViewModels;
-using Chapeau.Extentions;
 
 namespace Chapeau.Controllers
 {
     public class OrderController : Controller
     {
-
         private readonly IOrderService _orderService;
         private readonly IMenuItemService _menuItemService;
         private readonly IStaffService _staffService;
         private readonly IRestaurantTableService _tableService;
+        private readonly IOrderItemService _orderItemService;
 
-        public OrderController(IOrderService orderService, IMenuItemService menuItemService, IStaffService staffService, IRestaurantTableService tableService)
+        public OrderController(IOrderService orderService, IMenuItemService menuItemService, IStaffService staffService, IRestaurantTableService tableService, IOrderItemService orderItemService)
         {
             _menuItemService = menuItemService;
             _orderService = orderService;
             _staffService = staffService;
             _tableService = tableService;
+            _orderItemService = orderItemService;
         }
 
         public IActionResult Index()
@@ -27,105 +27,101 @@ namespace Chapeau.Controllers
             return View();
         }
 
-        public IActionResult CreateOrder(int tableId) // int staffId from session (waiting on teammate)
+        public IActionResult CreateOrder(int tableId)
         {
             RestaurantTable tableOrder = _tableService.GetTableById(tableId);
-
-
-            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("OrderItemsList");
-            if (orderItems == null)
-            {
-                orderItems = new List<OrderItem>();
-            }
-           
             List<MenuItem> menuItems = _menuItemService.GetAllMenuItems();
+            Staff staff = _staffService.GetStaffById(2);
 
-            Staff staff = _staffService.GetStaffById(2); // staffId
+            // get existing order - if not found, create a new onw
+            Order currentOrder = _orderService.GetActiveOrderByTableId(tableId);
+            if (currentOrder == null)
+            {
+                int newOrderId = _orderService.AddOrder(new Order
+                {
+                    Table = tableOrder,
+                    Staff = staff,
+                    Status = Models.Enums.EOrderStatus.InProgress,
+                    CreatedAt = DateTime.Now
+                });
+                currentOrder = _orderService.GetOrderById(newOrderId);
+            }
+
+            List<OrderItem> orderItems = _orderItemService.GetOrderItemsByTableId(tableId);
 
             OrderViewModel orderViewModel = new OrderViewModel(menuItems, orderItems, tableOrder, staff);
-
-
             return View("CreateOrder", orderViewModel);
         }
 
 
         [HttpPost]
-        public IActionResult AddItem(int menueItemId, int tableId)
+        public IActionResult AddItem(int menuItemId, int tableId)
         {
+            Order currentOrder = _orderService.GetActiveOrderByTableId(tableId);
 
-            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("OrderItemsList");
-            if (orderItems == null)
+            // Load current items to check if this menu item is already in the order
+            List<OrderItem> orderItems = _orderItemService.GetOrderItemsByTableId(tableId);
+            OrderItem existingItem = orderItems.FirstOrDefault(item => item.MenuItem.MenuItemId == menuItemId);
+
+            if (existingItem != null)
             {
-                orderItems = new List<OrderItem>();
+                existingItem.Qty++;
+                _orderItemService.UpdateOrderItem(existingItem);
+            }
+            else
+            {
+                // if item not in list - create it using the menue item
+                MenuItem menuItemForOrder = _menuItemService.GetMenuItemById(menuItemId);
+
+                OrderItem newItem = new OrderItem
+                {
+                    Order = currentOrder,
+                    MenuItem = menuItemForOrder,
+                    Name = menuItemForOrder.Name,
+                    Price = menuItemForOrder.Price,
+                    Vat = menuItemForOrder.Vat,
+                    ItemType = menuItemForOrder.Category,
+                    Qty = 1,
+                    CreatedAt = DateTime.Now
+                };
+
+                _orderItemService.AddOrderItem(newItem);
             }
 
-            // check if item is in list?
-            foreach (OrderItem orderItem in orderItems)
-            {
-                if (orderItem.MenuItem.MenuItemId != menueItemId)
-                {
-                    orderItem.Qty++;
-                }
-                else
-                {
-                    // if not found in list -> create that item
-                    MenuItem menuItemForOrder = _menuItemService.GetMenuItemById(menueItemId);
-
-                    // creating new order item 
-                    OrderItem newOrderItem = new OrderItem
-                    {
-                        Name = menuItemForOrder.Name,
-                        Price = menuItemForOrder.Price,
-                        Vat = menuItemForOrder.Vat,
-                        ItemType = menuItemForOrder.Category,
-                        Qty = 1,
-                        CreatedAt = DateTime.Now,
-                        MenuItem = menuItemForOrder
-                    };
-
-                    orderItems.Add(newOrderItem);
-                }
-            }
-            HttpContext.Session.SetObject("OrderItemsList", orderItems);
-
-            return RedirectToAction("CreateOrder");
+            return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
-
-
 
 
         [HttpPost]
-        public IActionResult RemoveItem(int orderItemId, int tableId)
+        public IActionResult DecreaseItem(int orderItemId, int tableId)
         {
-            List<OrderItem> orderItems = HttpContext.Session.GetObject<List<OrderItem>>("OrderItemsList");
+            OrderItem itemToDecrease = _orderItemService.GetOrderItemById(orderItemId);
 
-            // if null??? if there is no list to get = show something? - dont think there is a way to get here without a list.. 
-
-            // how do you press "-" on an item that doesnt exist in the list?
-
-            foreach(OrderItem orderItem in orderItems)
+            if (itemToDecrease != null)
             {
-                if (orderItem.MenuItem.MenuItemId == orderItemId)
+                if (itemToDecrease.Qty > 1)
                 {
-                    if (orderItem.Qty > 1)
-                    {
-                        orderItem.Qty--;
-                    }
-                    else
-                    {
-                        // if qty becomes 0 after - than remove from list
-                        orderItems.Remove(orderItem);
-                    }
+                    itemToDecrease.Qty--;
+                    _orderItemService.UpdateOrderItem(itemToDecrease);
+                }
+                else
+                {
+                    // Qty would hit 0 — remove the row entirely
+                    _orderItemService.DeleteOrderItem(orderItemId);
                 }
             }
 
-
-
-
-
-            HttpContext.Session.SetObject("OrderItemsList", orderItems);
-
-            return RedirectToAction("CreateOrder");
+            return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
+
+
+        [HttpPost]
+        public IActionResult DeleteItem(int orderItemId, int tableId)
+        {
+            _orderItemService.DeleteOrderItem(orderItemId);
+
+            return RedirectToAction("CreateOrder", new { tableId = tableId });
+        }
+
     }
 }

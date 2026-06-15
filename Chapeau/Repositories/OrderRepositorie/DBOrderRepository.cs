@@ -51,6 +51,31 @@ namespace Chapeau.Repositories
             return orders;
         }
 
+       
+
+        public Order GetActiveOrderByTableId(int tableId)
+        {
+
+            using SqlConnection conn = new SqlConnection(_connectionString);
+            conn.Open();
+
+            string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE TableId = @TableId AND Status = 'pending' OR Status = 'InProgress'";
+
+            using SqlCommand cmd = new SqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@TableId", tableId);
+
+            using SqlDataReader reader = cmd.ExecuteReader();
+
+
+            if (reader.Read())
+            {
+                return MapReader(reader);
+            }
+
+            return null;
+        }
+
+
         public List<Order> GetOrdersByStaffId(int staffId)
         {
             List<Order> orders = new List<Order>();
@@ -172,5 +197,7 @@ namespace Chapeau.Repositories
                 Staff = reader["StaffId"] == DBNull.Value ? null : new Staff { StaffId = (int)reader["StaffId"] }
             };
         }
+
+        
     }
 }

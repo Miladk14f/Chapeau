@@ -9,6 +9,7 @@ namespace Chapeau.Services
         List<Order> GetOrdersByTableId(int tableId);
         List<Order> GetOrdersByStaffId(int staffId);
         Order GetOrderById(int orderId);
+        Order GetActiveOrderByTableId(int tableId); //
         int AddOrder(Order order);
         void UpdateOrder(Order order);
         void UpdateOrderStatus(int orderId, EOrderStatus status);

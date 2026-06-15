@@ -22,6 +22,12 @@ namespace Chapeau.Services
             return _repository.GetOrderItemsByOrderId(orderId);
         }
 
+        public List<OrderItem> GetOrderItemsByTableId(int orderId)
+        {
+            return _repository.GetOrderItemsByTableId(orderId);
+        }
+
+
         public OrderItem GetOrderItemById(int id)
         {
             return _repository.GetOrderItemById(id);
