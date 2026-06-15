@@ -7,6 +7,7 @@ namespace Chapeau.Repositories
     {
         List<Order> GetAllOrders();
         List<Order> GetOrdersByTableId(int tableId);
+        Order GetActiveOrderByTableId(int tableId); //
         List<Order> GetOrdersByStaffId(int staffId);
         Order GetOrderById(int orderId);
         int AddOrder(Order order);

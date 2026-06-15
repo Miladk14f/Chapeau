@@ -38,6 +38,23 @@ namespace Chapeau.Repositories
             return list;
         }
 
+        List<OrderItem> IOrderItemRepository.GetOrderItemsByTableId(int tableId)
+        {
+            List<OrderItem> list = new List<OrderItem>();
+            using SqlConnection conn = new SqlConnection(_connectionString);
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand(
+                @"SELECT oi.Id, oi.OrderId, oi.MenuId, oi.Name, oi.Qty, oi.Price, oi.Vat, oi.ItemType, oi.CreatedAt 
+          FROM ORDER_ITEM oi
+          INNER JOIN [ORDER] o ON oi.OrderId = o.Id
+          WHERE o.TableId = @TableId AND o.Status = 'pending'", conn);
+            cmd.Parameters.AddWithValue("@TableId", tableId);
+            using SqlDataReader reader = cmd.ExecuteReader();
+            while (reader.Read()) list.Add(MapReader(reader));
+
+            return list;
+        }
+
         public OrderItem GetOrderItemById(int id)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
@@ -115,5 +132,7 @@ namespace Chapeau.Repositories
                 MenuItem = new MenuItem { MenuItemId = (int)reader["MenuId"] },
                 CreatedAt = (DateTime)reader["CreatedAt"]
             };
+
+        
     }
 }

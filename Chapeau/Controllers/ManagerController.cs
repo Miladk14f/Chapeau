@@ -66,10 +66,10 @@ namespace Chapeau.Controllers
 
             var stockItems = menu.Select(m => new StockItemRow
             {
-                Name = m.Name,
-                Category = m.Category,
-                Price = m.Price,
-                Vat = m.Vat,
+                Name     = m.Name,
+                Category = m.Category.ToString(),
+                Price    = m.Price,
+                Vat      = m.Vat,
                 Quantity = m.InStock ? 1 : 0,
                 IsLow = false,
                 IsOut = !m.InStock

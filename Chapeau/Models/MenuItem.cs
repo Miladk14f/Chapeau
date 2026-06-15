@@ -1,3 +1,5 @@
+using Chapeau.Models.Enums;
+
 namespace Chapeau.Models
 {
     public class MenuItem
@@ -5,7 +7,7 @@ namespace Chapeau.Models
         public int MenuItemId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public string Category { get; set; }
+        public EItemType Category { get; set; }
         public decimal Price { get; set; }
         public int Vat { get; set; }
         public string Allergens { get; set; }
@@ -18,7 +20,6 @@ namespace Chapeau.Models
             MenuItemId = menuItemId;
             Name = name;
             Description = description;
-            Category = category;
             Price = price;
             Vat = vat;
             Allergens = allergens;

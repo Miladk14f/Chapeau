@@ -1,3 +1,4 @@
+using System.Net.NetworkInformation;
 using Chapeau.Models;
 using Chapeau.Models.Enums;
 using Chapeau.Repositories;
@@ -53,6 +54,11 @@ namespace Chapeau.Services
         public void DeleteOrder(int orderId)
         {
             _repository.DeleteOrder(orderId);
+        }
+
+        public Order GetActiveOrderByTableId(int tableId)
+        {
+            return _repository.GetActiveOrderByTableId(tableId);
         }
     }
 }
