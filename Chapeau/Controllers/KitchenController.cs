@@ -1,3 +1,4 @@
+using Chapeau.Models;
 using Chapeau.Models.Enums;
 using Chapeau.Services;
 using Chapeau.ViewModels;
@@ -23,41 +24,73 @@ namespace Chapeau.Controllers
 
         public IActionResult Index()
         {
-            var staff = _staffService.GetAllStaff();
-            var orders = _orderService.GetAllOrders()
-                .Where(o => o.Status == OrderStatus.Pending || o.Status == OrderStatus.InProgress)
-                .ToList();
+            List<Staff> staff = _staffService.GetAllStaff();
+            List<Order> allOrders = _orderService.GetAllOrders();
+            List<OrderItem> allItems = _orderItemService.GetAllOrderItems();
 
-            var allItems = _orderItemService.GetAllOrderItems()
-                .Where(i => i.ItemType == ItemType.Food && i.Status == OrderItemStatus.Ordered)
-                .GroupBy(i => i.Order?.OrderId ?? 0)
-                .ToDictionary(g => g.Key, g => g.ToList());
+            // Group food items that are still waiting, keyed by their order id
+            Dictionary<int, List<OrderItem>> itemsByOrder = new Dictionary<int, List<OrderItem>>();
+            foreach (OrderItem item in allItems)
+            {
+                if (item.ItemType != ItemType.Food || item.Status != OrderItemStatus.Ordered)
+                    continue;
 
-            var cards = orders
-                .Where(o => allItems.ContainsKey(o.OrderId))
-                .Select(o =>
+                int orderId = item.Order != null ? item.Order.OrderId : 0;
+                if (!itemsByOrder.ContainsKey(orderId))
+                    itemsByOrder[orderId] = new List<OrderItem>();
+
+                itemsByOrder[orderId].Add(item);
+            }
+
+            List<KitchenOrderCard> cards = new List<KitchenOrderCard>();
+            foreach (Order order in allOrders)
+            {
+                if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.InProgress)
+                    continue;
+                if (!itemsByOrder.ContainsKey(order.OrderId))
+                    continue;
+
+                List<OrderItem> items = itemsByOrder[order.OrderId];
+
+                int orderStaffId = order.Staff != null ? order.Staff.StaffId : 0;
+                string staffName = "Unknown";
+                foreach (Staff s in staff)
                 {
-                    var items = allItems[o.OrderId];
-                    var member = staff.FirstOrDefault(s => s.StaffId == (o.Staff?.StaffId ?? 0));
-                    var orderedAt = items.Min(i => i.CreatedAt);
-
-                    return new KitchenOrderCard
+                    if (s.StaffId == orderStaffId)
                     {
-                        OrderId = o.OrderId,
-                        TableId = o.Table?.TableId ?? 0,
-                        StaffName = member?.Name ?? "Unknown",
-                        OrderedAt = orderedAt,
-                        Items = items.Select(i => new KitchenItemRow
-                        {
-                            Name = i.Name,
-                            Qty = i.Qty,
-                            CreatedAt = i.CreatedAt,
-                            Note = i.Note
-                        }).ToList()
-                    };
-                })
-                .OrderByDescending(c => c.MinutesAgo)
-                .ToList();
+                        staffName = s.Name;
+                        break;
+                    }
+                }
+
+                DateTime orderedAt = items[0].CreatedAt;
+                List<KitchenItemRow> rows = new List<KitchenItemRow>();
+                foreach (OrderItem item in items)
+                {
+                    if (item.CreatedAt < orderedAt)
+                        orderedAt = item.CreatedAt;
+
+                    rows.Add(new KitchenItemRow
+                    {
+                        Name = item.Name,
+                        Qty = item.Qty,
+                        CreatedAt = item.CreatedAt,
+                        Note = item.Note
+                    });
+                }
+
+                cards.Add(new KitchenOrderCard
+                {
+                    OrderId = order.OrderId,
+                    TableId = order.Table != null ? order.Table.TableId : 0,
+                    StaffName = staffName,
+                    OrderedAt = orderedAt,
+                    Items = rows
+                });
+            }
+
+            // Oldest (most urgent) first
+            cards.Sort((a, b) => b.MinutesAgo.CompareTo(a.MinutesAgo));
 
             return View(cards);
         }
