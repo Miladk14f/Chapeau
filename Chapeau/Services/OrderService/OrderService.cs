@@ -101,7 +101,9 @@ namespace Chapeau.Services
             Dictionary<int, List<OrderItem>> itemsByOrder = new Dictionary<int, List<OrderItem>>();
             foreach (OrderItem item in allItems)
             {
-                if (item.ItemType != type || item.Status != OrderItemStatus.Ordered)
+                if (item.ItemType != type)
+                    continue;
+                if (item.Status != OrderItemStatus.Ordered && item.Status != OrderItemStatus.InPreparation)
                     continue;
 
                 int orderId = item.Order != null ? item.Order.OrderId : 0;
@@ -133,11 +135,15 @@ namespace Chapeau.Services
                 }
 
                 DateTime orderedAt = items[0].CreatedAt;
+                bool hasOrdered = false;
                 List<PreparationItemRow> rows = new List<PreparationItemRow>();
                 foreach (OrderItem item in items)
                 {
                     if (item.CreatedAt < orderedAt)
                         orderedAt = item.CreatedAt;
+
+                    if (item.Status == OrderItemStatus.Ordered)
+                        hasOrdered = true;
 
                     rows.Add(new PreparationItemRow
                     {
@@ -155,6 +161,7 @@ namespace Chapeau.Services
                     StaffName = staffName,
                     OrderedAt = orderedAt,
                     Items = rows,
+                    IsPreparing = !hasOrdered,
                     WarningMinutes = warningMinutes,
                     UrgentMinutes = urgentMinutes
                 });

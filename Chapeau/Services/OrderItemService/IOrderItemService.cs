@@ -13,6 +13,7 @@ namespace Chapeau.Services
         void UpdateOrderItem(OrderItem item);
         void UpdateOrderItemStatus(int id, OrderItemStatus status);
         void UpdateOrderItemNote(int id, string note);
+        void StartPreparingItems(int orderId, ItemType type);
         void MarkOrderItemsReady(int orderId, ItemType type);
         void DeleteOrderItem(int id);
         void DeleteOrderItemsByOrderId(int orderId);

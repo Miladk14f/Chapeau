@@ -1,8 +1,8 @@
-using System.Security.Cryptography;
-using System.Text;
 using Chapeau.Models;
 using Chapeau.Models.Enums;
 using Chapeau.Repositories;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Chapeau.Services
 {

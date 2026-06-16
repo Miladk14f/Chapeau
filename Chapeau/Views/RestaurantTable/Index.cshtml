@@ -183,14 +183,16 @@
     .ready-note {
         border-radius: 10px; padding: 8px 10px;
     }
-    .ready-note.food  { background: #fff8e6; border: 1px solid #f0d880; }
+    .ready-note.food  { background: #eafaf0; border: 1px solid #a8e0be; }
     .ready-note.drink { background: #e9f1ff; border: 1px solid #aecbf5; }
+    .ready-note.preparing { background: #fff6e0; border: 1px solid #f0d080; }
+    .ready-note.preparing .ready-note-head { color: #a06a00; }
     .ready-note-head {
         display: flex; align-items: center; gap: 6px;
         font-size: 11px; font-weight: 700; text-transform: uppercase;
         letter-spacing: 0.04em; margin-bottom: 4px;
     }
-    .ready-note.food  .ready-note-head { color: #a06a00; }
+    .ready-note.food  .ready-note-head { color: #2a7a48; }
     .ready-note.drink .ready-note-head { color: #2a4f9a; }
     .ready-note-items { font-size: 12px; color: #4a3a2a; line-height: 1.5; }
     .ready-note.drink .ready-note-items { color: #2a3a5a; }
@@ -228,7 +230,8 @@
         var cardClass  = isOccupied ? "occupied" : isReserved ? "reserved" : "";
         var badgeClass = isOccupied ? "badge-occupied" : isReserved ? "badge-reserved" : "badge-available";
         var badgeText  = isOccupied ? "Occupied" : isReserved ? "Reserved" : "Available";
-        var hasReady   = card.ReadyFood.Any() || card.ReadyDrink.Any();
+        var hasReady     = card.ReadyFood.Any() || card.ReadyDrink.Any();
+        var hasPreparing = card.PreparingFood.Any() || card.PreparingDrink.Any();
 
         <a class="table-card @cardClass @(hasReady ? "has-ready" : "")" asp-controller="Order" asp-action="CreateOrder" asp-route-tableId="@table.TableId">
             <span class="status-badge @badgeClass">@badgeText</span>
@@ -237,9 +240,33 @@
             <span class="table-action">+ Open table</span>
             <span class="table-arrow">›</span>
 
-            @if (hasReady)
+            @if (hasPreparing || hasReady)
             {
                 <div class="ready-notes">
+                    @if (card.PreparingFood.Any())
+                    {
+                        <div class="ready-note preparing">
+                            <div class="ready-note-head">👨‍🍳 Food in preparation (@card.PreparingFoodCount)</div>
+                            <div class="ready-note-items">
+                                @foreach (var item in card.PreparingFood)
+                                {
+                                    <div>@item.Qty× @item.Name</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    @if (card.PreparingDrink.Any())
+                    {
+                        <div class="ready-note preparing">
+                            <div class="ready-note-head">🍸 Drinks in preparation (@card.PreparingDrinkCount)</div>
+                            <div class="ready-note-items">
+                                @foreach (var item in card.PreparingDrink)
+                                {
+                                    <div>@item.Qty× @item.Name</div>
+                                }
+                            </div>
+                        </div>
+                    }
                     @if (card.ReadyFood.Any())
                     {
                         <div class="ready-note food">

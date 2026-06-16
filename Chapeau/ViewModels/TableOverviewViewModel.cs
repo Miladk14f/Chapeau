@@ -12,27 +12,20 @@ namespace Chapeau.ViewModels
         public RestaurantTable Table { get; set; }
         public List<ReadyItemRow> ReadyFood { get; set; } = new();
         public List<ReadyItemRow> ReadyDrink { get; set; } = new();
+        public List<ReadyItemRow> PreparingFood { get; set; } = new();
+        public List<ReadyItemRow> PreparingDrink { get; set; } = new();
 
-        public int ReadyFoodCount
-        {
-            get
-            {
-                int count = 0;
-                foreach (ReadyItemRow row in ReadyFood)
-                    count += row.Qty;
-                return count;
-            }
-        }
+        public int ReadyFoodCount => CountItems(ReadyFood);
+        public int ReadyDrinkCount => CountItems(ReadyDrink);
+        public int PreparingFoodCount => CountItems(PreparingFood);
+        public int PreparingDrinkCount => CountItems(PreparingDrink);
 
-        public int ReadyDrinkCount
+        private static int CountItems(List<ReadyItemRow> rows)
         {
-            get
-            {
-                int count = 0;
-                foreach (ReadyItemRow row in ReadyDrink)
-                    count += row.Qty;
-                return count;
-            }
+            int count = 0;
+            foreach (ReadyItemRow row in rows)
+                count += row.Qty;
+            return count;
         }
     }
 

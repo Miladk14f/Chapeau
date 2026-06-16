@@ -54,7 +54,7 @@ namespace Chapeau.Services
 
             foreach (OrderItem item in items)
             {
-                if (item.Status != OrderItemStatus.Ready)
+                if (item.Status != OrderItemStatus.Ready && item.Status != OrderItemStatus.InPreparation)
                     continue;
 
                 int orderId = item.Order != null ? item.Order.OrderId : 0;
@@ -66,10 +66,22 @@ namespace Chapeau.Services
                     continue;
 
                 ReadyItemRow row = new ReadyItemRow { Name = item.Name, Qty = item.Qty };
-                if (item.ItemType == ItemType.Drink)
-                    cardByTable[tableId].ReadyDrink.Add(row);
+                bool isDrink = item.ItemType == ItemType.Drink;
+
+                if (item.Status == OrderItemStatus.Ready)
+                {
+                    if (isDrink)
+                        cardByTable[tableId].ReadyDrink.Add(row);
+                    else
+                        cardByTable[tableId].ReadyFood.Add(row);
+                }
                 else
-                    cardByTable[tableId].ReadyFood.Add(row);
+                {
+                    if (isDrink)
+                        cardByTable[tableId].PreparingDrink.Add(row);
+                    else
+                        cardByTable[tableId].PreparingFood.Add(row);
+                }
             }
 
             TableOverviewViewModel vm = new TableOverviewViewModel();

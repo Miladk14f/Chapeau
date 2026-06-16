@@ -8,6 +8,8 @@ namespace Chapeau.ViewModels
         public DateTime OrderedAt { get; set; }
         public List<PreparationItemRow> Items { get; set; } = new();
 
+        public bool IsPreparing { get; set; }
+
         public int WarningMinutes { get; set; }
         public int UrgentMinutes { get; set; }
 

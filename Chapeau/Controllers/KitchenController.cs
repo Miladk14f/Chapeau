@@ -21,6 +21,13 @@ namespace Chapeau.Controllers
         }
 
         [HttpPost]
+        public IActionResult StartPreparing(int orderId)
+        {
+            _orderItemService.StartPreparingItems(orderId, ItemType.Food);
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
         public IActionResult MarkReady(int orderId)
         {
             _orderItemService.MarkOrderItemsReady(orderId, ItemType.Food);

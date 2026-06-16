@@ -62,9 +62,14 @@ namespace Chapeau.Services
             _repository.UpdateOrderItemNote(id, note);
         }
 
+        public void StartPreparingItems(int orderId, ItemType type)
+        {
+            _repository.UpdateOrderItemsStatusByType(orderId, type, OrderItemStatus.Ordered, OrderItemStatus.InPreparation);
+        }
+
         public void MarkOrderItemsReady(int orderId, ItemType type)
         {
-            _repository.MarkOrderItemsReady(orderId, type);
+            _repository.UpdateOrderItemsStatusByType(orderId, type, OrderItemStatus.InPreparation, OrderItemStatus.Ready);
         }
 
         public void DeleteOrderItem(int id)

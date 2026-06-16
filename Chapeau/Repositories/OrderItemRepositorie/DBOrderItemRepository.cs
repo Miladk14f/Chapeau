@@ -122,14 +122,16 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void MarkOrderItemsReady(int orderId, ItemType type)
+        public void UpdateOrderItemsStatusByType(int orderId, ItemType type, OrderItemStatus fromStatus, OrderItemStatus toStatus)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
-                "UPDATE ORDER_ITEM SET Status = 'ready' WHERE OrderId = @OrderId AND ItemType = @Type AND Status = 'ordered'", conn);
+                "UPDATE ORDER_ITEM SET Status = @ToStatus WHERE OrderId = @OrderId AND ItemType = @Type AND Status = @FromStatus", conn);
+            cmd.Parameters.AddWithValue("@ToStatus", toStatus.ToString().ToLower());
             cmd.Parameters.AddWithValue("@OrderId", orderId);
             cmd.Parameters.AddWithValue("@Type", type.ToString().ToLower());
+            cmd.Parameters.AddWithValue("@FromStatus", fromStatus.ToString().ToLower());
             cmd.ExecuteNonQuery();
         }
 
