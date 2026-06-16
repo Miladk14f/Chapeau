@@ -29,6 +29,14 @@
         transition: all 0.15s; flex-shrink: 0;
     }
     .btn-close:hover { background: #fff0f0; border-color: #f0d0d0; color: #d94040; }
+    .order-header-actions { display: flex; align-items: center; gap: 10px; }
+    .btn-bill {
+        display: flex; align-items: center; gap: 6px;
+        padding: 10px 20px; border-radius: 10px;
+        background: #7a2a3e; color: #fff; text-decoration: none;
+        font-size: 14px; font-weight: 700;
+    }
+    .btn-bill:hover { background: #5a1a2e; }
 
     .order-page {
         display: grid;
@@ -168,7 +176,10 @@
             <p>Table @Model.TableOrder.TableId · @Model.StaffOrder?.Name</p>
         </div>
     </div>
-    <a class="btn-close" asp-controller="RestaurantTable" asp-action="Index" title="Back to tables">✕</a>
+    <div class="order-header-actions">
+        <a class="btn-bill" asp-controller="Payment" asp-action="Index" asp-route-tableId="@Model.TableOrder.TableId">🧾 Bill</a>
+        <a class="btn-close" asp-controller="RestaurantTable" asp-action="Index" title="Back to tables">✕</a>
+    </div>
 </div>
 
 <div class="order-page">
