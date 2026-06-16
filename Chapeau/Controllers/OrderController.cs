@@ -13,14 +13,16 @@ namespace Chapeau.Controllers
         private readonly IStaffService _staffService;
         private readonly IRestaurantTableService _tableService;
         private readonly IOrderItemService _orderItemService;
+        private readonly ICommentService _commentService;
 
-        public OrderController(IOrderService orderService, IMenuItemService menuItemService, IStaffService staffService, IRestaurantTableService tableService, IOrderItemService orderItemService)
+        public OrderController(IOrderService orderService, IMenuItemService menuItemService, IStaffService staffService, IRestaurantTableService tableService, IOrderItemService orderItemService, ICommentService commentService)
         {
             _menuItemService = menuItemService;
             _orderService = orderService;
             _staffService = staffService;
             _tableService = tableService;
             _orderItemService = orderItemService;
+            _commentService = commentService;
         }
 
         public IActionResult Index()
@@ -34,7 +36,6 @@ namespace Chapeau.Controllers
             List<MenuItem> menuItems = _menuItemService.GetAllMenuItems();
             Staff staff = _staffService.GetStaffById(2);
 
-            // get existing order - if not found, create a new onw
             Order currentOrder = _orderService.GetActiveOrderByTableId(tableId);
             if (currentOrder == null)
             {
@@ -60,7 +61,6 @@ namespace Chapeau.Controllers
         {
             Order currentOrder = _orderService.GetActiveOrderByTableId(tableId);
 
-            // Load current items to check if this menu item is already in the order
             List<OrderItem> orderItems = _orderItemService.GetOrderItemsByTableId(tableId);
             OrderItem existingItem = orderItems.FirstOrDefault(item => item.MenuItem.MenuItemId == menuItemId);
 
@@ -71,7 +71,6 @@ namespace Chapeau.Controllers
             }
             else
             {
-                // if item not in list - create it using the menue item
                 MenuItem menuItemForOrder = _menuItemService.GetMenuItemById(menuItemId);
 
                 OrderItem newItem = new OrderItem
@@ -109,7 +108,6 @@ namespace Chapeau.Controllers
                 }
                 else
                 {
-                    // Qty would hit 0 — remove the row entirely
                     _orderItemService.DeleteOrderItem(orderItemId);
                 }
             }
@@ -143,6 +141,31 @@ namespace Chapeau.Controllers
         public IActionResult ServeItem(int orderItemId, int tableId)
         {
             _orderItemService.UpdateOrderItemStatus(orderItemId, OrderItemStatus.Served);
+
+            return RedirectToAction("CreateOrder", new { tableId = tableId });
+        }
+
+        [HttpPost]
+        public IActionResult AddComment(int tableId, string type, string text)
+        {
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                Order currentOrder = _orderService.GetActiveOrderByTableId(tableId);
+
+                CommentType commentType = Enum.TryParse(type, ignoreCase: true, out CommentType parsed)
+                    ? parsed
+                    : CommentType.Comment;
+
+                Comment comment = new Comment
+                {
+                    Order = currentOrder,
+                    Type = commentType,
+                    Text = text.Trim(),
+                    CreatedAt = DateTime.Now
+                };
+
+                _commentService.AddComment(comment);
+            }
 
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }

@@ -51,7 +51,7 @@ namespace Chapeau.Repositories
             return orders;
         }
 
-       
+
 
         public Order GetActiveOrderByTableId(int tableId)
         {
@@ -198,6 +198,6 @@ namespace Chapeau.Repositories
             };
         }
 
-        
+
     }
 }

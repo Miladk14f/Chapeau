@@ -166,6 +166,26 @@
     }
     .order-total-label { font-size: 15px; font-weight: 700; color: #2a1a1f; }
     .order-total-amount { font-size: 22px; font-weight: 700; color: #7a2a3e; font-family: Georgia, serif; }
+
+    .comment-box { margin-top: 20px; padding-top: 18px; border-top: 1px solid #ede8e4; }
+    .comment-title { font-size: 14px; font-weight: 700; color: #2a1a1f; margin-bottom: 10px; }
+    .comment-type {
+        width: 100%; padding: 9px 12px; margin-bottom: 8px;
+        border: 1px solid #e0d8d0; border-radius: 8px;
+        font-size: 13px; background: #faf8f6; color: #2a1a1f;
+    }
+    .comment-text {
+        width: 100%; padding: 9px 12px; margin-bottom: 8px;
+        border: 1px solid #e0d8d0; border-radius: 8px;
+        font-size: 13px; background: #faf8f6; color: #2a1a1f;
+        resize: vertical; font-family: inherit; box-sizing: border-box;
+    }
+    .comment-type:focus, .comment-text:focus { outline: none; border-color: #7a2a3e; }
+    .btn-comment {
+        width: 100%; padding: 10px; border: none; border-radius: 8px;
+        background: #7a2a3e; color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+    }
+    .btn-comment:hover { background: #5a1a2e; }
 </style>
 
 <div class="order-header">
@@ -306,6 +326,20 @@
         {
             <div class="order-empty">No items yet. Add from the menu.</div>
         }
+
+        <div class="comment-box">
+            <div class="comment-title">Add feedback</div>
+            <form asp-action="AddComment" method="post">
+                <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                <select name="type" class="comment-type">
+                    <option value="Comment">Comment</option>
+                    <option value="Complaint">Complaint</option>
+                    <option value="Praise">Praise</option>
+                </select>
+                <textarea name="text" class="comment-text" rows="2" placeholder="Write feedback…"></textarea>
+                <button type="submit" class="btn-comment">Save feedback</button>
+            </form>
+        </div>
     </div>
 
 </div>
