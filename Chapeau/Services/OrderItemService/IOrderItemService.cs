@@ -16,5 +16,9 @@ namespace Chapeau.Services
         void MarkOrderItemsReady(int orderId, ItemType type);
         void DeleteOrderItem(int id);
         void DeleteOrderItemsByOrderId(int orderId);
+        void AddItemToTable(int menuItemId, int tableId);
+        void DecreaseItemForTable(int orderItemId, int tableId);
+        void RemoveItemFromTable(int orderItemId, int tableId);
+        void ServeOrderItem(int orderItemId);
     }
 }

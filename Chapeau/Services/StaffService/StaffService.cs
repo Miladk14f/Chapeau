@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Chapeau.Models;
+using Chapeau.Models.Enums;
 using Chapeau.Repositories;
 
 namespace Chapeau.Services
@@ -17,6 +18,54 @@ namespace Chapeau.Services
         public List<Staff> GetAllStaff()
         {
             return _repository.GetAllStaff();
+        }
+
+        public List<Staff> GetAllStaffWithoutPins()
+        {
+            List<Staff> staff = _repository.GetAllStaff();
+            foreach (Staff s in staff)
+                s.Pin = null;
+            return staff;
+        }
+
+        public Staff TryLogin(int staffId, string password)
+        {
+            Staff staff = _repository.GetStaffById(staffId);
+            if (staff == null || !VerifyStaffPin(staff, password))
+                return null;
+            return staff;
+        }
+
+        public void CreateStaff(string name, string role, string pin)
+        {
+            Staff staff = new Staff
+            {
+                Name = name,
+                Role = Enum.Parse<StaffRole>(role, ignoreCase: true),
+                Pin = pin
+            };
+            AddStaff(staff);
+        }
+
+        public bool UpdateStaffDetails(int id, string name, string role, string pin)
+        {
+            Staff staff = _repository.GetStaffById(id);
+            if (staff == null)
+                return false;
+
+            staff.Name = name;
+            staff.Role = Enum.Parse<StaffRole>(role, ignoreCase: true);
+
+            if (!string.IsNullOrWhiteSpace(pin))
+            {
+                staff.Pin = pin;
+                UpdateStaff(staff);
+            }
+            else
+            {
+                UpdateStaffInfo(staff);
+            }
+            return true;
         }
 
         public Staff GetStaffById(int id)

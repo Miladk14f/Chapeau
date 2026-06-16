@@ -16,14 +16,10 @@ namespace Chapeau.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            List<Staff> staff = _staffService.GetAllStaff();
-            foreach (Staff s in staff)
-                s.Pin = null;
-
             int.TryParse(Request.Cookies["SelectedStaffId"], out int selectedId);
             ViewBag.SelectedStaffId = selectedId;
 
-            return View(staff);
+            return View(_staffService.GetAllStaffWithoutPins());
         }
 
         [HttpPost]
@@ -43,18 +39,13 @@ namespace Chapeau.Controllers
         {
             int.TryParse(Request.Cookies["SelectedStaffId"], out int staffId);
 
-            Staff staff = _staffService.GetStaffById(staffId);
+            Staff staff = _staffService.TryLogin(staffId, password);
 
-            if (staff == null || !_staffService.VerifyStaffPin(staff, password))
+            if (staff == null)
             {
                 ViewBag.Error = "Invalid password.";
                 ViewBag.SelectedStaffId = staffId;
-
-                List<Staff> allStaff = _staffService.GetAllStaff();
-                foreach (Staff s in allStaff)
-                    s.Pin = null;
-
-                return View(allStaff);
+                return View(_staffService.GetAllStaffWithoutPins());
             }
 
             HttpContext.Session.SetString("StaffName", staff.Name);

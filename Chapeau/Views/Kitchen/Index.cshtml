@@ -1,4 +1,4 @@
-@model List<Chapeau.ViewModels.KitchenOrderCard>
+@model List<Chapeau.ViewModels.PreparationCard>
 @{
     ViewData["Title"] = "Kitchen";
     int pending = Model?.Count(c => !c.IsUrgent && !c.IsWarning) ?? 0;

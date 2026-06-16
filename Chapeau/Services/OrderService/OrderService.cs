@@ -1,17 +1,48 @@
-using System.Net.NetworkInformation;
 using Chapeau.Models;
 using Chapeau.Models.Enums;
 using Chapeau.Repositories;
+using Chapeau.ViewModels;
 
 namespace Chapeau.Services
 {
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _repository;
+        private readonly IOrderItemRepository _orderItemRepository;
+        private readonly IStaffRepository _staffRepository;
+        private readonly IMenuItemRepository _menuItemRepository;
+        private readonly IRestaurantTableRepository _tableRepository;
 
-        public OrderService(IOrderRepository repository)
+        public OrderService(IOrderRepository repository, IOrderItemRepository orderItemRepository, IStaffRepository staffRepository, IMenuItemRepository menuItemRepository, IRestaurantTableRepository tableRepository)
         {
             _repository = repository;
+            _orderItemRepository = orderItemRepository;
+            _staffRepository = staffRepository;
+            _menuItemRepository = menuItemRepository;
+            _tableRepository = tableRepository;
+        }
+
+        public OrderViewModel GetOrderPage(int tableId)
+        {
+            RestaurantTable table = _tableRepository.GetTableById(tableId);
+            List<MenuItem> menu = _menuItemRepository.GetAllMenuItems();
+            Staff staff = _staffRepository.GetStaffById(2);
+
+            Order current = _repository.GetActiveOrderByTableId(tableId);
+            if (current == null)
+            {
+                int newOrderId = AddOrder(new Order
+                {
+                    Table = table,
+                    Staff = staff,
+                    Status = OrderStatus.InProgress,
+                    CreatedAt = DateTime.Now
+                });
+                current = _repository.GetOrderById(newOrderId);
+            }
+
+            List<OrderItem> orderItems = _orderItemRepository.GetOrderItemsByTableId(tableId);
+            return new OrderViewModel(menu, orderItems, table, staff);
         }
 
         public List<Order> GetAllOrders()
@@ -59,6 +90,78 @@ namespace Chapeau.Services
         public Order GetActiveOrderByTableId(int tableId)
         {
             return _repository.GetActiveOrderByTableId(tableId);
+        }
+
+        public List<PreparationCard> GetPreparationCards(ItemType type, int warningMinutes, int urgentMinutes)
+        {
+            List<Staff> staff = _staffRepository.GetAllStaff();
+            List<Order> allOrders = _repository.GetAllOrders();
+            List<OrderItem> allItems = _orderItemRepository.GetAllOrderItems();
+
+            Dictionary<int, List<OrderItem>> itemsByOrder = new Dictionary<int, List<OrderItem>>();
+            foreach (OrderItem item in allItems)
+            {
+                if (item.ItemType != type || item.Status != OrderItemStatus.Ordered)
+                    continue;
+
+                int orderId = item.Order != null ? item.Order.OrderId : 0;
+                if (!itemsByOrder.ContainsKey(orderId))
+                    itemsByOrder[orderId] = new List<OrderItem>();
+
+                itemsByOrder[orderId].Add(item);
+            }
+
+            List<PreparationCard> cards = new List<PreparationCard>();
+            foreach (Order order in allOrders)
+            {
+                if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.InProgress)
+                    continue;
+                if (!itemsByOrder.ContainsKey(order.OrderId))
+                    continue;
+
+                List<OrderItem> items = itemsByOrder[order.OrderId];
+
+                int orderStaffId = order.Staff != null ? order.Staff.StaffId : 0;
+                string staffName = "Unknown";
+                foreach (Staff s in staff)
+                {
+                    if (s.StaffId == orderStaffId)
+                    {
+                        staffName = s.Name;
+                        break;
+                    }
+                }
+
+                DateTime orderedAt = items[0].CreatedAt;
+                List<PreparationItemRow> rows = new List<PreparationItemRow>();
+                foreach (OrderItem item in items)
+                {
+                    if (item.CreatedAt < orderedAt)
+                        orderedAt = item.CreatedAt;
+
+                    rows.Add(new PreparationItemRow
+                    {
+                        Name = item.Name,
+                        Qty = item.Qty,
+                        CreatedAt = item.CreatedAt,
+                        Note = item.Note
+                    });
+                }
+
+                cards.Add(new PreparationCard
+                {
+                    OrderId = order.OrderId,
+                    TableId = order.Table != null ? order.Table.TableId : 0,
+                    StaffName = staffName,
+                    OrderedAt = orderedAt,
+                    Items = rows,
+                    WarningMinutes = warningMinutes,
+                    UrgentMinutes = urgentMinutes
+                });
+            }
+
+            cards.Sort((a, b) => b.MinutesAgo.CompareTo(a.MinutesAgo));
+            return cards;
         }
     }
 }

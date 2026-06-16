@@ -1,4 +1,5 @@
 using Chapeau.Models;
+using Chapeau.ViewModels;
 
 namespace Chapeau.Services
 {
@@ -10,5 +11,7 @@ namespace Chapeau.Services
         void AddPayment(Payment payment);
         void UpdatePayment(Payment payment);
         void DeletePayment(int id);
+        BillViewModel GetBill(int tableId);
+        void ProcessPayment(int tableId, int orderId, decimal tip, decimal tipOther, string paymentMethod, int splitWays);
     }
 }

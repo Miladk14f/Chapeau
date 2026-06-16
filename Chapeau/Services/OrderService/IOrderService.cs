@@ -1,5 +1,6 @@
 using Chapeau.Models;
 using Chapeau.Models.Enums;
+using Chapeau.ViewModels;
 
 namespace Chapeau.Services
 {
@@ -14,5 +15,7 @@ namespace Chapeau.Services
         void UpdateOrder(Order order);
         void UpdateOrderStatus(int orderId, OrderStatus status);
         void DeleteOrder(int orderId);
+        List<PreparationCard> GetPreparationCards(ItemType type, int warningMinutes, int urgentMinutes);
+        OrderViewModel GetOrderPage(int tableId);
     }
 }
