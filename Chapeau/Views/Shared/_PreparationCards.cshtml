@@ -53,35 +53,45 @@ else
                 }
 
                 <div class="items-list">
-                    @foreach (var item in card.Items)
+                    @{
+                        var grouped = new Dictionary<string, List<Chapeau.ViewModels.PreparationItemRow>>();
+                        foreach (var item in card.Items)
+                        {
+                            string cat = item.CategoryDisplayName;
+                            if (!grouped.ContainsKey(cat))
+                                grouped[cat] = new List<Chapeau.ViewModels.PreparationItemRow>();
+                            grouped[cat].Add(item);
+                        }
+                    }
+                    @foreach (var group in grouped)
                     {
-                        string itemTime = item.MinutesAgo < 1 ? "just now" : $"{item.MinutesAgo} min ago";
-                        <div class="item-row">
-                            <div class="item-left">
-                                <span class="item-qty">@(item.Qty)×</span>
-                                <div class="item-info">
-                                    <span class="item-name">@item.Name</span>
-                                    @if (Model.ShowTypeBadge)
+                        <div class="item-category-header">@group.Key</div>
+                        @foreach (var item in group.Value)
+                        {
+                            string itemTime = item.MinutesAgo < 1 ? "just now" : $"{item.MinutesAgo} min ago";
+                            <div class="item-row">
+                                <div class="item-left">
+                                    <span class="item-qty">@(item.Qty)×</span>
+                                    <div class="item-info">
+                                        <span class="item-name">@item.Name</span>
+                                        @if (!string.IsNullOrEmpty(item.Note))
+                                        {
+                                            <span class="item-note">📝 @item.Note</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="item-right">
+                                    <span class="item-time">@itemTime</span>
+                                    @if (item.Status == OrderItemStatus.InPreparation)
                                     {
-                                        <span class="item-type-badge">Drink</span>
-                                    }
-                                    @if (!string.IsNullOrEmpty(item.Note))
-                                    {
-                                        <span class="item-note">📝 @item.Note</span>
+                                        <form method="post" asp-action="MarkItemReady">
+                                            <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                                            <button type="submit" class="btn-item-ready">✓</button>
+                                        </form>
                                     }
                                 </div>
                             </div>
-                            <div class="item-right">
-                                <span class="item-time">@itemTime</span>
-                                @if (item.Status == OrderItemStatus.InPreparation)
-                                {
-                                    <form method="post" asp-action="MarkItemReady">
-                                        <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
-                                        <button type="submit" class="btn-item-ready">✓</button>
-                                    </form>
-                                }
-                            </div>
-                        </div>
+                        }
                     }
                 </div>
 

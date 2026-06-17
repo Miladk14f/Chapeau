@@ -157,7 +157,8 @@ namespace Chapeau.Services
                         Qty = item.Qty,
                         CreatedAt = item.CreatedAt,
                         Note = item.Note,
-                        Status = item.Status
+                        Status = item.Status,
+                        Category = item.ItemType
                     });
                 }
 
