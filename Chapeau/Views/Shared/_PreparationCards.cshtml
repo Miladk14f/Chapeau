@@ -1,4 +1,5 @@
 @model Chapeau.ViewModels.PreparationPageViewModel
+@using Chapeau.Models.Enums
 @{
     int urgent = Model.Cards?.Count(c => c.IsUrgent) ?? 0;
 }
@@ -70,21 +71,23 @@ else
                                     }
                                 </div>
                             </div>
-                            <span class="item-time">@itemTime</span>
+                            <div class="item-right">
+                                <span class="item-time">@itemTime</span>
+                                @if (item.Status == OrderItemStatus.InPreparation)
+                                {
+                                    <form method="post" asp-action="MarkItemReady">
+                                        <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                                        <button type="submit" class="btn-item-ready">✓</button>
+                                    </form>
+                                }
+                            </div>
                         </div>
                     }
                 </div>
 
                 <div class="card-footer">
                     <span class="ordered-by">Ordered by: @card.StaffName</span>
-                    @if (card.IsPreparing)
-                    {
-                        <form method="post" asp-action="MarkReady">
-                            <input type="hidden" name="orderId" value="@card.OrderId" />
-                            <button type="submit" class="btn-ready">✓ Ready</button>
-                        </form>
-                    }
-                    else
+                    @if (!card.IsPreparing)
                     {
                         <form method="post" asp-action="StartPreparing">
                             <input type="hidden" name="orderId" value="@card.OrderId" />

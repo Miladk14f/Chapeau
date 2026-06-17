@@ -52,5 +52,12 @@ namespace Chapeau.Controllers
             _orderItemService.MarkOrderItemsReady(orderId, ItemType.Drink);
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public IActionResult MarkItemReady(int orderItemId)
+        {
+            _orderItemService.UpdateOrderItemStatus(orderItemId, Models.Enums.OrderItemStatus.Ready);
+            return RedirectToAction("Index");
+        }
     }
 }

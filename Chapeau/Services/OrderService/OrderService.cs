@@ -147,10 +147,12 @@ namespace Chapeau.Services
 
                     rows.Add(new PreparationItemRow
                     {
+                        OrderItemId = item.OrderItemId,
                         Name = item.Name,
                         Qty = item.Qty,
                         CreatedAt = item.CreatedAt,
-                        Note = item.Note
+                        Note = item.Note,
+                        Status = item.Status
                     });
                 }
 

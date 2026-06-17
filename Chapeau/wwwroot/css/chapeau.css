@@ -574,6 +574,22 @@ body.login-body footer {
 .item-note { font-size: 12px; color: #c05a20; font-style: italic; }
 .item-time { font-size: 11px; color: #b0a0a8; }
 
+.item-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.btn-item-ready {
+    padding: 4px 10px;
+    border: none;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+    background: #2a5c3a;
+    cursor: pointer;
+}
+.btn-item-ready:hover { background: #1e4a2e; }
+.bar-page .btn-item-ready { background: #1a3a5c; }
+.bar-page .btn-item-ready:hover { background: #102840; }
+
 .item-type-badge {
     display: inline-block;
     padding: 1px 8px;

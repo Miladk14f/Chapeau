@@ -1,3 +1,5 @@
+using Chapeau.Models.Enums;
+
 namespace Chapeau.ViewModels
 {
     public class PreparationPageViewModel
@@ -39,10 +41,12 @@ namespace Chapeau.ViewModels
 
     public class PreparationItemRow
     {
+        public int OrderItemId { get; set; }
         public string Name { get; set; }
         public int Qty { get; set; }
         public DateTime CreatedAt { get; set; }
         public string Note { get; set; }
+        public OrderItemStatus Status { get; set; }
 
         public int MinutesAgo => (int)(DateTime.Now - CreatedAt).TotalMinutes;
     }
