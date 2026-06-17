@@ -16,8 +16,17 @@ namespace Chapeau.Controllers
             _orderItemService = orderItemService;
         }
 
+        private bool CanAccessBar()
+        {
+            string role = HttpContext.Session.GetString("StaffRole") ?? "";
+            return role == "bar" || role == "manager" || role == "waiter";
+        }
+
         public IActionResult Index()
         {
+            if (!CanAccessBar())
+                return RedirectToAction("Login", "Staff");
+
             var vm = new PreparationPageViewModel
             {
                 Cards = _orderService.GetPreparationCards(ItemTypeGroups.Drinks, 6, 10),

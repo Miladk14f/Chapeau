@@ -54,7 +54,12 @@ namespace Chapeau.Controllers
 
             Response.Cookies.Delete("SelectedStaffId");
 
-            return RedirectToAction("Index", "RestaurantTable");
+            return staff.Role switch
+            {
+                Models.Enums.StaffRole.Chef => RedirectToAction("Index", "Kitchen"),
+                Models.Enums.StaffRole.Bar  => RedirectToAction("Index", "Bar"),
+                _                           => RedirectToAction("Index", "RestaurantTable")
+            };
         }
 
         public IActionResult Logout()
