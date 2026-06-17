@@ -47,11 +47,6 @@ namespace Chapeau.Services
             return _repository.GetCommentsByOrderId(orderId);
         }
 
-        public void AddComment(Comment comment)
-        {
-            _repository.AddComment(comment);
-        }
-
         public void DeleteComment(int id)
         {
             _repository.DeleteComment(id);

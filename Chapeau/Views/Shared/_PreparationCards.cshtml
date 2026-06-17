@@ -84,7 +84,7 @@ else
                                     <span class="item-time">@itemTime</span>
                                     @if (item.Status == OrderItemStatus.InPreparation)
                                     {
-                                        <form method="post" asp-action="MarkItemReady">
+                                        <form method="post" asp-controller="@ViewContext.RouteData.Values["controller"]?.ToString()" asp-action="MarkItemReady">
                                             <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
                                             <button type="submit" class="btn-item-ready">✓</button>
                                         </form>
@@ -99,7 +99,7 @@ else
                     <span class="ordered-by">Ordered by: @card.StaffName</span>
                     @if (!card.IsPreparing)
                     {
-                        <form method="post" asp-action="StartPreparing">
+                        <form method="post" asp-controller="@ViewContext.RouteData.Values["controller"]?.ToString()" asp-action="StartPreparing">
                             <input type="hidden" name="orderId" value="@card.OrderId" />
                             <button type="submit" class="btn-start">▶ Start preparing</button>
                         </form>

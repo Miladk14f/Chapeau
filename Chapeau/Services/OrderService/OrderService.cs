@@ -1,6 +1,7 @@
 using Chapeau.Models;
 using Chapeau.Models.Enums;
 using Chapeau.Repositories;
+using Chapeau.Services;
 using Chapeau.ViewModels;
 
 namespace Chapeau.Services
@@ -10,22 +11,22 @@ namespace Chapeau.Services
         private readonly IOrderRepository _repository;
         private readonly IOrderItemRepository _orderItemRepository;
         private readonly IStaffRepository _staffRepository;
-        private readonly IMenuItemRepository _menuItemRepository;
+        private readonly IMenuItemService _menuItemService;
         private readonly IRestaurantTableRepository _tableRepository;
 
-        public OrderService(IOrderRepository repository, IOrderItemRepository orderItemRepository, IStaffRepository staffRepository, IMenuItemRepository menuItemRepository, IRestaurantTableRepository tableRepository)
+        public OrderService(IOrderRepository repository, IOrderItemRepository orderItemRepository, IStaffRepository staffRepository, IMenuItemService menuItemService, IRestaurantTableRepository tableRepository)
         {
             _repository = repository;
             _orderItemRepository = orderItemRepository;
             _staffRepository = staffRepository;
-            _menuItemRepository = menuItemRepository;
+            _menuItemService = menuItemService;
             _tableRepository = tableRepository;
         }
 
         public OrderViewModel GetOrderPage(int tableId)
         {
             RestaurantTable table = _tableRepository.GetTableById(tableId);
-            List<MenuItem> menu = _menuItemRepository.GetAllMenuItems();
+            List<MenuItem> menu = _menuItemService.GetAllMenuItems();
             Staff staff = _staffRepository.GetStaffById(2);
 
             Order current = _repository.GetActiveOrderByTableId(tableId);

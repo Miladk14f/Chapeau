@@ -15,10 +15,7 @@ namespace Chapeau.Services
             _repository = repository;
         }
 
-        public List<Staff> GetAllStaff()
-        {
-            return _repository.GetAllStaff();
-        }
+        public List<Staff> GetAllStaff() => _repository.GetAllStaff();
 
         public List<Staff> GetAllStaffWithoutPins()
         {
@@ -28,10 +25,12 @@ namespace Chapeau.Services
             return staff;
         }
 
+        public Staff GetStaffById(int id) => _repository.GetStaffById(id);
+
         public Staff TryLogin(int staffId, string password)
         {
             Staff staff = _repository.GetStaffById(staffId);
-            if (staff == null || !VerifyStaffPin(staff, password))
+            if (staff == null || staff.Pin != HashPin(password))
                 return null;
             return staff;
         }
@@ -42,9 +41,9 @@ namespace Chapeau.Services
             {
                 Name = name,
                 Role = Enum.Parse<StaffRole>(role, ignoreCase: true),
-                Pin = pin
+                Pin = HashPin(pin)
             };
-            AddStaff(staff);
+            _repository.AddStaff(staff);
         }
 
         public bool UpdateStaffDetails(int id, string name, string role, string pin)
@@ -57,54 +56,13 @@ namespace Chapeau.Services
             staff.Role = Enum.Parse<StaffRole>(role, ignoreCase: true);
 
             if (!string.IsNullOrWhiteSpace(pin))
-            {
-                staff.Pin = pin;
-                UpdateStaff(staff);
-            }
-            else
-            {
-                UpdateStaffInfo(staff);
-            }
+                staff.Pin = HashPin(pin);
+
+            _repository.UpdateStaff(staff);
             return true;
         }
 
-        public Staff GetStaffById(int id)
-        {
-            return _repository.GetStaffById(id);
-        }
-
-        public Staff LoginStaff(string name, string pin)
-        {
-            string hashedPin = HashPin(pin);
-            return _repository.GetStaffByCredentials(name, hashedPin);
-        }
-
-        public void AddStaff(Staff staff)
-        {
-            staff.Pin = HashPin(staff.Pin);
-            _repository.AddStaff(staff);
-        }
-
-        public void UpdateStaff(Staff staff)
-        {
-            staff.Pin = HashPin(staff.Pin);
-            _repository.UpdateStaff(staff);
-        }
-
-        public void UpdateStaffInfo(Staff staff)
-        {
-            _repository.UpdateStaff(staff);
-        }
-
-        public void DeleteStaff(int id)
-        {
-            _repository.DeleteStaff(id);
-        }
-
-        public bool VerifyStaffPin(Staff staff, string pin)
-        {
-            return staff.Pin == HashPin(pin);
-        }
+        public void DeleteStaff(int id) => _repository.DeleteStaff(id);
 
         private string HashPin(string pin)
         {
