@@ -59,7 +59,7 @@ namespace Chapeau.Repositories
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
 
-            string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE TableId = @TableId AND Status = 'pending' OR Status = 'InProgress'";
+            string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE TableId = @TableId AND (Status = 'pending' OR Status = 'inprogress')";
 
             using SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@TableId", tableId);
