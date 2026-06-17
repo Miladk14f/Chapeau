@@ -90,7 +90,8 @@ namespace Chapeau.Services
             OrderItem existing = null;
             foreach (OrderItem item in items)
             {
-                if (item.MenuItem != null && item.MenuItem.MenuItemId == menuItemId)
+                if (item.MenuItem != null && item.MenuItem.MenuItemId == menuItemId
+                    && item.Status == OrderItemStatus.Ordered)
                 {
                     existing = item;
                     break;
