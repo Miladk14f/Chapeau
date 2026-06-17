@@ -20,7 +20,7 @@ namespace Chapeau.Controllers
         {
             var vm = new PreparationPageViewModel
             {
-                Cards = _orderService.GetPreparationCards(ItemType.Drink, 6, 10),
+                Cards = _orderService.GetPreparationCards(ItemTypeGroups.Drinks, 6, 10),
                 PageClass = "bar-page",
                 HeaderClass = "bar-header",
                 IconClass = "bar-icon",
@@ -42,14 +42,14 @@ namespace Chapeau.Controllers
         [HttpPost]
         public IActionResult StartPreparing(int orderId)
         {
-            _orderItemService.StartPreparingItems(orderId, ItemType.Drink);
+            _orderItemService.StartPreparingItems(orderId, ItemTypeGroups.Drinks);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public IActionResult MarkReady(int orderId)
         {
-            _orderItemService.MarkOrderItemsReady(orderId, ItemType.Drink);
+            _orderItemService.MarkOrderItemsReady(orderId, ItemTypeGroups.Drinks);
             return RedirectToAction("Index");
         }
 

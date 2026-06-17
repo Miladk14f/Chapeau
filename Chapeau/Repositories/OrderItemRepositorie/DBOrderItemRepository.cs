@@ -122,15 +122,15 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateOrderItemsStatusByType(int orderId, ItemType type, OrderItemStatus fromStatus, OrderItemStatus toStatus)
+        public void UpdateOrderItemsStatusByType(int orderId, ItemType[] types, OrderItemStatus fromStatus, OrderItemStatus toStatus)
         {
+            string inList = string.Join(",", types.Select(t => $"'{t.ToString().ToLower()}'"));
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
             using SqlCommand cmd = new SqlCommand(
-                "UPDATE ORDER_ITEM SET Status = @ToStatus WHERE OrderId = @OrderId AND ItemType = @Type AND Status = @FromStatus", conn);
+                $"UPDATE ORDER_ITEM SET Status = @ToStatus WHERE OrderId = @OrderId AND ItemType IN ({inList}) AND Status = @FromStatus", conn);
             cmd.Parameters.AddWithValue("@ToStatus", toStatus.ToString().ToLower());
             cmd.Parameters.AddWithValue("@OrderId", orderId);
-            cmd.Parameters.AddWithValue("@Type", type.ToString().ToLower());
             cmd.Parameters.AddWithValue("@FromStatus", fromStatus.ToString().ToLower());
             cmd.ExecuteNonQuery();
         }
@@ -153,6 +153,17 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
+        private static ItemType ParseItemType(object val)
+        {
+            string s = (val == DBNull.Value ? "" : val.ToString()).Trim().ToLower();
+            return s switch
+            {
+                "food"  => ItemType.Starters,
+                "drink" => ItemType.Beer,
+                _       => Enum.TryParse<ItemType>(s, ignoreCase: true, out var t) ? t : ItemType.Starters
+            };
+        }
+
         private OrderItem MapReader(SqlDataReader reader) =>
             new OrderItem(
                 (int)reader["Id"],
@@ -160,7 +171,7 @@ namespace Chapeau.Repositories
                 (int)reader["Qty"],
                 (decimal)reader["Price"],
                 (int)reader["Vat"],
-                Enum.Parse<ItemType>(reader["ItemType"] == DBNull.Value ? "Food" : reader["ItemType"].ToString(), ignoreCase: true)
+                ParseItemType(reader["ItemType"])
             )
             {
                 Order = new Order { OrderId = (int)reader["OrderId"] },

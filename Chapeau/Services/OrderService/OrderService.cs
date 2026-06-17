@@ -92,7 +92,7 @@ namespace Chapeau.Services
             return _repository.GetActiveOrderByTableId(tableId);
         }
 
-        public List<PreparationCard> GetPreparationCards(ItemType type, int warningMinutes, int urgentMinutes)
+        public List<PreparationCard> GetPreparationCards(ItemType[] types, int warningMinutes, int urgentMinutes)
         {
             List<Staff> staff = _staffRepository.GetAllStaff();
             List<Order> allOrders = _repository.GetAllOrders();
@@ -101,7 +101,12 @@ namespace Chapeau.Services
             Dictionary<int, List<OrderItem>> itemsByOrder = new Dictionary<int, List<OrderItem>>();
             foreach (OrderItem item in allItems)
             {
-                if (item.ItemType != type)
+                bool matchesType = false;
+                foreach (ItemType t in types)
+                {
+                    if (item.ItemType == t) { matchesType = true; break; }
+                }
+                if (!matchesType)
                     continue;
                 if (item.Status != OrderItemStatus.Ordered && item.Status != OrderItemStatus.InPreparation)
                     continue;

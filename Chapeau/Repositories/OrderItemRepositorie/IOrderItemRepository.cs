@@ -13,7 +13,7 @@ namespace Chapeau.Repositories
         void UpdateOrderItem(OrderItem item);
         void UpdateOrderItemStatus(int id, OrderItemStatus status);
         void UpdateOrderItemNote(int id, string note);
-        void UpdateOrderItemsStatusByType(int orderId, ItemType type, OrderItemStatus fromStatus, OrderItemStatus toStatus);
+        void UpdateOrderItemsStatusByType(int orderId, ItemType[] types, OrderItemStatus fromStatus, OrderItemStatus toStatus);
         void DeleteOrderItem(int id);
         void DeleteOrderItemsByOrderId(int orderId);
     }

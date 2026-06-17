@@ -809,6 +809,7 @@ body.login-body footer {
 }
 
 .category-buttons button:hover { border-color: #7a2a3e; color: #7a2a3e; }
+.category-buttons button.active { background: #7a2a3e; border-color: #7a2a3e; color: #fff; }
 
 .menu-row {
     display: flex;

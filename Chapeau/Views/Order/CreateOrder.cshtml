@@ -28,15 +28,23 @@
         <h2>Menu Items</h2>
 
         <div class="category-buttons">
-            <button type="button">Starters</button>
-            <button type="button">Mains</button>
-            <button type="button">Drinks</button>
-            <button type="button">Desserts</button>
+            <button type="button" class="active" onclick="filterMenu('', this)">All</button>
+            @{
+                var seenCats = new System.Collections.Generic.HashSet<string>();
+            }
+            @foreach (var item in Model.MenuItems)
+            {
+                if (!string.IsNullOrEmpty(item.CategoryDisplayName) && seenCats.Add(item.CategoryDisplayName))
+                {
+                    <button type="button" onclick="filterMenu('@item.CategoryDisplayName', this)">@item.CategoryDisplayName</button>
+                }
+            }
         </div>
 
+        <div id="menu-list">
         @foreach (var item in Model.MenuItems)
         {
-            <div class="menu-row">
+            <div class="menu-row" data-category="@item.CategoryDisplayName">
                 <div class="menu-info">
                     <span class="menu-name">@item.Name</span>
                     <span class="menu-price">€@item.Price.ToString("0.00")</span>
@@ -48,6 +56,28 @@
                 </form>
             </div>
         }
+        </div>
+
+        <script>
+        var FILTER_KEY = 'orderMenuFilter_@Model.TableOrder.TableId';
+
+        function filterMenu(cat, btn) {
+            sessionStorage.setItem(FILTER_KEY, cat);
+            document.querySelectorAll('.category-buttons button').forEach(function(b) { b.classList.remove('active'); });
+            btn.classList.add('active');
+            document.querySelectorAll('#menu-list .menu-row').forEach(function(row) {
+                row.style.display = (!cat || row.dataset.category === cat) ? '' : 'none';
+            });
+        }
+
+        (function restoreFilter() {
+            var saved = sessionStorage.getItem(FILTER_KEY);
+            if (!saved) return;
+            var btn = Array.from(document.querySelectorAll('.category-buttons button'))
+                          .find(function(b) { return b.textContent.trim() === saved; });
+            if (btn) filterMenu(saved, btn);
+        })();
+        </script>
     </div>
 
     <!-- RIGHT SIDE - ORDER ITEMS -->

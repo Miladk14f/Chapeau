@@ -13,6 +13,13 @@ namespace Chapeau.Models
         public string Allergens { get; set; }
         public bool InStock { get; set; }
 
+        public string CategoryDisplayName => Category switch
+        {
+            ItemType.SoftDrinks => "Soft Drinks",
+            ItemType.CoffeeTea => "Coffee/Tea",
+            _ => Category.ToString()
+        };
+
         public MenuItem() { }
 
         public MenuItem(int menuItemId, string name, string description, string category, decimal price, int vat, string allergens, bool inStock)
@@ -27,15 +34,19 @@ namespace Chapeau.Models
             InStock = inStock;
         }
 
-        private static ItemType MapCategory(string category)
-        {
-            string[] drinkCategories =
+        private static ItemType MapCategory(string category) =>
+            (category ?? "").Trim().ToLower() switch
             {
-                "soft drinks", "coffee/tea", "beer", "wine", "spirits"
+                "starters"   => ItemType.Starters,
+                "mains"      => ItemType.Mains,
+                "desserts"   => ItemType.Desserts,
+                "entremets"  => ItemType.Entremets,
+                "soft drinks"=> ItemType.SoftDrinks,
+                "coffee/tea" => ItemType.CoffeeTea,
+                "beer"       => ItemType.Beer,
+                "wine"       => ItemType.Wine,
+                "spirits"    => ItemType.Spirits,
+                _            => ItemType.Starters
             };
-
-            string normalized = (category ?? "").Trim().ToLower();
-            return drinkCategories.Contains(normalized) ? ItemType.Drink : ItemType.Food;
-        }
     }
 }
