@@ -125,48 +125,74 @@ namespace Chapeau.Services
             };
         }
 
-        public void ProcessPayment(int tableId, int orderId, decimal tip, decimal tipOther, string paymentMethod, int splitWays)
+        public void ProcessPayment(int tableId, int orderId, List<PersonPaymentInput> persons)
         {
-            List<OrderItem> items = _orderItemRepository.GetOrderItemsByOrderId(orderId);
-            if (tipOther > 0)
-                tip = tipOther;
+            decimal totalTip = 0;
+            foreach (PersonPaymentInput p in persons)
+                totalTip += p.Tip;
 
+            List<OrderItem> items = _orderItemRepository.GetOrderItemsByOrderId(orderId);
             decimal itemsTotal = 0;
             foreach (OrderItem item in items)
                 itemsTotal += item.Price * item.Qty;
 
-            decimal total = itemsTotal + tip;
-
-            SplitMethod split = splitWays > 1 ? SplitMethod.Equal : SplitMethod.None;
+            decimal billTotal = itemsTotal + totalTip;
+            SplitMethod split = persons.Count > 1 ? SplitMethod.Equal : SplitMethod.None;
 
             Bill bill = new Bill
             {
-                Tip = tip,
+                Tip = totalTip,
                 SplitedMethod = split,
-                Amount = total,
+                Amount = billTotal,
                 Status = BillStatus.Unpaid,
                 Order = new Order { OrderId = orderId }
             };
             int billId = _billRepository.AddBill(bill);
 
-            PaymentMethod method = paymentMethod != null && paymentMethod.ToLower() == "cash"
-                ? PaymentMethod.Cash
-                : PaymentMethod.Pin;
-
-            int ways = Math.Max(1, splitWays);
-            decimal perPerson = Math.Round(total / ways, 2);
-
-            for (int i = 0; i < ways; i++)
+            foreach (PersonPaymentInput person in persons)
             {
-                decimal amount = i == ways - 1 ? total - perPerson * (ways - 1) : perPerson;
+                PaymentMethod method = person.PaymentMethod?.ToLower() == "cash"
+                    ? PaymentMethod.Cash
+                    : PaymentMethod.Pin;
+
                 AddPayment(new Payment
                 {
                     PaymentMethod = method,
-                    Amount = amount,
+                    Amount = person.Amount + person.Tip,
                     Bill = new Bill { BillId = billId }
                 });
             }
 
+            _orderRepository.UpdateOrderStatus(orderId, OrderStatus.Paid);
+            _tableRepository.ClearTable(tableId);
+        }
+
+        public int StartSplitBill(int orderId, decimal total, decimal totalTip, int splitWays)
+        {
+            Bill bill = new Bill
+            {
+                Tip = totalTip,
+                SplitedMethod = SplitMethod.Equal,
+                Amount = total,
+                Status = BillStatus.Unpaid,
+                Order = new Order { OrderId = orderId }
+            };
+            return _billRepository.AddBill(bill);
+        }
+
+        public void AddSplitPersonPayment(int billId, decimal amount, string paymentMethod)
+        {
+            PaymentMethod method = paymentMethod?.ToLower() == "cash" ? PaymentMethod.Cash : PaymentMethod.Pin;
+            AddPayment(new Payment
+            {
+                PaymentMethod = method,
+                Amount = amount,
+                Bill = new Bill { BillId = billId }
+            });
+        }
+
+        public void CloseTable(int tableId, int orderId)
+        {
             _orderRepository.UpdateOrderStatus(orderId, OrderStatus.Paid);
             _tableRepository.ClearTable(tableId);
         }

@@ -176,19 +176,6 @@
             <div class="order-empty">No items yet. Add from the menu.</div>
         }
 
-        <div class="comment-box">
-            <div class="comment-title">Add feedback</div>
-            <form asp-action="AddComment" method="post">
-                <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
-                <select name="type" class="comment-type">
-                    <option value="Comment">Comment</option>
-                    <option value="Complaint">Complaint</option>
-                    <option value="Praise">Praise</option>
-                </select>
-                <textarea name="text" class="comment-text" rows="2" placeholder="Write feedback…"></textarea>
-                <button type="submit" class="btn-comment">Save feedback</button>
-            </form>
-        </div>
     </div>
 
 </div>

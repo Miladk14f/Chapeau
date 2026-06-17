@@ -1,10 +1,11 @@
-﻿@model Chapeau.ViewModels.BillViewModel
+@model Chapeau.ViewModels.BillViewModel
 @{
     ViewData["Title"] = "Bill";
-    // flatten items by qty for by-item split
     var flatItems = Model.Items9.Concat(Model.Items21)
         .SelectMany(i => Enumerable.Repeat(i, i.Qty))
         .ToList();
+    bool isSplitMode = Model.SplitPersons != null;
+    string[] guestColors = { "#7a2a3e", "#1a3a5c", "#2a5c3a", "#5c3a1a", "#3a1a5c", "#5c1a3a" };
 }
 
 <div class="bill-wrap">
@@ -17,7 +18,10 @@
             </div>
         </div>
         <div class="bill-actions">
-            <button type="button" class="btn-split" onclick="openSplit()">⋈ Split bill</button>
+            @if (!isSplitMode)
+            {
+                <button type="button" class="btn-split" onclick="openSplit()">⋈ Split bill</button>
+            }
             <button type="button" class="btn-print-icon" onclick="window.print()">🖨</button>
         </div>
     </div>
@@ -94,222 +98,352 @@
         </div>
     </div>
 
-    <!-- Payment form -->
-    <form method="post" asp-action="Process" id="payForm">
-        <input type="hidden" name="tableId" value="@Model.TableId" />
-        <input type="hidden" name="orderId" value="@Model.OrderId" />
-        <input type="hidden" name="splitWays" value="1" id="splitWaysInput" />
-        <input type="hidden" name="splitMethod" value="none" />
+    @if (isSplitMode)
+    {
+        decimal paidTotal = 0;
+        foreach (var p in Model.SplitPersons) { if (p.Paid) paidTotal += p.Total; }
+        decimal remaining = Model.SplitPersons.Sum(p => p.Total) - paidTotal;
+        <!-- ── SPLIT-IN-PROGRESS MODE ── -->
+        <div class="split-progress-header">
+            <div class="split-progress-title">⋈ Split payment</div>
+            <div class="split-remaining">Remaining: €@remaining.ToString("0.00")</div>
+            <form method="post" asp-action="CancelSplit">
+                <input type="hidden" name="tableId" value="@Model.TableId" />
+                <button type="submit" class="btn-cancel-split">Cancel split</button>
+            </form>
+        </div>
 
-        <!-- Tip -->
-        <div class="section-card">
-            <div class="section-title">Tip (optional)</div>
-            <div class="tip-pills">
-                @foreach (var t in new[] { ("0", "None"), ("1", "€1"), ("2", "€2"), ("5", "€5"), ("10", "€10") })
+        @foreach (var person in Model.SplitPersons)
+        {
+            string color = guestColors[person.Index % guestColors.Length];
+            <div class="person-split-card @(person.Paid ? "paid" : "")">
+                <div class="person-split-header">
+                    <div class="guest-av" style="background:@color">@(person.Index + 1)</div>
+                    <div class="person-split-name">Guest @(person.Index + 1)</div>
+                    <div class="person-split-amount">€@person.Total.ToString("0.00")</div>
+                    @if (person.Paid)
+                    {
+                        <span class="paid-badge">✓ Paid</span>
+                    }
+                </div>
+                @if (!person.Paid)
                 {
-                    <input class="tip-radio" type="radio" name="tip" id="tip@(t.Item1)" value="@t.Item1" @(t.Item1 == "0" ? "checked" : "") />
-                    <label class="tip-pill" for="tip@(t.Item1)">@t.Item2</label>
+                    <div class="person-split-detail">
+                        <span>Share: €@person.Amount.ToString("0.00")</span>
+                        @if (person.Tip > 0)
+                        {
+                            <span>Tip: €@person.Tip.ToString("0.00")</span>
+                        }
+                        <span>@(person.PaymentMethod == "cash" ? "💵 Cash" : "💳 Card/PIN")</span>
+                        @if (!string.IsNullOrEmpty(person.FeedbackText))
+                        {
+                            <span>💬 Feedback</span>
+                        }
+                    </div>
+                    <form method="post" asp-action="PayPerson">
+                        <input type="hidden" name="tableId" value="@Model.TableId" />
+                        <input type="hidden" name="orderId" value="@Model.OrderId" />
+                        <input type="hidden" name="personIndex" value="@person.Index" />
+                        <button type="submit" class="btn-pay-person">
+                            Pay €@person.Total.ToString("0.00") · @(person.PaymentMethod == "cash" ? "Cash" : "Card/PIN")
+                        </button>
+                    </form>
                 }
             </div>
-            <div class="tip-other">
-                <span class="tip-other-label">Other:</span>
-                <input class="tip-other-input" type="number" name="tipOther" min="0" step="0.01"
-                       placeholder="0,00" id="tipOtherInput" />
-            </div>
-        </div>
+        }
+    }
+    else
+    {
+        <!-- ── SINGLE PAYMENT MODE ── -->
+        <form method="post" asp-action="Process" id="payForm">
+            <input type="hidden" name="tableId" value="@Model.TableId" />
+            <input type="hidden" name="orderId" value="@Model.OrderId" />
+            <input type="hidden" name="personsJson" id="personsJsonInput" />
 
-        <!-- Payment method -->
-        <div class="section-card">
-            <div class="section-title">Payment method</div>
-            <div class="method-grid">
-                <div class="method-option">
-                    <input class="method-radio" type="radio" name="paymentMethod" id="methodCard" value="pin" checked />
-                    <label class="method-card" for="methodCard">
-                        <div class="method-card-icon">💳</div>
-                        <div class="method-card-label">Card / PIN</div>
-                    </label>
+            <!-- Tip -->
+            <div class="section-card">
+                <div class="section-title">Tip (optional)</div>
+                <div class="tip-pills">
+                    @foreach (var t in new[] { ("0", "None"), ("1", "€1"), ("2", "€2"), ("5", "€5"), ("10", "€10") })
+                    {
+                        <input class="tip-radio" type="radio" name="tipRadio" id="tip@(t.Item1)" value="@t.Item1" @(t.Item1 == "0" ? "checked" : "") />
+                        <label class="tip-pill" for="tip@(t.Item1)">@t.Item2</label>
+                    }
                 </div>
-                <div class="method-option">
-                    <input class="method-radio" type="radio" name="paymentMethod" id="methodCash" value="cash" />
-                    <label class="method-card" for="methodCash">
-                        <div class="method-card-icon">💵</div>
-                        <div class="method-card-label">Cash</div>
-                    </label>
+                <div class="tip-other">
+                    <span class="tip-other-label">Other:</span>
+                    <input class="tip-other-input" type="number" name="tipOther" min="0" step="0.01"
+                           placeholder="0,00" id="tipOtherInput" />
                 </div>
             </div>
-        </div>
 
-        <button type="submit" class="btn-process" id="processBtn">
-            💳 Process payment — €@Model.TotalToPay.ToString("0.00")
-        </button>
-    </form>
-</div>
-
-<!-- Split modal -->
-<div class="modal-overlay" id="splitModal">
-    <div class="modal">
-        <div class="modal-head">
-            <h3>⋈ Split bill</h3>
-            <button type="button" class="modal-close" onclick="closeSplit()">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="split-tabs">
-                <button type="button" class="split-tab-btn active" id="tabEvenBtn" onclick="switchTab('even')">Even split</button>
-                <button type="button" class="split-tab-btn" id="tabItemBtn" onclick="switchTab('item')">By item</button>
-            </div>
-
-            <!-- Even split panel -->
-            <div id="panelEven">
-                <div class="ways-row">
-                    <span class="ways-label">Even split</span>
-                    <div class="ways-ctrl">
-                        <button type="button" class="ways-btn minus" onclick="changeWays(-1)">−</button>
-                        <span class="ways-count" id="waysDisplay">2 ways</span>
-                        <button type="button" class="ways-btn plus" onclick="changeWays(1)">+</button>
+            <!-- Payment method -->
+            <div class="section-card">
+                <div class="section-title">Payment method</div>
+                <div class="method-grid">
+                    <div class="method-option">
+                        <input class="method-radio" type="radio" name="paymentMethod" id="methodCard" value="pin" checked />
+                        <label class="method-card" for="methodCard">
+                            <div class="method-card-icon">💳</div>
+                            <div class="method-card-label">Card / PIN</div>
+                        </label>
+                    </div>
+                    <div class="method-option">
+                        <input class="method-radio" type="radio" name="paymentMethod" id="methodCash" value="cash" />
+                        <label class="method-card" for="methodCash">
+                            <div class="method-card-icon">💵</div>
+                            <div class="method-card-label">Cash</div>
+                        </label>
                     </div>
                 </div>
-                <div class="per-person-box">
-                    <div class="per-person-label">Each pays</div>
-                    <div class="per-person-amount" id="perPersonAmount">€@((Model.TotalToPay / 2).ToString("0.00"))</div>
-                    <div class="per-person-sub">per person · Total €@Model.TotalToPay.ToString("0.00")</div>
-                </div>
-                <div id="guestList"></div>
             </div>
 
-            <!-- By item panel -->
-            <div id="panelItem" style="display:none">
-                <div class="ways-row">
-                    <span class="ways-label">By item</span>
-                    <div class="ways-ctrl">
-                        <button type="button" class="ways-btn minus" onclick="changeWays(-1)">−</button>
-                        <span class="ways-count" id="waysDisplayItem">2 ways</span>
-                        <button type="button" class="ways-btn plus" onclick="changeWays(1)">+</button>
+            <!-- Feedback -->
+            <div class="section-card">
+                <div class="section-title">Feedback (optional)</div>
+                <div class="feedback-section">
+                    <div class="feedback-type-row">
+                        @foreach (var fb in new[] { ("Comment", "💬 Comment"), ("Complaint", "⚠ Complaint"), ("Praise", "⭐ Praise") })
+                        {
+                            <input class="feedback-type-radio" type="radio" name="feedbackType" id="fb@(fb.Item1)" value="@fb.Item1" @(fb.Item1 == "Comment" ? "checked" : "") />
+                            <label class="feedback-type-btn" for="fb@(fb.Item1)">@fb.Item2</label>
+                        }
                     </div>
+                    <textarea class="feedback-textarea" id="mainFbText" rows="2" placeholder="Leave a message… (leave blank to skip)"></textarea>
                 </div>
-                <div class="byitem-hint">Tap an item to assign it to a guest</div>
-                <div class="byitem-list" id="byitemList"></div>
-                <div class="byitem-totals" id="byitemTotals"></div>
             </div>
 
-            <button type="button" class="btn-process" onclick="applySplit()">Apply split &amp; pay</button>
+            <button type="button" class="btn-process" id="processBtn" onclick="processSingle()">
+                💳 Process payment — €@Model.TotalToPay.ToString("0.00")
+            </button>
+        </form>
+
+        <!-- Split modal -->
+        <div class="modal-overlay" id="splitModal">
+            <div class="modal">
+                <div class="modal-head">
+                    <h3>⋈ Split bill</h3>
+                    <button type="button" class="modal-close" onclick="closeSplit()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="split-tabs">
+                        <button type="button" class="split-tab-btn active" id="tabEvenBtn" onclick="switchTab('even')">Even split</button>
+                        <button type="button" class="split-tab-btn" id="tabItemBtn" onclick="switchTab('item')">By item</button>
+                    </div>
+
+                    <div id="panelEven">
+                        <div class="ways-row">
+                            <span class="ways-label">Even split</span>
+                            <div class="ways-ctrl">
+                                <button type="button" class="ways-btn minus" onclick="changeWays(-1)">−</button>
+                                <span class="ways-count" id="waysDisplay">2 ways</span>
+                                <button type="button" class="ways-btn plus" onclick="changeWays(1)">+</button>
+                            </div>
+                        </div>
+                        <div class="per-person-box">
+                            <div class="per-person-label">Each pays</div>
+                            <div class="per-person-amount" id="perPersonAmount">€@((Model.TotalToPay / 2).ToString("0.00"))</div>
+                            <div class="per-person-sub">per person · Total €@Model.TotalToPay.ToString("0.00")</div>
+                        </div>
+                    </div>
+
+                    <div id="panelItem" style="display:none">
+                        <div class="ways-row">
+                            <span class="ways-label">By item</span>
+                            <div class="ways-ctrl">
+                                <button type="button" class="ways-btn minus" onclick="changeWays(-1)">−</button>
+                                <span class="ways-count" id="waysDisplayItem">2 ways</span>
+                                <button type="button" class="ways-btn plus" onclick="changeWays(1)">+</button>
+                            </div>
+                        </div>
+                        <div class="byitem-hint">Tap an item to assign it to a guest</div>
+                        <div class="byitem-list" id="byitemList"></div>
+                        <div class="byitem-totals" id="byitemTotals"></div>
+                    </div>
+
+                    <!-- Per-person payment cards inside modal -->
+                    <div id="personCards" class="person-cards"></div>
+
+                    <!-- Hidden form to POST split setup -->
+                    <form method="post" asp-action="SetupSplit" id="splitSetupForm">
+                        <input type="hidden" name="tableId" value="@Model.TableId" />
+                        <input type="hidden" name="orderId" value="@Model.OrderId" />
+                        <input type="hidden" name="personsJson" id="splitPersonsJsonInput" />
+                        <button type="button" class="btn-process" onclick="confirmSplit()">Confirm split &amp; start paying</button>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-<script>
-    var total   = @Model.TotalToPay.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
-    var ways    = 2;
-    var curTab  = 'even';
-    var colors  = ['#7a2a3e','#1a3a5c','#2a5c3a','#5c3a1a','#3a1a5c','#5c1a3a'];
+        <script>
+        var total   = @Model.TotalToPay.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+        var ways    = 2;
+        var curTab  = 'even';
+        var colors  = ['#7a2a3e','#1a3a5c','#2a5c3a','#5c3a1a','#3a1a5c','#5c1a3a'];
+        var byitemAmts = [];
 
-    // flat items: name + price each unit
-    var allItems = [
-        @foreach (var item in flatItems)
-        {
-                @:{ name: "@Html.Raw(item.Name.Replace("\"", "\\\""))", price: @item.UnitPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
-        }
-    ];
-    // assigned[i] = guest index (0-based), -1 = unassigned
-    var assigned = allItems.map(function() { return -1; });
-
-    function openSplit() {
-        document.getElementById('splitModal').classList.add('open');
-        renderEven(); renderByItem();
-    }
-    function closeSplit() {
-        document.getElementById('splitModal').classList.remove('open');
-    }
-
-    function switchTab(tab) {
-        curTab = tab;
-        document.getElementById('tabEvenBtn').className = 'split-tab-btn' + (tab==='even'?' active':'');
-        document.getElementById('tabItemBtn').className  = 'split-tab-btn' + (tab==='item'?' active':'');
-        document.getElementById('panelEven').style.display = tab==='even' ? '' : 'none';
-        document.getElementById('panelItem').style.display = tab==='item' ? '' : 'none';
-    }
-
-    function changeWays(delta) {
-        ways = Math.max(2, Math.min(10, ways + delta));
-        assigned = assigned.map(function() { return -1; });
-        renderEven(); renderByItem();
-    }
-
-    function renderEven() {
-        document.getElementById('waysDisplay').textContent = ways + ' ways';
-        var per = Math.round(total / ways * 100) / 100;
-        document.getElementById('perPersonAmount').textContent = '€' + per.toFixed(2);
-        var html = '';
-        for (var i = 0; i < ways; i++) {
-            var amt = i === ways-1 ? (total - per*(ways-1)).toFixed(2) : per.toFixed(2);
-            html += '<div class="guest-row"><div style="display:flex;align-items:center">' +
-                '<div class="guest-av" style="background:' + colors[i] + '">' + (i+1) + '</div>' +
-                '<span style="font-size:14px;color:#2a1a1f">Guest ' + (i+1) + '</span></div>' +
-                '<span style="font-size:14px;font-weight:700;color:#2a1a1f">€' + amt + '</span></div>';
-        }
-        document.getElementById('guestList').innerHTML = html;
-    }
-
-    function renderByItem() {
-        document.getElementById('waysDisplayItem').textContent = ways + ' ways';
-        var listHtml = '';
-        allItems.forEach(function(item, idx) {
-            var chips = '';
-            for (var g = 0; g < ways; g++) {
-                chips += '<div class="assign-chip ' + (assigned[idx]===g?'active':'') + '" ' +
-                    'style="background:' + colors[g] + '" data-idx="' + idx + '" data-g="' + g + '" ' +
-                    'onclick="assignItem(' + idx + ',' + g + ')">' + (g+1) + '</div>';
+        var allItems = [
+            @foreach (var item in flatItems)
+            {
+                    @:{ name: "@Html.Raw(item.Name.Replace("\"", "\\\""))", price: @item.UnitPrice.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) },
             }
-            listHtml += '<div class="byitem-row">' +
-                '<div><div class="byitem-name">' + item.name + '</div></div>' +
-                '<div style="display:flex;align-items:center;gap:10px">' +
-                '<span class="byitem-price">€' + item.price.toFixed(2) + '</span>' +
-                '<div class="byitem-assign">' + chips + '</div></div></div>';
-        });
-        document.getElementById('byitemList').innerHTML = listHtml;
+        ];
+        var assigned = allItems.map(function() { return -1; });
 
-        var totals = new Array(ways).fill(0);
-        allItems.forEach(function(item, idx) {
-            if (assigned[idx] >= 0) totals[assigned[idx]] += item.price;
-        });
-        var totHtml = '';
-        for (var g = 0; g < ways; g++) {
-            totHtml += '<div class="byitem-total-box" style="background:' + colors[g] + '">' +
-                '<div class="byitem-total-name">Guest ' + (g+1) + '</div>' +
-                '<div class="byitem-total-amt">€' + totals[g].toFixed(2) + '</div></div>';
+        function openSplit() {
+            document.getElementById('splitModal').classList.add('open');
+            renderEven(); renderByItem(); renderPersonCards();
         }
-        document.getElementById('byitemTotals').innerHTML = totHtml;
-    }
+        function closeSplit() {
+            document.getElementById('splitModal').classList.remove('open');
+        }
+        function switchTab(tab) {
+            curTab = tab;
+            document.getElementById('tabEvenBtn').className = 'split-tab-btn' + (tab==='even'?' active':'');
+            document.getElementById('tabItemBtn').className  = 'split-tab-btn' + (tab==='item'?' active':'');
+            document.getElementById('panelEven').style.display = tab==='even' ? '' : 'none';
+            document.getElementById('panelItem').style.display = tab==='item' ? '' : 'none';
+            renderPersonCards();
+        }
+        function changeWays(delta) {
+            ways = Math.max(2, Math.min(10, ways + delta));
+            assigned = assigned.map(function() { return -1; });
+            renderEven(); renderByItem(); renderPersonCards();
+        }
+        function renderEven() {
+            document.getElementById('waysDisplay').textContent = ways + ' ways';
+            var per = Math.round(total / ways * 100) / 100;
+            document.getElementById('perPersonAmount').textContent = '€' + per.toFixed(2);
+        }
+        function renderByItem() {
+            document.getElementById('waysDisplayItem').textContent = ways + ' ways';
+            var listHtml = '';
+            allItems.forEach(function(item, idx) {
+                var chips = '';
+                for (var g = 0; g < ways; g++) {
+                    chips += '<div class="assign-chip ' + (assigned[idx]===g?'active':'') + '" ' +
+                        'style="background:' + colors[g] + '" onclick="assignItem(' + idx + ',' + g + ')">' + (g+1) + '</div>';
+                }
+                listHtml += '<div class="byitem-row"><div><div class="byitem-name">' + item.name + '</div></div>' +
+                    '<div style="display:flex;align-items:center;gap:10px"><span class="byitem-price">€' + item.price.toFixed(2) + '</span>' +
+                    '<div class="byitem-assign">' + chips + '</div></div></div>';
+            });
+            document.getElementById('byitemList').innerHTML = listHtml;
 
-    function assignItem(idx, g) {
-        assigned[idx] = assigned[idx] === g ? -1 : g;
-        renderByItem();
-    }
+            byitemAmts = new Array(ways).fill(0);
+            allItems.forEach(function(item, idx) {
+                if (assigned[idx] >= 0) byitemAmts[assigned[idx]] += item.price;
+            });
+            var totHtml = '';
+            for (var g = 0; g < ways; g++) {
+                totHtml += '<div class="byitem-total-box" style="background:' + colors[g] + '">' +
+                    '<div class="byitem-total-name">Guest ' + (g+1) + '</div>' +
+                    '<div class="byitem-total-amt">€' + byitemAmts[g].toFixed(2) + '</div></div>';
+            }
+            document.getElementById('byitemTotals').innerHTML = totHtml;
+        }
+        function assignItem(idx, g) {
+            assigned[idx] = assigned[idx] === g ? -1 : g;
+            renderByItem(); renderPersonCards();
+        }
+        function getPersonAmount(g) {
+            if (curTab === 'even') {
+                var per = Math.round(total / ways * 100) / 100;
+                return g === ways - 1 ? Math.round((total - per * (ways - 1)) * 100) / 100 : per;
+            }
+            return byitemAmts[g] || 0;
+        }
+        function renderPersonCards() {
+            var html = '';
+            for (var g = 0; g < ways; g++) {
+                var amt = getPersonAmount(g);
+                var c = colors[g];
+                html += '<div class="person-pay-card" id="personCard_' + g + '">';
+                html += '<div class="person-pay-header"><div class="guest-av" style="background:' + c + '">' + (g+1) + '</div>';
+                html += 'Guest ' + (g+1) + ' · €' + amt.toFixed(2) + '</div>';
+                // Tip
+                html += '<div class="person-pay-section"><div class="person-pay-label">Tip</div><div class="tip-pills-sm">';
+                [['0','None'],['1','€1'],['2','€2'],['5','€5']].forEach(function(t) {
+                    var id = 'ptip_' + g + '_' + t[0];
+                    html += '<input class="tip-radio-sm" type="radio" id="' + id + '" name="personTip_' + g + '" value="' + t[0] + '"' + (t[0]==='0'?' checked':'') + '>';
+                    html += '<label class="tip-pill-sm" for="' + id + '">' + t[1] + '</label>';
+                });
+                html += '</div></div>';
+                // Payment method
+                html += '<div class="person-pay-section"><div class="person-pay-label">Payment method</div><div class="method-btns-sm">';
+                [['pin','💳 Card/PIN'],['cash','💵 Cash']].forEach(function(m, mi) {
+                    var id = 'pmethod_' + g + '_' + m[0];
+                    html += '<input class="method-radio-sm" type="radio" id="' + id + '" name="personMethod_' + g + '" value="' + m[0] + '"' + (mi===0?' checked':'') + '>';
+                    html += '<label class="method-btn-sm" for="' + id + '">' + m[1] + '</label>';
+                });
+                html += '</div></div>';
+                // Feedback
+                html += '<div class="person-pay-section"><div class="person-pay-label">Feedback (optional)</div>';
+                html += '<select class="fb-select-sm" id="pfbType_' + g + '">';
+                html += '<option value="Comment">💬 Comment</option><option value="Complaint">⚠ Complaint</option><option value="Praise">⭐ Praise</option>';
+                html += '</select>';
+                html += '<textarea class="fb-textarea-sm" id="pfbText_' + g + '" rows="2" placeholder="Leave a message… (blank to skip)"></textarea>';
+                html += '</div></div>';
+            }
+            document.getElementById('personCards').innerHTML = html;
+        }
 
-    function applySplit() {
-        document.getElementById('splitWaysInput').value = ways;
-        closeSplit();
-        document.getElementById('payForm').submit();
-    }
+        function confirmSplit() {
+            var persons = [];
+            for (var g = 0; g < ways; g++) {
+                var tipChecked = document.querySelector('input[name="personTip_' + g + '"]:checked');
+                var tip = tipChecked ? parseFloat(tipChecked.value) : 0;
+                var methodChecked = document.querySelector('input[name="personMethod_' + g + '"]:checked');
+                var fbType = document.getElementById('pfbType_' + g);
+                var fbText = document.getElementById('pfbText_' + g);
+                persons.push({
+                    amount: getPersonAmount(g),
+                    tip: tip,
+                    paymentMethod: methodChecked ? methodChecked.value : 'pin',
+                    feedbackType: fbType ? fbType.value : 'Comment',
+                    feedbackText: fbText ? fbText.value.trim() : ''
+                });
+            }
+            document.getElementById('splitPersonsJsonInput').value = JSON.stringify(persons);
+            document.getElementById('splitSetupForm').submit();
+        }
 
-    // Update process button when tip changes
-    document.querySelectorAll('.tip-radio').forEach(function(r) {
-        r.addEventListener('change', function() {
-            document.getElementById('tipOtherInput').value = '';
+        function processSingle() {
+            var tipRadio = document.querySelector('.tip-radio:checked');
+            var tipOther = parseFloat(document.getElementById('tipOtherInput').value) || 0;
+            var tip = tipOther > 0 ? tipOther : (tipRadio ? parseFloat(tipRadio.value) : 0);
+            var method = document.querySelector('.method-radio:checked');
+            var fbType = document.querySelector('.feedback-type-radio:checked');
+            var fbText = document.getElementById('mainFbText').value.trim();
+            var persons = [{
+                amount: total,
+                tip: tip,
+                paymentMethod: method ? method.value : 'pin',
+                feedbackType: fbType ? fbType.value : 'Comment',
+                feedbackText: fbText
+            }];
+            document.getElementById('personsJsonInput').value = JSON.stringify(persons);
+            document.getElementById('payForm').submit();
+        }
+
+        document.querySelectorAll('.tip-radio').forEach(function(r) {
+            r.addEventListener('change', function() {
+                document.getElementById('tipOtherInput').value = '';
+                updateProcessBtn();
+            });
+        });
+        document.getElementById('tipOtherInput').addEventListener('input', function() {
+            document.querySelectorAll('.tip-radio').forEach(function(r) { r.checked = false; });
             updateProcessBtn();
         });
-    });
-    document.getElementById('tipOtherInput').addEventListener('input', function() {
-        document.querySelectorAll('.tip-radio').forEach(function(r) { r.checked = false; });
-        updateProcessBtn();
-    });
-    function updateProcessBtn() {
-        var tipRadio = document.querySelector('.tip-radio:checked');
-        var tipOther = parseFloat(document.getElementById('tipOtherInput').value) || 0;
-        var tip = tipOther > 0 ? tipOther : (tipRadio ? parseFloat(tipRadio.value) : 0);
-        var t = total + tip;
-        document.getElementById('processBtn').innerHTML = '💳 Process payment — €' + t.toFixed(2);
-    }
+        function updateProcessBtn() {
+            var tipRadio = document.querySelector('.tip-radio:checked');
+            var tipOther = parseFloat(document.getElementById('tipOtherInput').value) || 0;
+            var tip = tipOther > 0 ? tipOther : (tipRadio ? parseFloat(tipRadio.value) : 0);
+            document.getElementById('processBtn').textContent = '💳 Process payment — €' + (total + tip).toFixed(2);
+        }
 
-    // init even split list on load
-    renderEven();
-</script>
+        renderEven();
+        </script>
+    }
+</div>

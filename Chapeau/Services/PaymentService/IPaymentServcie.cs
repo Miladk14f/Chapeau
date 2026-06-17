@@ -12,6 +12,9 @@ namespace Chapeau.Services
         void UpdatePayment(Payment payment);
         void DeletePayment(int id);
         BillViewModel GetBill(int tableId);
-        void ProcessPayment(int tableId, int orderId, decimal tip, decimal tipOther, string paymentMethod, int splitWays);
+        void ProcessPayment(int tableId, int orderId, List<PersonPaymentInput> persons);
+        int StartSplitBill(int orderId, decimal total, decimal totalTip, int splitWays);
+        void AddSplitPersonPayment(int billId, decimal amount, string paymentMethod);
+        void CloseTable(int tableId, int orderId);
     }
 }

@@ -1261,6 +1261,89 @@ body.login-body footer {
 .byitem-total-name { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 4px; }
 .byitem-total-amt  { font-size: 20px; font-weight: 700; color: #fff; }
 
+/* ── Split-in-progress (bill page) ─────────────────────────── */
+.split-progress-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: #f5f0eb;
+    border-radius: 12px;
+}
+.split-progress-title { font-size: 16px; font-weight: 700; color: #2a1a1f; flex: 1; }
+.split-remaining { font-size: 20px; font-weight: 700; color: #7a2a3e; }
+.btn-cancel-split { padding: 8px 16px; border: 1px solid #c8b0b8; border-radius: 20px; background: #fff; font-size: 13px; font-weight: 600; color: #9a8a90; cursor: pointer; }
+.btn-cancel-split:hover { border-color: #7a2a3e; color: #7a2a3e; }
+
+.person-split-card {
+    border: 2px solid #ede8e4;
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+}
+.person-split-card.paid {
+    border-color: #b8d8c0;
+    background: #f4faf5;
+    opacity: 0.75;
+}
+.person-split-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.person-split-name { font-size: 15px; font-weight: 700; color: #2a1a1f; flex: 1; }
+.person-split-amount { font-size: 18px; font-weight: 700; color: #2a1a1f; }
+.paid-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; background: #2a5c3a; color: #fff; font-size: 12px; font-weight: 700; }
+.person-split-detail { display: flex; gap: 16px; font-size: 13px; color: #9a8a90; margin-bottom: 12px; }
+.btn-pay-person { display: flex; align-items: center; justify-content: center; width: 100%; padding: 12px 20px; background: #7a2a3e; color: #fff; border: none; border-radius: 24px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.btn-pay-person:hover { background: #5a1a2e; }
+
+/* ── Per-person payment cards (split modal) ─────────────────── */
+.person-cards { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+
+.person-pay-card {
+    border: 1px solid #ede8e4;
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+
+.person-pay-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #2a1a1f;
+}
+
+.person-pay-section { margin-bottom: 10px; }
+.person-pay-label { font-size: 11px; font-weight: 700; color: #9a8a90; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+
+.tip-pills-sm { display: flex; flex-wrap: wrap; gap: 6px; }
+.tip-pill-sm { padding: 4px 12px; border-radius: 16px; border: 1px solid #ede8e4; background: #f5f0eb; font-size: 12px; font-weight: 600; color: #6b5560; cursor: pointer; }
+.tip-radio-sm:checked + .tip-pill-sm { background: #7a2a3e; border-color: #7a2a3e; color: #fff; }
+.tip-radio-sm { display: none; }
+
+.method-btns-sm { display: flex; gap: 8px; }
+.method-btn-sm { flex: 1; padding: 8px; border: 1px solid #ede8e4; border-radius: 8px; background: #f5f0eb; font-size: 12px; font-weight: 600; color: #6b5560; cursor: pointer; text-align: center; }
+.method-radio-sm:checked + .method-btn-sm { background: #2a1218; border-color: #2a1218; color: #fff; }
+.method-radio-sm { display: none; }
+
+.fb-select-sm { width: 100%; padding: 6px 10px; border: 1px solid #ede8e4; border-radius: 8px; font-size: 13px; margin-bottom: 6px; background: #f5f0eb; }
+.fb-textarea-sm { width: 100%; padding: 6px 10px; border: 1px solid #ede8e4; border-radius: 8px; font-size: 13px; resize: none; background: #f5f0eb; box-sizing: border-box; }
+
+/* ── Feedback section (bill page) ───────────────────────────── */
+.feedback-section { display: flex; flex-direction: column; gap: 8px; }
+.feedback-type-row { display: flex; gap: 8px; }
+.feedback-type-btn { flex: 1; padding: 8px; border: 1px solid #ede8e4; border-radius: 8px; background: #f5f0eb; font-size: 13px; font-weight: 600; color: #6b5560; cursor: pointer; text-align: center; }
+.feedback-type-radio { display: none; }
+.feedback-type-radio:checked + .feedback-type-btn { background: #2a1218; border-color: #2a1218; color: #fff; }
+.feedback-textarea { width: 100%; padding: 10px 12px; border: 1px solid #ede8e4; border-radius: 8px; font-size: 13px; resize: none; background: #f5f0eb; box-sizing: border-box; }
+
 /* ── Manager dashboard ──────────────────────────────────────── */
 .mgr-header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; }
 

@@ -1,5 +1,33 @@
 namespace Chapeau.ViewModels
 {
+    public class PersonPaymentInput
+    {
+        public decimal Amount { get; set; }
+        public decimal Tip { get; set; }
+        public string PaymentMethod { get; set; } = "pin";
+        public string FeedbackType { get; set; }
+        public string FeedbackText { get; set; }
+    }
+
+    public class SplitPersonState
+    {
+        public int Index { get; set; }
+        public decimal Amount { get; set; }
+        public decimal Tip { get; set; }
+        public string PaymentMethod { get; set; } = "pin";
+        public string FeedbackType { get; set; }
+        public string FeedbackText { get; set; }
+        public bool Paid { get; set; }
+
+        public decimal Total => Amount + Tip;
+    }
+
+    public class SplitData
+    {
+        public int BillId { get; set; }
+        public List<SplitPersonState> Persons { get; set; } = new();
+    }
+
     public class BillViewModel
     {
         public int TableId { get; set; }
@@ -19,6 +47,10 @@ namespace Chapeau.ViewModels
         public decimal Subtotal => Excl9 + Vat9Amount + Excl21 + Vat21Amount;
         public decimal TotalVat => Vat9Amount + Vat21Amount;
         public decimal TotalToPay => Subtotal;
+
+        // Split-in-progress state (null when no active split)
+        public List<SplitPersonState> SplitPersons { get; set; }
+        public int SplitBillId { get; set; }
     }
 
     public class BillItemRow
