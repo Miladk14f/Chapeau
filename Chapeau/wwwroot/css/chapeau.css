@@ -359,11 +359,20 @@ body.login-body footer {
 .table-persons { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #4a7a5a; margin-bottom: 12px; }
 .table-card.occupied .table-persons { color: #7a4a2a; }
 
-.table-action { font-size: 13px; font-weight: 600; color: #2d7a50; text-decoration: none; }
-.table-card.occupied .table-action { color: #c05a20; }
+.card-stretch-link { position: absolute; inset: 0; z-index: 0; border-radius: 12px; }
+.table-card { cursor: default; }
+.table-card.occupied { cursor: pointer; }
 
-.table-arrow { position: absolute; bottom: 14px; right: 14px; color: #a8e0be; font-size: 16px; }
-.table-card.occupied .table-arrow { color: #f0b88a; }
+.seat-form, .free-form { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.seat-input { width: 60px; padding: 5px 8px; border: 1.5px solid #a8e0be; border-radius: 8px; font-size: 14px; text-align: center; background: #fff; color: #1a3a2a; }
+.seat-input:focus { outline: none; border-color: #3db87a; }
+.btn-seat { padding: 6px 14px; background: #3db87a; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-seat:hover { background: #2d9a60; }
+.table-card.reserved .seat-input { border-color: #c4b5f4; }
+.table-card.reserved .btn-seat { background: #7c5cbf; }
+.table-card.reserved .btn-seat:hover { background: #6248a8; }
+.btn-free { padding: 6px 14px; background: transparent; color: #c05a20; border: 1.5px solid #f0b88a; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-free:hover { background: #fff0e8; }
 
 .table-card.has-ready { border-color: #e0b020; box-shadow: 0 0 0 2px #f0d88040; }
 

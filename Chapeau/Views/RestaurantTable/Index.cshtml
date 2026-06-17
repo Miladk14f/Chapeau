@@ -31,12 +31,31 @@
         var hasReady     = card.ReadyFood.Any() || card.ReadyDrink.Any();
         var hasPreparing = card.PreparingFood.Any() || card.PreparingDrink.Any();
 
-        <a class="table-card @cardClass @(hasReady ? "has-ready" : "")" asp-controller="Order" asp-action="CreateOrder" asp-route-tableId="@table.TableId">
+        <div class="table-card @cardClass @(hasReady ? "has-ready" : "")">
+            @if (isOccupied)
+            {
+                <a class="card-stretch-link" asp-controller="Order" asp-action="CreateOrder" asp-route-tableId="@table.TableId"></a>
+            }
             <span class="status-badge @badgeClass">@badgeText</span>
             <div class="table-name">Table @table.TableId</div>
             <div class="table-persons">👥 @(table.Guests ?? table.Seats) persons</div>
-            <span class="table-action">+ Open table</span>
-            <span class="table-arrow">›</span>
+
+            @if (isOccupied)
+            {
+                <form method="post" asp-controller="RestaurantTable" asp-action="FreeTable" class="free-form">
+                    <input type="hidden" name="tableId" value="@table.TableId" />
+                    <button type="submit" class="btn-free">✕ Free table</button>
+                </form>
+            }
+            else
+            {
+                <form method="post" asp-controller="RestaurantTable" asp-action="SeatGuests" class="seat-form">
+                    <input type="hidden" name="tableId" value="@table.TableId" />
+                    <input type="number" name="guests" class="seat-input" min="1" max="@table.Seats"
+                           value="@(table.Guests ?? table.Seats)" placeholder="# guests" />
+                    <button type="submit" class="btn-seat">👥 Seat</button>
+                </form>
+            }
 
             @if (hasPreparing || hasReady)
             {
@@ -91,7 +110,7 @@
                     }
                 </div>
             }
-        </a>
+        </div>
     }
 </div>
 
