@@ -1,5 +1,6 @@
 using Chapeau.Models.Enums;
 using Chapeau.Services;
+using Chapeau.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chapeau.Controllers
@@ -17,7 +18,25 @@ namespace Chapeau.Controllers
 
         public IActionResult Index()
         {
-            return View(_orderService.GetPreparationCards(ItemType.Drink, 6, 10));
+            var vm = new PreparationPageViewModel
+            {
+                Cards = _orderService.GetPreparationCards(ItemType.Drink, 6, 10),
+                PageClass = "bar-page",
+                HeaderClass = "bar-header",
+                IconClass = "bar-icon",
+                IconEmoji = "🍷",
+                SubClass = "bar-sub",
+                Title = "Bar",
+                CountLabel = "pending",
+                PrepLabel = "🍸 In preparation",
+                EmptyText = "No pending drink orders.",
+                ShowTypeBadge = true,
+                ShowZeroUrgent = false,
+                LegendNormal = "< 6 min",
+                LegendWarning = "6–9 min",
+                LegendUrgent = "≥ 10 min (urgent)"
+            };
+            return View(vm);
         }
 
         [HttpPost]
