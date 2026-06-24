@@ -88,8 +88,11 @@
                 <span>incl. VAT 9%: €@Model.Vat9Amount.ToString("0.00") · VAT 21%: €@Model.Vat21Amount.ToString("0.00")</span>
                 <span>€@Model.TotalVat.ToString("0.00")</span>
             </div>
+            <div class="total-line" id="receiptTipLine" style="display:none">
+                <span>Tip</span><span id="receiptTipAmount">€0.00</span>
+            </div>
             <div class="total-line grand">
-                <span>Total to pay</span><span class="price">€@Model.TotalToPay.ToString("0.00")</span>
+                <span>Total to pay</span><span class="price" id="receiptTotal">€@Model.TotalToPay.ToString("0.00")</span>
             </div>
         </div>
         <div class="receipt-footer">
@@ -306,7 +309,7 @@
             renderPersonCards();
         }
         function changeWays(delta) {
-            ways = Math.max(2, Math.min(10, ways + delta));
+            ways = Math.max(2, Math.min(4, ways + delta));
             assigned = assigned.map(function() { return -1; });
             renderEven(); renderByItem(); renderPersonCards();
         }
@@ -441,6 +444,14 @@
             var tipOther = parseFloat(document.getElementById('tipOtherInput').value) || 0;
             var tip = tipOther > 0 ? tipOther : (tipRadio ? parseFloat(tipRadio.value) : 0);
             document.getElementById('processBtn').textContent = '💳 Process payment — €' + (total + tip).toFixed(2);
+            var tipLine = document.getElementById('receiptTipLine');
+            if (tip > 0) {
+                tipLine.style.display = '';
+                document.getElementById('receiptTipAmount').textContent = '€' + tip.toFixed(2);
+            } else {
+                tipLine.style.display = 'none';
+            }
+            document.getElementById('receiptTotal').textContent = '€' + (total + tip).toFixed(2);
         }
 
         renderEven();
