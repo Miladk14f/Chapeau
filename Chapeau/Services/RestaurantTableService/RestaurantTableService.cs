@@ -18,11 +18,6 @@ namespace Chapeau.Services
             _orderItemRepository = orderItemRepository;
         }
 
-        public List<RestaurantTable> GetAllTables()
-        {
-            return _repository.GetAllTables();
-        }
-
         public List<RestaurantTable> GetAvailableTables()
         {
             List<RestaurantTable> tables = _repository.GetAllTables();
@@ -104,11 +99,6 @@ namespace Chapeau.Services
         public void ClearTable(int tableId)
         {
             _repository.ClearTable(tableId);
-        }
-
-        public void UpdateTableStatus(int tableId, TableStatus status)
-        {
-            _repository.UpdateTableStatus(tableId, status);
         }
 
         public void ReserveTable(int tableId, string reservationName, int guests, DateTime reservationAt)

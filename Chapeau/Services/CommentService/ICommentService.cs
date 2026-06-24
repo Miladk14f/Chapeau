@@ -5,8 +5,6 @@ namespace Chapeau.Services
     public interface ICommentService
     {
         List<Comment> GetAllComments();
-        List<Comment> GetCommentsByOrderId(int orderId);
         void AddCommentForTable(int tableId, string type, string text);
-        void DeleteComment(int id);
     }
 }

@@ -53,26 +53,6 @@ namespace Chapeau.Repositories.BillRepository
             return null;
         }
 
-        public Bill GetBillByOrderId(int orderId)
-        {
-            using SqlConnection connection = new SqlConnection(_connectionString);
-            connection.Open();
-
-            string query = "SELECT Id, OrderId, Tip, splited_method, amount, status FROM BILL WHERE OrderId = @OrderId";
-
-            using SqlCommand cmd = new SqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@OrderId", orderId);
-
-            using SqlDataReader reader = cmd.ExecuteReader();
-
-            if (reader.Read())
-            {
-                return MapReader(reader);
-            }
-
-            return null;
-        }
-
         public int AddBill(Bill bill)
         {
             using SqlConnection connection = new SqlConnection(_connectionString);
@@ -112,19 +92,6 @@ namespace Chapeau.Repositories.BillRepository
             cmd.Parameters.AddWithValue("@Amount", bill.Amount);
             cmd.Parameters.AddWithValue("@Status", bill.Status.ToString().ToLower());
             cmd.Parameters.AddWithValue("@Id", bill.BillId);
-
-            cmd.ExecuteNonQuery();
-        }
-
-        public void DeleteBill(int id)
-        {
-            using SqlConnection connection = new SqlConnection(_connectionString);
-            connection.Open();
-
-            string query = "DELETE FROM BILL WHERE Id = @Id";
-
-            using SqlCommand cmd = new SqlCommand(query, connection);
-            cmd.Parameters.AddWithValue("@Id", id);
 
             cmd.ExecuteNonQuery();
         }

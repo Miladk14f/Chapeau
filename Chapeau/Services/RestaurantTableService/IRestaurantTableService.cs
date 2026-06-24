@@ -1,18 +1,15 @@
 using Chapeau.Models;
-using Chapeau.Models.Enums;
 using Chapeau.ViewModels;
 
 namespace Chapeau.Services
 {
     public interface IRestaurantTableService
     {
-        List<RestaurantTable> GetAllTables();
         List<RestaurantTable> GetAvailableTables();
         TableOverviewViewModel GetTableOverview();
         RestaurantTable GetTableById(int id);
         void SeatGuestsAtTable(int tableId, int guests, int waiterId);
         void ClearTable(int tableId);
-        void UpdateTableStatus(int tableId, TableStatus status);
         void ReserveTable(int tableId, string reservationName, int guests, DateTime reservationAt);
     }
 }
