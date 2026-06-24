@@ -2,6 +2,40 @@ using Chapeau.Models.Enums;
 
 namespace Chapeau.ViewModels
 {
+    public class OrderHistoryViewModel
+    {
+        public List<HistoryCard> Cards { get; set; } = new();
+        public string Title { get; set; }
+        public string PageClass { get; set; }
+        public string BackAction { get; set; }
+    }
+
+    public class HistoryCard
+    {
+        public int OrderId { get; set; }
+        public int TableId { get; set; }
+        public string StaffName { get; set; }
+        public DateTime OrderedAt { get; set; }
+        public List<HistoryItemRow> Items { get; set; } = new();
+    }
+
+    public class HistoryItemRow
+    {
+        public string Name { get; set; }
+        public int Qty { get; set; }
+        public OrderItemStatus Status { get; set; }
+        public ItemType Category { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public string CategoryDisplayName => Category switch
+        {
+            ItemType.SoftDrinks => "Soft Drinks",
+            ItemType.CoffeeTea  => "Coffee/Tea",
+            _                   => Category.ToString()
+        };
+    }
+
+
     public class PreparationPageViewModel
     {
         public List<PreparationCard> Cards { get; set; } = new();

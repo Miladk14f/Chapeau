@@ -721,6 +721,28 @@ body.login-body footer {
 .bar-page .btn-ready   { background: #1a3a5c; }
 .bar-page .btn-ready:hover { background: #102840; }
 
+/* ── History button & page ───────────────────────────────────── */
+.btn-history { margin-left: auto; padding: 7px 16px; background: transparent; border: 1.5px solid rgba(255,255,255,0.3); border-radius: 8px; color: #e8c9a0; font-size: 13px; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.btn-history:hover { background: rgba(255,255,255,0.1); }
+
+.btn-back { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; background: transparent; border: 1.5px solid #c8a88a; border-radius: 8px; color: #7a2a3e; font-size: 13px; font-weight: 600; text-decoration: none; }
+.btn-back:hover { background: #f5ede8; }
+
+.history-header { display: flex; flex-direction: column; gap: 4px; margin-bottom: 24px; }
+.history-title-row { display: flex; align-items: center; gap: 14px; }
+.history-title-row h1 { margin: 0; }
+.history-sub { font-size: 13px; color: #9a7a7a; }
+
+.history-list { display: flex; flex-direction: column; gap: 12px; max-width: 720px; }
+.history-card { background: #fff; border: 1.5px solid #e8e0da; border-radius: 12px; padding: 14px 16px; }
+.history-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.history-time { font-size: 12px; color: #9a7a7a; }
+.history-staff { font-size: 12px; color: #9a7a7a; margin-left: auto; }
+
+.history-status { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.status-served { background: #e8f5ee; color: #2d7a50; }
+.status-ready  { background: #fff3e0; color: #b06010; }
+
 /* ── Legend (Kitchen / Bar / Floor plan) ────────────────────── */
 .legend { display: flex; gap: 20px; }
 .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #6b5560; }

@@ -62,6 +62,20 @@ namespace Chapeau.Controllers
             return RedirectToAction("Index");
         }
 
+        public IActionResult History()
+        {
+            if (!CanAccessBar())
+                return RedirectToAction("Login", "Staff");
+
+            return View("~/Views/Shared/OrderHistory.cshtml", new OrderHistoryViewModel
+            {
+                Cards = _orderService.GetOrderHistory(ItemTypeGroups.Drinks),
+                Title = "Bar History",
+                PageClass = "bar-page",
+                BackAction = "Bar"
+            });
+        }
+
         [HttpPost]
         public IActionResult MarkItemReady(int orderItemId)
         {

@@ -16,6 +16,7 @@ namespace Chapeau.Services
         void UpdateOrderStatus(int orderId, OrderStatus status);
         void DeleteOrder(int orderId);
         List<PreparationCard> GetPreparationCards(ItemType[] types, int warningMinutes, int urgentMinutes);
+        List<HistoryCard> GetOrderHistory(ItemType[] types);
         OrderViewModel GetOrderPage(int tableId);
     }
 }

@@ -179,5 +179,69 @@ namespace Chapeau.Services
             cards.Sort((a, b) => b.MinutesAgo.CompareTo(a.MinutesAgo));
             return cards;
         }
+
+        public List<HistoryCard> GetOrderHistory(ItemType[] types)
+        {
+            List<Staff> staff = _staffRepository.GetAllStaff();
+            List<Order> allOrders = _repository.GetAllOrders();
+            List<OrderItem> allItems = _orderItemRepository.GetAllOrderItems();
+
+            Dictionary<int, List<OrderItem>> itemsByOrder = new Dictionary<int, List<OrderItem>>();
+            foreach (OrderItem item in allItems)
+            {
+                if (item.Status != OrderItemStatus.Ready && item.Status != OrderItemStatus.Served)
+                    continue;
+
+                bool matchesType = false;
+                foreach (ItemType t in types)
+                    if (item.ItemType == t) { matchesType = true; break; }
+                if (!matchesType)
+                    continue;
+
+                int orderId = item.Order != null ? item.Order.OrderId : 0;
+                if (!itemsByOrder.ContainsKey(orderId))
+                    itemsByOrder[orderId] = new List<OrderItem>();
+                itemsByOrder[orderId].Add(item);
+            }
+
+            List<HistoryCard> cards = new List<HistoryCard>();
+            foreach (Order order in allOrders)
+            {
+                if (!itemsByOrder.ContainsKey(order.OrderId))
+                    continue;
+
+                int orderStaffId = order.Staff != null ? order.Staff.StaffId : 0;
+                string staffName = "Unknown";
+                foreach (Staff s in staff)
+                    if (s.StaffId == orderStaffId) { staffName = s.Name; break; }
+
+                List<HistoryItemRow> rows = new List<HistoryItemRow>();
+                DateTime orderedAt = DateTime.Now;
+                foreach (OrderItem item in itemsByOrder[order.OrderId])
+                {
+                    if (item.CreatedAt < orderedAt) orderedAt = item.CreatedAt;
+                    rows.Add(new HistoryItemRow
+                    {
+                        Name = item.Name,
+                        Qty = item.Qty,
+                        Status = item.Status,
+                        Category = item.ItemType,
+                        CreatedAt = item.CreatedAt
+                    });
+                }
+
+                cards.Add(new HistoryCard
+                {
+                    OrderId = order.OrderId,
+                    TableId = order.Table != null ? order.Table.TableId : 0,
+                    StaffName = staffName,
+                    OrderedAt = orderedAt,
+                    Items = rows
+                });
+            }
+
+            cards.Sort((a, b) => b.OrderedAt.CompareTo(a.OrderedAt));
+            return cards;
+        }
     }
 }

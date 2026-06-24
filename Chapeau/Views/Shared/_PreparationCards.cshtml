@@ -21,6 +21,7 @@
             }
         </div>
     </div>
+    <a asp-controller="@ViewContext.RouteData.Values["controller"]?.ToString()" asp-action="History" class="btn-history">🕐 History</a>
 </div>
 
 @if (Model.Cards == null || !Model.Cards.Any())
