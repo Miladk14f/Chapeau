@@ -26,6 +26,8 @@ namespace Chapeau.ViewModels
     {
         public int BillId { get; set; }
         public List<SplitPersonState> Persons { get; set; } = new();
+
+        public bool AllPaid => Persons.All(p => p.Paid);
     }
 
     public class BillViewModel

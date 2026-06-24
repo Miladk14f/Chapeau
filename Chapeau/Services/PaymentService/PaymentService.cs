@@ -167,8 +167,16 @@ namespace Chapeau.Services
             _tableRepository.ClearTable(tableId);
         }
 
-        public int StartSplitBill(int orderId, decimal total, decimal totalTip, int splitWays)
+        public SplitData StartSplitBill(int orderId, List<PersonPaymentInput> persons)
         {
+            decimal totalTip = 0;
+            decimal total = 0;
+            foreach (PersonPaymentInput p in persons)
+            {
+                total += p.Amount + p.Tip;
+                totalTip += p.Tip;
+            }
+
             Bill bill = new Bill
             {
                 Tip = totalTip,
@@ -177,7 +185,24 @@ namespace Chapeau.Services
                 Status = BillStatus.Unpaid,
                 Order = new Order { OrderId = orderId }
             };
-            return _billRepository.AddBill(bill);
+            int billId = _billRepository.AddBill(bill);
+
+            SplitData split = new SplitData { BillId = billId };
+            for (int i = 0; i < persons.Count; i++)
+            {
+                PersonPaymentInput p = persons[i];
+                split.Persons.Add(new SplitPersonState
+                {
+                    Index = i,
+                    Amount = p.Amount,
+                    Tip = p.Tip,
+                    PaymentMethod = p.PaymentMethod ?? "pin",
+                    FeedbackType = p.FeedbackType ?? "Comment",
+                    FeedbackText = p.FeedbackText ?? "",
+                    Paid = false
+                });
+            }
+            return split;
         }
 
         public void AddSplitPersonPayment(int billId, decimal amount, string paymentMethod)

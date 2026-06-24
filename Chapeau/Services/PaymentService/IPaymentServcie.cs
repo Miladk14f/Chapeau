@@ -13,7 +13,7 @@ namespace Chapeau.Services
         void DeletePayment(int id);
         BillViewModel GetBill(int tableId);
         void ProcessPayment(int tableId, int orderId, List<PersonPaymentInput> persons);
-        int StartSplitBill(int orderId, decimal total, decimal totalTip, int splitWays);
+        SplitData StartSplitBill(int orderId, List<PersonPaymentInput> persons);
         void AddSplitPersonPayment(int billId, decimal amount, string paymentMethod);
         void CloseTable(int tableId, int orderId);
     }

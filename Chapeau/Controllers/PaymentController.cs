@@ -59,32 +59,7 @@ namespace Chapeau.Controllers
             List<PersonPaymentInput> persons = JsonSerializer.Deserialize<List<PersonPaymentInput>>(personsJson, JsonOpts)
                                               ?? new List<PersonPaymentInput>();
 
-            decimal total = 0;
-            decimal totalTip = 0;
-            foreach (PersonPaymentInput p in persons)
-            {
-                total += p.Amount + p.Tip;
-                totalTip += p.Tip;
-            }
-
-            int billId = _paymentService.StartSplitBill(orderId, total, totalTip, persons.Count);
-
-            SplitData split = new SplitData { BillId = billId };
-            for (int i = 0; i < persons.Count; i++)
-            {
-                PersonPaymentInput p = persons[i];
-                split.Persons.Add(new SplitPersonState
-                {
-                    Index = i,
-                    Amount = p.Amount,
-                    Tip = p.Tip,
-                    PaymentMethod = p.PaymentMethod ?? "pin",
-                    FeedbackType = p.FeedbackType ?? "Comment",
-                    FeedbackText = p.FeedbackText ?? "",
-                    Paid = false
-                });
-            }
-
+            SplitData split = _paymentService.StartSplitBill(orderId, persons);
             HttpContext.Session.SetString($"split_{tableId}", JsonSerializer.Serialize(split));
             return RedirectToAction("Index", new { tableId });
         }
@@ -116,13 +91,7 @@ namespace Chapeau.Controllers
             person.Paid = true;
             HttpContext.Session.SetString(key, JsonSerializer.Serialize(split));
 
-            bool allPaid = true;
-            foreach (SplitPersonState p in split.Persons)
-            {
-                if (!p.Paid) { allPaid = false; break; }
-            }
-
-            if (allPaid)
+            if (split.AllPaid)
             {
                 _paymentService.CloseTable(tableId, orderId);
                 HttpContext.Session.Remove(key);
