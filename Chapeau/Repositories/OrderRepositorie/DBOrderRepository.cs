@@ -114,7 +114,7 @@ namespace Chapeau.Repositories
             return null;
         }
 
-        public int AddOrder(Order order)
+        public void AddOrder(Order order)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);
             conn.Open();
@@ -131,7 +131,10 @@ namespace Chapeau.Repositories
             cmd.Parameters.AddWithValue("@CreatedAt", order.CreatedAt);
             cmd.Parameters.AddWithValue("@TotalPrice", order.TotalPrice);
 
-            return Convert.ToInt32(cmd.ExecuteScalar());
+            order.OrderId = Convert.ToInt32(cmd.ExecuteScalar());
+            //return Convert.ToInt32(cmd.ExecuteScalar());
+
+            // add order items here...
         }
 
         public void UpdateOrder(Order order)

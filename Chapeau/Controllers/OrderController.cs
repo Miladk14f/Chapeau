@@ -18,7 +18,8 @@ namespace Chapeau.Controllers
 
         public IActionResult CreateOrder(int tableId)
         {
-            return View("CreateOrder", _orderService.GetOrderPage(tableId));
+            int staffId = HttpContext.Session.GetInt32("StaffId") ?? 0;
+            return View("CreateOrder", _orderService.GetOrderPage(tableId, staffId));
         }
 
         [HttpPost]

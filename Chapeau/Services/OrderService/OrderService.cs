@@ -23,23 +23,25 @@ namespace Chapeau.Services
             _tableRepository = tableRepository;
         }
 
-        public OrderViewModel GetOrderPage(int tableId)
+        public OrderViewModel GetOrderPage(int tableId, int staffId)
         {
             RestaurantTable table = _tableRepository.GetTableById(tableId);
             List<MenuItem> menu = _menuItemService.GetAllMenuItems();
-            Staff staff = _staffRepository.GetStaffById(2);
+            
+            Staff staff = _staffRepository.GetStaffById(staffId);
 
             Order current = _repository.GetActiveOrderByTableId(tableId);
             if (current == null)
             {
-                int newOrderId = AddOrder(new Order
+                current = new Order
                 {
                     Table = table,
                     Staff = staff,
                     Status = OrderStatus.InProgress,
                     CreatedAt = DateTime.Now
-                });
-                current = _repository.GetOrderById(newOrderId);
+                };
+
+                AddOrder(current);
             }
 
             List<OrderItem> orderItems = _orderItemRepository.GetOrderItemsByTableId(tableId);
@@ -66,11 +68,11 @@ namespace Chapeau.Services
             return _repository.GetOrderById(orderId);
         }
 
-        public int AddOrder(Order order)
+        public void AddOrder(Order order)
         {
             order.CreatedAt = DateTime.Now;
             order.Status = OrderStatus.Pending;
-            return _repository.AddOrder(order);
+            _repository.AddOrder(order);
         }
 
         public void UpdateOrder(Order order)

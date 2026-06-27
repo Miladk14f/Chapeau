@@ -6,6 +6,13 @@
     int orderCount = Model.OrderItems.Sum(i => i.Qty);
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
 
 <div class="order-header">
     <div class="order-header-left">

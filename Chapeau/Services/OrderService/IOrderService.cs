@@ -11,11 +11,11 @@ namespace Chapeau.Services
         List<Order> GetOrdersByStaffId(int staffId);
         Order GetOrderById(int orderId);
         Order GetActiveOrderByTableId(int tableId);
-        int AddOrder(Order order);
+        void AddOrder(Order order);
         void UpdateOrder(Order order);
         void UpdateOrderStatus(int orderId, OrderStatus status);
         void DeleteOrder(int orderId);
         List<PreparationCard> GetPreparationCards(ItemType[] types, int warningMinutes, int urgentMinutes);
-        OrderViewModel GetOrderPage(int tableId);
+        OrderViewModel GetOrderPage(int tableId, int staffId);
     }
 }

@@ -10,7 +10,7 @@ namespace Chapeau.Repositories
         Order GetActiveOrderByTableId(int tableId);
         List<Order> GetOrdersByStaffId(int staffId);
         Order GetOrderById(int orderId);
-        int AddOrder(Order order);
+        void AddOrder(Order order);
         void UpdateOrder(Order order);
         void UpdateOrderStatus(int orderId, OrderStatus status);
         void DeleteOrder(int orderId);
