@@ -8,12 +8,10 @@ namespace Chapeau.Controllers
     public class KitchenController : Controller
     {
         private readonly IOrderService _orderService;
-        private readonly IOrderItemService _orderItemService;
 
-        public KitchenController(IOrderService orderService, IOrderItemService orderItemService)
+        public KitchenController(IOrderService orderService)
         {
             _orderService = orderService;
-            _orderItemService = orderItemService;
         }
 
         private bool CanAccessKitchen()
@@ -51,14 +49,14 @@ namespace Chapeau.Controllers
         [HttpPost]
         public IActionResult StartPreparing(int orderId)
         {
-            _orderItemService.StartPreparingItems(orderId, ItemTypeGroups.Food);
+            _orderService.StartPreparingItems(orderId, ItemTypeGroups.Food);
             return RedirectToAction("Index");
         }
 
         [HttpPost]
         public IActionResult MarkReady(int orderId)
         {
-            _orderItemService.MarkOrderItemsReady(orderId, ItemTypeGroups.Food);
+            _orderService.MarkOrderItemsReady(orderId, ItemTypeGroups.Food);
             return RedirectToAction("Index");
         }
 
@@ -79,7 +77,7 @@ namespace Chapeau.Controllers
         [HttpPost]
         public IActionResult MarkItemReady(int orderItemId)
         {
-            _orderItemService.UpdateOrderItemStatus(orderItemId, Models.Enums.OrderItemStatus.Ready);
+            _orderService.UpdateOrderItemStatus(orderItemId, Models.Enums.OrderItemStatus.Ready);
             return RedirectToAction("Index");
         }
     }

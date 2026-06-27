@@ -14,7 +14,6 @@ namespace Chapeau.Services
         private readonly IStaffRepository _staffRepository;
         private readonly ICommentRepository _commentRepository;
         private readonly IOrderRepository _orderRepository;
-        private readonly IOrderItemRepository _orderItemRepository;
 
         public ManagerService(
             IBillRepository billRepository,
@@ -22,8 +21,7 @@ namespace Chapeau.Services
             IMenuItemRepository menuItemRepository,
             IStaffRepository staffRepository,
             ICommentRepository commentRepository,
-            IOrderRepository orderRepository,
-            IOrderItemRepository orderItemRepository)
+            IOrderRepository orderRepository)
         {
             _billRepository = billRepository;
             _tableRepository = tableRepository;
@@ -31,7 +29,6 @@ namespace Chapeau.Services
             _staffRepository = staffRepository;
             _commentRepository = commentRepository;
             _orderRepository = orderRepository;
-            _orderItemRepository = orderItemRepository;
         }
 
         public ManagerDashboardViewModel GetDashboard(string tab, string stockFilter)
@@ -42,7 +39,7 @@ namespace Chapeau.Services
             List<Staff> staff = _staffRepository.GetAllStaff();
             List<Comment> comments = _commentRepository.GetAllComments();
             List<Order> orders = _orderRepository.GetAllOrders();
-            List<OrderItem> allItems = _orderItemRepository.GetAllOrderItems();
+            List<OrderItem> allItems = _orderRepository.GetAllOrderItems();
 
             decimal revPaid = 0;
             decimal revOpen = 0;

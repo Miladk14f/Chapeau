@@ -6,13 +6,11 @@ namespace Chapeau.Controllers
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
-        private readonly IOrderItemService _orderItemService;
         private readonly ICommentService _commentService;
 
-        public OrderController(IOrderService orderService, IOrderItemService orderItemService, ICommentService commentService)
+        public OrderController(IOrderService orderService, ICommentService commentService)
         {
             _orderService = orderService;
-            _orderItemService = orderItemService;
             _commentService = commentService;
         }
 
@@ -36,7 +34,7 @@ namespace Chapeau.Controllers
         {
             try
             {
-                _orderItemService.AddItemToTable(menuItemId, tableId);
+                _orderService.AddItemToTable(menuItemId, tableId);
             }
             catch (Exception ex)
             {
@@ -50,7 +48,7 @@ namespace Chapeau.Controllers
         {
             try
             {
-                _orderItemService.DecreaseItemForTable(orderItemId, tableId);
+                _orderService.DecreaseItemForTable(orderItemId, tableId);
 
             }
             catch (Exception ex)
@@ -66,7 +64,7 @@ namespace Chapeau.Controllers
         {
             try
             {
-                _orderItemService.RemoveItemFromTable(orderItemId, tableId);
+                _orderService.RemoveItemFromTable(orderItemId, tableId);
             }
             catch (Exception ex)
             {
@@ -80,7 +78,7 @@ namespace Chapeau.Controllers
         {
             try
             {
-                _orderItemService.UpdateOrderItemNote(orderItemId, note);
+                _orderService.UpdateOrderItemNote(orderItemId, note);
 
             }
             catch (Exception ex)
@@ -95,7 +93,7 @@ namespace Chapeau.Controllers
         {
             try
             {
-                _orderItemService.ServeOrderItem(orderItemId);
+                _orderService.ServeOrderItem(orderItemId);
             }
             catch (Exception ex)
             {

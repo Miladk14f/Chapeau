@@ -11,7 +11,6 @@ namespace Chapeau.Services
         private readonly IPaymentRepository _paymentRepository;
         private readonly IBillRepository _billRepository;
         private readonly IOrderRepository _orderRepository;
-        private readonly IOrderItemRepository _orderItemRepository;
         private readonly IRestaurantTableRepository _tableRepository;
         private readonly IStaffRepository _staffRepository;
 
@@ -19,14 +18,12 @@ namespace Chapeau.Services
             IPaymentRepository paymentRepository,
             IBillRepository billRepository,
             IOrderRepository orderRepository,
-            IOrderItemRepository orderItemRepository,
             IRestaurantTableRepository tableRepository,
             IStaffRepository staffRepository)
         {
             _paymentRepository = paymentRepository;
             _billRepository = billRepository;
             _orderRepository = orderRepository;
-            _orderItemRepository = orderItemRepository;
             _tableRepository = tableRepository;
             _staffRepository = staffRepository;
         }
@@ -50,7 +47,7 @@ namespace Chapeau.Services
             if (activeOrder == null)
                 return null;
 
-            List<OrderItem> items = _orderItemRepository.GetOrderItemsByOrderId(activeOrder.OrderId);
+            List<OrderItem> items = _orderRepository.GetOrderItemsByOrderId(activeOrder.OrderId);
             List<Staff> staff = _staffRepository.GetAllStaff();
 
             string waiterName = "";
@@ -131,7 +128,7 @@ namespace Chapeau.Services
             foreach (PersonPaymentInput p in persons)
                 totalTip += p.Tip;
 
-            List<OrderItem> items = _orderItemRepository.GetOrderItemsByOrderId(orderId);
+            List<OrderItem> items = _orderRepository.GetOrderItemsByOrderId(orderId);
             decimal itemsTotal = 0;
             foreach (OrderItem item in items)
                 itemsTotal += item.Price * item.Qty;

@@ -14,5 +14,17 @@ namespace Chapeau.Repositories
         void UpdateOrder(Order order);
         void UpdateOrderStatus(int orderId, OrderStatus status);
         void DeleteOrder(int orderId);
+
+        List<OrderItem> GetAllOrderItems();
+        List<OrderItem> GetOrderItemsByOrderId(int orderId);
+        List<OrderItem> GetOrderItemsByTableId(int tableId);
+        OrderItem GetOrderItemById(int id);
+        void AddOrderItem(OrderItem item);
+        void UpdateOrderItem(OrderItem item);
+        void UpdateOrderItemStatus(int id, OrderItemStatus status);
+        void UpdateOrderItemNote(int id, string note);
+        void UpdateOrderItemsStatusByType(int orderId, ItemType[] types, OrderItemStatus fromStatus, OrderItemStatus toStatus);
+        void DeleteOrderItem(int id);
+        void DeleteOrderItemsByOrderId(int orderId);
     }
 }

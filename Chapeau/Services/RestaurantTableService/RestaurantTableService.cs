@@ -9,13 +9,11 @@ namespace Chapeau.Services
     {
         private readonly IRestaurantTableRepository _repository;
         private readonly IOrderRepository _orderRepository;
-        private readonly IOrderItemRepository _orderItemRepository;
 
-        public RestaurantTableService(IRestaurantTableRepository repository, IOrderRepository orderRepository, IOrderItemRepository orderItemRepository)
+        public RestaurantTableService(IRestaurantTableRepository repository, IOrderRepository orderRepository)
         {
             _repository = repository;
             _orderRepository = orderRepository;
-            _orderItemRepository = orderItemRepository;
         }
 
         public List<RestaurantTable> GetAvailableTables()
@@ -34,7 +32,7 @@ namespace Chapeau.Services
         {
             List<RestaurantTable> tables = _repository.GetAllTables();
             List<Order> orders = _orderRepository.GetAllOrders();
-            List<OrderItem> items = _orderItemRepository.GetAllOrderItems();
+            List<OrderItem> items = _orderRepository.GetAllOrderItems();
 
             Dictionary<int, int> tableIdByOrder = new Dictionary<int, int>();
             foreach (Order order in orders)

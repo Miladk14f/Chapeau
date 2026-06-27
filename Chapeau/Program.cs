@@ -22,9 +22,6 @@ builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IMenuItemRepository, DBMenuItemRepository>();
 builder.Services.AddScoped<IMenuItemService, MenuItemService>();
 
-builder.Services.AddScoped<IOrderItemRepository, DBOrderItemRepository>();
-builder.Services.AddScoped<IOrderItemService, OrderItemService>();
-
 builder.Services.AddScoped<ICommentRepository, DBCommentRepository>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 
