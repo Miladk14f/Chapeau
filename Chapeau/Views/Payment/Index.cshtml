@@ -8,6 +8,24 @@
     string[] guestColors = { "#7a2a3e", "#1a3a5c", "#2a5c3a", "#5c3a1a", "#3a1a5c", "#5c1a3a" };
 }
 
+<style>
+    /* inline — fingerprinted chapeau.css cached stale, guarantee render */
+    .amount-row-sm { display: flex; gap: 8px; align-items: stretch; }
+    .amount-row-sm .amount-input-sm { flex: 1; min-width: 0; }
+    .btn-remaining-sm {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 0 16px; border: none; border-radius: 8px;
+        background: linear-gradient(135deg, #7a2a3e, #5c1a2e);
+        color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .2px;
+        cursor: pointer; white-space: nowrap;
+        box-shadow: 0 1px 3px rgba(122,42,62,.3);
+        transition: filter .15s ease, transform .05s ease;
+    }
+    .btn-remaining-sm::before { content: "\21B3"; font-size: 13px; opacity: .85; }
+    .btn-remaining-sm:hover { filter: brightness(1.12); }
+    .btn-remaining-sm:active { transform: translateY(1px); }
+</style>
+
 <div class="bill-wrap">
     <div class="bill-header">
         <div class="bill-header-left">
@@ -137,7 +155,7 @@
                         {
                             <span>Tip: €@person.Tip.ToString("0.00")</span>
                         }
-                        <span>@(person.PaymentMethod == "cash" ? "💵 Cash" : "💳 Card/PIN")</span>
+                        <span>@(person.PaymentMethod == "cash" ? "💵 Cash" : person.PaymentMethod == "credit" ? "💳 Credit card" : "💳 Debit card")</span>
                         @if (!string.IsNullOrEmpty(person.FeedbackText))
                         {
                             <span>💬 Feedback</span>
@@ -148,7 +166,7 @@
                         <input type="hidden" name="orderId" value="@Model.OrderId" />
                         <input type="hidden" name="personIndex" value="@person.Index" />
                         <button type="submit" class="btn-pay-person">
-                            Pay €@person.Total.ToString("0.00") · @(person.PaymentMethod == "cash" ? "Cash" : "Card/PIN")
+                            Pay €@person.Total.ToString("0.00") · @(person.PaymentMethod == "cash" ? "Cash" : person.PaymentMethod == "credit" ? "Credit card" : "Debit card")
                         </button>
                     </form>
                 }
@@ -175,8 +193,8 @@
                 </div>
                 <div class="tip-other">
                     <span class="tip-other-label">Other:</span>
-                    <input class="tip-other-input" type="number" name="tipOther" min="0" step="0.01"
-                           placeholder="0,00" id="tipOtherInput" />
+                    <input class="tip-other-input" type="text" inputmode="decimal" name="tipOther"
+                           placeholder="0.00" id="tipOtherInput" />
                 </div>
             </div>
 
@@ -185,17 +203,24 @@
                 <div class="section-title">Payment method</div>
                 <div class="method-grid">
                     <div class="method-option">
-                        <input class="method-radio" type="radio" name="paymentMethod" id="methodCard" value="pin" checked />
-                        <label class="method-card" for="methodCard">
-                            <div class="method-card-icon">💳</div>
-                            <div class="method-card-label">Card / PIN</div>
-                        </label>
-                    </div>
-                    <div class="method-option">
                         <input class="method-radio" type="radio" name="paymentMethod" id="methodCash" value="cash" />
                         <label class="method-card" for="methodCash">
                             <div class="method-card-icon">💵</div>
                             <div class="method-card-label">Cash</div>
+                        </label>
+                    </div>
+                    <div class="method-option">
+                        <input class="method-radio" type="radio" name="paymentMethod" id="methodCredit" value="credit" checked />
+                        <label class="method-card" for="methodCredit">
+                            <div class="method-card-icon">💳</div>
+                            <div class="method-card-label">Credit card</div>
+                        </label>
+                    </div>
+                    <div class="method-option">
+                        <input class="method-radio" type="radio" name="paymentMethod" id="methodDebit" value="debit" />
+                        <label class="method-card" for="methodDebit">
+                            <div class="method-card-icon">💳</div>
+                            <div class="method-card-label">Debit card</div>
                         </label>
                     </div>
                 </div>
@@ -272,7 +297,7 @@
                         <input type="hidden" name="tableId" value="@Model.TableId" />
                         <input type="hidden" name="orderId" value="@Model.OrderId" />
                         <input type="hidden" name="personsJson" id="splitPersonsJsonInput" />
-                        <button type="button" class="btn-process" onclick="confirmSplit()">Confirm split &amp; start paying</button>
+                        <button type="button" class="btn-process" id="confirmSplitBtn" onclick="confirmSplit()">Confirm split &amp; start paying</button>
                     </form>
                 </div>
             </div>
@@ -356,6 +381,68 @@
             }
             return byitemAmts[g] || 0;
         }
+        function r2(x) { return Math.round(x * 100) / 100; }
+        function parseDec(v) { return parseFloat(String(v == null ? '' : v).replace(',', '.')) || 0; }
+        function personTip(g) {
+            var t = document.querySelector('input[name="personTip_' + g + '"]:checked');
+            var other = parseDec((document.getElementById('ptipOther_' + g) || {}).value);
+            return other > 0 ? other : (t ? parseFloat(t.value) : 0);
+        }
+        function personAmount(g) {
+            var inp = document.getElementById('pamount_' + g);
+            return inp ? (parseFloat(inp.value) || 0) : getPersonAmount(g);
+        }
+        function sumOtherAmounts(skip) {
+            var s = 0;
+            for (var g = 0; g < ways; g++) if (g !== skip) s += personAmount(g);
+            return s;
+        }
+        // assign whole remaining bill to guest g
+        function assignRemaining(g) {
+            var inp = document.getElementById('pamount_' + g);
+            if (!inp) return;
+            inp.value = r2(Math.max(0, total - sumOtherAmounts(g))).toFixed(2);
+            recalcPerson(g);
+        }
+        // recompute one card: clamp amount so total bill never exceeded, refresh header + totals
+        function recalcPerson(g) {
+            var inp = document.getElementById('pamount_' + g);
+            if (inp) {
+                var max = r2(total - sumOtherAmounts(g));   // can't pay more than what's left of bill
+                var val = parseFloat(inp.value) || 0;
+                if (val < 0) { val = 0; inp.value = '0.00'; }
+                if (val > max) { val = max; inp.value = max.toFixed(2); }
+            }
+            var hdr = document.getElementById('phdr_' + g);
+            if (hdr) hdr.textContent = '€' + (personAmount(g) + personTip(g)).toFixed(2);
+            recalcSplitTotal();
+        }
+        function recalcSplitTotal() {
+            var amtSum = 0, grand = 0;
+            for (var g = 0; g < ways; g++) { amtSum += personAmount(g); grand += personAmount(g) + personTip(g); }
+            amtSum = r2(amtSum); grand = r2(grand);
+            var remaining = r2(total - amtSum);
+
+            var assignedEl = document.getElementById('splitAssigned');
+            if (assignedEl) assignedEl.textContent = '€' + amtSum.toFixed(2) + ' / €' + total.toFixed(2);
+            var remEl = document.getElementById('splitRemaining');
+            if (remEl) {
+                remEl.textContent = '€' + remaining.toFixed(2);
+                remEl.style.color = Math.abs(remaining) < 0.005 ? '#2a5c3a' : '#7a2a3e';
+            }
+            var grandEl = document.getElementById('splitGrandTotal');
+            if (grandEl) grandEl.textContent = '€' + grand.toFixed(2);
+
+            var btn = document.getElementById('confirmSplitBtn');
+            if (btn) {
+                var ok = Math.abs(remaining) < 0.005;
+                btn.disabled = !ok;
+                btn.style.opacity = ok ? '' : '0.5';
+                btn.textContent = ok ? 'Confirm split & start paying'
+                                     : (remaining > 0 ? 'Assign €' + remaining.toFixed(2) + ' more'
+                                                      : 'Over by €' + Math.abs(remaining).toFixed(2));
+            }
+        }
         function renderPersonCards() {
             var html = '';
             for (var g = 0; g < ways; g++) {
@@ -363,20 +450,27 @@
                 var c = colors[g];
                 html += '<div class="person-pay-card" id="personCard_' + g + '">';
                 html += '<div class="person-pay-header"><div class="guest-av" style="background:' + c + '">' + (g+1) + '</div>';
-                html += 'Guest ' + (g+1) + ' · €' + amt.toFixed(2) + '</div>';
+                html += 'Guest ' + (g+1) + ' · <span id="phdr_' + g + '">€' + amt.toFixed(2) + '</span></div>';
+                // Amount (manual)
+                html += '<div class="person-pay-section"><div class="person-pay-label">Amount</div>';
+                html += '<div class="amount-row-sm">';
+                html += '<input class="amount-input-sm" type="number" min="0" max="' + total.toFixed(2) + '" step="0.01" id="pamount_' + g + '" value="' + amt.toFixed(2) + '" oninput="recalcPerson(' + g + ')">';
+                html += '<button type="button" class="btn-remaining-sm" onclick="assignRemaining(' + g + ')">Remaining</button>';
+                html += '</div></div>';
                 // Tip
                 html += '<div class="person-pay-section"><div class="person-pay-label">Tip</div><div class="tip-pills-sm">';
                 [['0','None'],['1','€1'],['2','€2'],['5','€5']].forEach(function(t) {
                     var id = 'ptip_' + g + '_' + t[0];
-                    html += '<input class="tip-radio-sm" type="radio" id="' + id + '" name="personTip_' + g + '" value="' + t[0] + '"' + (t[0]==='0'?' checked':'') + '>';
+                    html += '<input class="tip-radio-sm" type="radio" id="' + id + '" name="personTip_' + g + '" value="' + t[0] + '"' + (t[0]==='0'?' checked':'') + ' onchange="document.getElementById(\'ptipOther_' + g + '\').value=\'\';recalcPerson(' + g + ')">';
                     html += '<label class="tip-pill-sm" for="' + id + '">' + t[1] + '</label>';
                 });
+                html += '<input class="amount-input-sm" type="text" inputmode="decimal" id="ptipOther_' + g + '" placeholder="Other tip" oninput="recalcPerson(' + g + ')">';
                 html += '</div></div>';
                 // Payment method
                 html += '<div class="person-pay-section"><div class="person-pay-label">Payment method</div><div class="method-btns-sm">';
-                [['pin','💳 Card/PIN'],['cash','💵 Cash']].forEach(function(m, mi) {
+                [['cash','💵 Cash'],['credit','💳 Credit card'],['debit','💳 Debit card']].forEach(function(m, mi) {
                     var id = 'pmethod_' + g + '_' + m[0];
-                    html += '<input class="method-radio-sm" type="radio" id="' + id + '" name="personMethod_' + g + '" value="' + m[0] + '"' + (mi===0?' checked':'') + '>';
+                    html += '<input class="method-radio-sm" type="radio" id="' + id + '" name="personMethod_' + g + '" value="' + m[0] + '"' + (mi===1?' checked':'') + '>';
                     html += '<label class="method-btn-sm" for="' + id + '">' + m[1] + '</label>';
                 });
                 html += '</div></div>';
@@ -388,21 +482,31 @@
                 html += '<textarea class="fb-textarea-sm" id="pfbText_' + g + '" rows="2" placeholder="Leave a message… (blank to skip)"></textarea>';
                 html += '</div></div>';
             }
+            html += '<div class="split-summary">';
+            html += '<div class="split-summary-line">Assigned: <span id="splitAssigned">€0.00 / €0.00</span></div>';
+            html += '<div class="split-summary-line">Remaining: <span id="splitRemaining">€0.00</span></div>';
+            html += '<div class="split-grand-line">Total (incl. tip): <span id="splitGrandTotal">€0.00</span></div>';
+            html += '</div>';
             document.getElementById('personCards').innerHTML = html;
+            recalcSplitTotal();
         }
 
         function confirmSplit() {
+            var amtSum = 0;
+            for (var g = 0; g < ways; g++) amtSum += personAmount(g);
+            if (Math.abs(r2(total - amtSum)) >= 0.005) {
+                alert('Split amounts must add up to €' + total.toFixed(2) + '. Currently €' + r2(amtSum).toFixed(2) + '.');
+                return;
+            }
             var persons = [];
             for (var g = 0; g < ways; g++) {
-                var tipChecked = document.querySelector('input[name="personTip_' + g + '"]:checked');
-                var tip = tipChecked ? parseFloat(tipChecked.value) : 0;
                 var methodChecked = document.querySelector('input[name="personMethod_' + g + '"]:checked');
                 var fbType = document.getElementById('pfbType_' + g);
                 var fbText = document.getElementById('pfbText_' + g);
                 persons.push({
-                    amount: getPersonAmount(g),
-                    tip: tip,
-                    paymentMethod: methodChecked ? methodChecked.value : 'pin',
+                    amount: personAmount(g),
+                    tip: personTip(g),
+                    paymentMethod: methodChecked ? methodChecked.value : 'debit',
                     feedbackType: fbType ? fbType.value : 'Comment',
                     feedbackText: fbText ? fbText.value.trim() : ''
                 });
@@ -411,9 +515,11 @@
             document.getElementById('splitSetupForm').submit();
         }
 
+        function parseDec(v) { return parseFloat(String(v == null ? '' : v).replace(',', '.')) || 0; }
+
         function processSingle() {
             var tipRadio = document.querySelector('.tip-radio:checked');
-            var tipOther = parseFloat(document.getElementById('tipOtherInput').value) || 0;
+            var tipOther = parseDec(document.getElementById('tipOtherInput').value);
             var tip = tipOther > 0 ? tipOther : (tipRadio ? parseFloat(tipRadio.value) : 0);
             var method = document.querySelector('.method-radio:checked');
             var fbType = document.querySelector('.feedback-type-radio:checked');
@@ -421,7 +527,7 @@
             var persons = [{
                 amount: total,
                 tip: tip,
-                paymentMethod: method ? method.value : 'pin',
+                paymentMethod: method ? method.value : 'credit',
                 feedbackType: fbType ? fbType.value : 'Comment',
                 feedbackText: fbText
             }];
@@ -441,7 +547,7 @@
         });
         function updateProcessBtn() {
             var tipRadio = document.querySelector('.tip-radio:checked');
-            var tipOther = parseFloat(document.getElementById('tipOtherInput').value) || 0;
+            var tipOther = parseDec(document.getElementById('tipOtherInput').value);
             var tip = tipOther > 0 ? tipOther : (tipRadio ? parseFloat(tipRadio.value) : 0);
             document.getElementById('processBtn').textContent = '💳 Process payment — €' + (total + tip).toFixed(2);
             var tipLine = document.getElementById('receiptTipLine');

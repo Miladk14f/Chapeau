@@ -1,0 +1,142 @@
+@using Chapeau.Models.Enums
+@model Chapeau.ViewModels.PaymentConfirmationViewModel
+@{
+    ViewData["Title"] = "Payment confirmation";
+    string MethodLabel(PaymentMethod m) => m switch
+    {
+        PaymentMethod.Cash => "💵 Cash",
+        PaymentMethod.CreditCard => "💳 Credit card",
+        PaymentMethod.DebitCard => "💳 Debit card",
+        _ => m.ToString()
+    };
+}
+
+<div class="bill-wrap">
+    <div class="bill-header">
+        <div class="bill-header-left">
+            <a class="back-btn" asp-controller="RestaurantTable" asp-action="Index">‹</a>
+            <div>
+                <div class="bill-title">Payment confirmed — Table @Model.TableId</div>
+                <div class="bill-sub">@Model.Guests guests · @Model.WaiterName</div>
+            </div>
+        </div>
+        <div class="bill-actions">
+            <button type="button" class="btn-print-icon" onclick="window.print()">🖨</button>
+        </div>
+    </div>
+
+    <div class="pay-confirm-banner">
+        ✓ Paid — €@Model.Total.ToString("0.00") @(Model.IsSplit ? "· split" : "")
+        <div class="pay-confirm-sub">@Model.PaidAt.ToString("dddd, d MMMM yyyy · HH:mm")</div>
+    </div>
+
+    <!-- Receipt -->
+    <div class="receipt">
+        <div class="receipt-head">
+            <h2>Restaurant Chapeau</h2>
+            <p>Centrum, Zeewolde · Tel: (036) 522 1234</p>
+            <div class="receipt-date">
+                @Model.PaidAt.ToString("dddd, d MMMM yyyy") · @Model.PaidAt.ToString("HH:mm")<br />
+                Table @Model.TableId · @Model.Guests guests
+            </div>
+        </div>
+        <div class="receipt-body">
+            @if (Model.Items9.Any())
+            {
+                <div class="vat-section">
+                    <div class="vat-section-title">Food &amp; Soft Drinks · 9% VAT</div>
+                    @foreach (var item in Model.Items9)
+                    {
+                        <div class="item-line">
+                            <div><div class="item-line-left">@item.Qty× @item.Name</div></div>
+                            <div class="item-line-price">€@item.LineTotal.ToString("0.00")</div>
+                        </div>
+                    }
+                    <div class="vat-line"><span>Excl. VAT</span><span>€@Model.Excl9.ToString("0.00")</span></div>
+                    <div class="vat-line"><span>VAT 9%</span><span>€@Model.Vat9Amount.ToString("0.00")</span></div>
+                </div>
+            }
+            @if (Model.Items21.Any())
+            {
+                <div class="vat-section">
+                    <div class="vat-section-title">Alcoholic Beverages · 21% VAT</div>
+                    @foreach (var item in Model.Items21)
+                    {
+                        <div class="item-line">
+                            <div><div class="item-line-left">@item.Qty× @item.Name</div></div>
+                            <div class="item-line-price">€@item.LineTotal.ToString("0.00")</div>
+                        </div>
+                    }
+                    <div class="vat-line"><span>Excl. VAT</span><span>€@Model.Excl21.ToString("0.00")</span></div>
+                    <div class="vat-line"><span>VAT 21%</span><span>€@Model.Vat21Amount.ToString("0.00")</span></div>
+                </div>
+            }
+        </div>
+        <div class="receipt-totals">
+            <div class="total-line"><span>Subtotal (incl. VAT)</span><span>€@Model.Subtotal.ToString("0.00")</span></div>
+            @if (Model.Tip > 0)
+            {
+                <div class="total-line"><span>Tip</span><span>€@Model.Tip.ToString("0.00")</span></div>
+            }
+            <div class="total-line grand"><span>Total paid</span><span class="price">€@Model.Total.ToString("0.00")</span></div>
+        </div>
+
+        @if (Model.Payments.Any())
+        {
+            <div class="vat-section">
+                <div class="vat-section-title">Payments</div>
+                @foreach (var p in Model.Payments)
+                {
+                    <div class="item-line">
+                        <div><div class="item-line-left">@MethodLabel(p.PaymentMethod)</div></div>
+                        <div class="item-line-price">€@p.Amount.ToString("0.00")</div>
+                    </div>
+                }
+            </div>
+        }
+
+        <div class="receipt-footer">
+            <div class="vat-info">VAT no: NL123456789B01 · KvK: 12345678</div>
+            <div class="merci">Merci et à bientôt!</div>
+        </div>
+    </div>
+
+    <div class="confirm-actions">
+        <button type="button" class="cf-btn cf-btn-print" onclick="window.print()">🖨 Print receipt</button>
+        <form method="post" asp-action="CloseTable" class="cf-form">
+            <input type="hidden" name="tableId" value="@Model.TableId" />
+            <input type="hidden" name="orderId" value="@Model.OrderId" />
+            <button type="submit" class="cf-btn cf-btn-close">✓ End &amp; close table</button>
+        </form>
+        <a class="cf-btn cf-btn-back" asp-controller="RestaurantTable" asp-action="Index">‹ Back to tables · keep open</a>
+    </div>
+</div>
+
+<style>
+    /* inline — fingerprinted chapeau.css caches stale, guarantee render */
+    .confirm-actions { display: flex; flex-direction: column; gap: 12px; margin: 18px 0 28px; }
+    .confirm-actions .cf-form { margin: 0; }
+    .cf-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%; box-sizing: border-box;
+        padding: 15px 18px; border-radius: 14px;
+        font-size: 15px; font-weight: 700; letter-spacing: .2px;
+        cursor: pointer; text-decoration: none; border: 1.5px solid transparent;
+        transition: filter .15s ease, transform .05s ease, box-shadow .15s ease;
+    }
+    .cf-btn:active { transform: translateY(1px); }
+    .cf-btn-close {
+        background: linear-gradient(135deg, #2a5c3a, #1f4a2e);
+        color: #fff; box-shadow: 0 3px 10px rgba(42,92,58,.35);
+    }
+    .cf-btn-close:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(42,92,58,.45); }
+    .cf-btn-print {
+        background: #fff; color: #7a2a3e; border-color: #7a2a3e;
+    }
+    .cf-btn-print:hover { background: #fdf3f5; }
+    .cf-btn-back {
+        background: transparent; color: #6b5560; border-color: #ede8e4; font-weight: 600;
+    }
+    .cf-btn-back:hover { background: #f5f0eb; }
+    @@media print { .confirm-actions { display: none !important; } }
+</style>

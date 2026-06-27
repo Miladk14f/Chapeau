@@ -1,10 +1,37 @@
+using Chapeau.Models;
+
 namespace Chapeau.ViewModels
 {
+    public class PaymentConfirmationViewModel
+    {
+        public int TableId { get; set; }
+        public int OrderId { get; set; }
+        public int Guests { get; set; }
+        public string WaiterName { get; set; }
+        public DateTime PaidAt { get; set; }
+
+        public List<BillItemRow> Items9 { get; set; } = new();
+        public List<BillItemRow> Items21 { get; set; } = new();
+
+        public decimal Excl9 { get; set; }
+        public decimal Vat9Amount { get; set; }
+        public decimal Excl21 { get; set; }
+        public decimal Vat21Amount { get; set; }
+        public decimal Tip { get; set; }
+
+        public decimal Subtotal => Excl9 + Vat9Amount + Excl21 + Vat21Amount;
+        public decimal TotalVat => Vat9Amount + Vat21Amount;
+        public decimal Total => Subtotal + Tip;
+
+        public List<Payment> Payments { get; set; } = new();
+        public bool IsSplit { get; set; }
+    }
+
     public class PersonPaymentInput
     {
         public decimal Amount { get; set; }
         public decimal Tip { get; set; }
-        public string PaymentMethod { get; set; } = "pin";
+        public string PaymentMethod { get; set; } = "debit";
         public string FeedbackType { get; set; }
         public string FeedbackText { get; set; }
     }
@@ -14,7 +41,7 @@ namespace Chapeau.ViewModels
         public int Index { get; set; }
         public decimal Amount { get; set; }
         public decimal Tip { get; set; }
-        public string PaymentMethod { get; set; } = "pin";
+        public string PaymentMethod { get; set; } = "debit";
         public string FeedbackType { get; set; }
         public string FeedbackText { get; set; }
         public bool Paid { get; set; }

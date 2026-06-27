@@ -49,7 +49,7 @@ namespace Chapeau.Controllers
                     _commentService.AddCommentForTable(tableId, person.FeedbackType ?? "Comment", person.FeedbackText);
             }
 
-            return RedirectToAction("Index", "RestaurantTable");
+            return RedirectToAction("Confirmation", new { tableId, orderId });
         }
 
         // Configure split — creates Bill, stores persons in session
@@ -93,12 +93,31 @@ namespace Chapeau.Controllers
 
             if (split.AllPaid)
             {
-                _paymentService.CloseTable(tableId, orderId);
+                _paymentService.CompleteOrder(orderId);
                 HttpContext.Session.Remove(key);
-                return RedirectToAction("Index", "RestaurantTable");
+                return RedirectToAction("Confirmation", new { tableId, orderId });
             }
 
             return RedirectToAction("Index", new { tableId });
+        }
+
+        // Paid-bill confirmation (printable). Table NOT closed yet.
+        [HttpGet]
+        public IActionResult Confirmation(int tableId, int orderId)
+        {
+            PaymentConfirmationViewModel vm = _paymentService.GetConfirmation(orderId);
+            if (vm == null)
+                return RedirectToAction("Index", "RestaurantTable");
+
+            return View(vm);
+        }
+
+        // Finalize: free the table, return to overview
+        [HttpPost]
+        public IActionResult CloseTable(int tableId, int orderId)
+        {
+            _paymentService.CloseTable(tableId, orderId);
+            return RedirectToAction("Index", "RestaurantTable");
         }
 
         // Cancel split — remove session state

@@ -148,9 +148,7 @@ namespace Chapeau.Services
 
             foreach (PersonPaymentInput person in persons)
             {
-                PaymentMethod method = person.PaymentMethod?.ToLower() == "cash"
-                    ? PaymentMethod.Cash
-                    : PaymentMethod.Pin;
+                PaymentMethod method = ParsePaymentMethod(person.PaymentMethod);
 
                 AddPayment(new Payment
                 {
@@ -160,8 +158,86 @@ namespace Chapeau.Services
                 });
             }
 
+            // mark paid but keep table open — cleared later from the confirmation page
             _orderRepository.UpdateOrderStatus(orderId, OrderStatus.Paid);
-            _tableRepository.ClearTable(tableId);
+        }
+
+        public void CompleteOrder(int orderId)
+        {
+            _orderRepository.UpdateOrderStatus(orderId, OrderStatus.Paid);
+        }
+
+        public PaymentConfirmationViewModel GetConfirmation(int orderId)
+        {
+            Order order = _orderRepository.GetOrderById(orderId);
+            if (order == null)
+                return null;
+
+            int tableId = order.Table != null ? order.Table.TableId : 0;
+            RestaurantTable table = _tableRepository.GetTableById(tableId);
+            List<OrderItem> items = _orderRepository.GetOrderItemsByOrderId(orderId);
+            List<Staff> staff = _staffRepository.GetAllStaff();
+
+            int orderStaffId = order.Staff != null ? order.Staff.StaffId : 0;
+            string orderStaffName = "";
+            foreach (Staff s in staff)
+                if (s.StaffId == orderStaffId) { orderStaffName = s.Name; break; }
+
+            string waiterName = "";
+            if (table?.Waiter != null)
+                foreach (Staff s in staff)
+                    if (s.StaffId == table.Waiter.StaffId) { waiterName = s.Name; break; }
+
+            List<BillItemRow> items9 = new List<BillItemRow>();
+            List<BillItemRow> items21 = new List<BillItemRow>();
+            decimal sum9 = 0, sum21 = 0;
+            foreach (OrderItem item in items)
+            {
+                BillItemRow row = new BillItemRow
+                {
+                    Name = item.Name,
+                    Qty = item.Qty,
+                    UnitPrice = item.Price,
+                    StaffName = orderStaffName,
+                    Vat = item.Vat
+                };
+                decimal lineTotal = item.Price * item.Qty;
+                if (item.Vat == 9) { items9.Add(row); sum9 += lineTotal; }
+                else if (item.Vat == 21) { items21.Add(row); sum21 += lineTotal; }
+            }
+
+            decimal excl9 = sum9 > 0 ? Math.Round(sum9 / 1.09m, 2) : 0;
+            decimal excl21 = sum21 > 0 ? Math.Round(sum21 / 1.21m, 2) : 0;
+
+            // latest bill for this order + its payments
+            Bill bill = null;
+            foreach (Bill b in _billRepository.GetAllBills())
+                if (b.Order != null && b.Order.OrderId == orderId && (bill == null || b.BillId > bill.BillId))
+                    bill = b;
+
+            List<Payment> payments = bill != null ? _paymentRepository.GetPaymentsByBillId(bill.BillId) : new List<Payment>();
+            decimal tip = bill?.Tip ?? 0;
+            DateTime? paidAt = null;
+            foreach (Payment p in payments)
+                if (p.PaidAt != null && (paidAt == null || p.PaidAt > paidAt)) paidAt = p.PaidAt;
+
+            return new PaymentConfirmationViewModel
+            {
+                TableId = tableId,
+                OrderId = orderId,
+                Guests = table?.Guests ?? 0,
+                WaiterName = waiterName,
+                PaidAt = paidAt ?? DateTime.Now,
+                Items9 = items9,
+                Items21 = items21,
+                Excl9 = excl9,
+                Vat9Amount = Math.Round(sum9 - excl9, 2),
+                Excl21 = excl21,
+                Vat21Amount = Math.Round(sum21 - excl21, 2),
+                Tip = tip,
+                Payments = payments,
+                IsSplit = payments.Count > 1
+            };
         }
 
         public SplitData StartSplitBill(int orderId, List<PersonPaymentInput> persons)
@@ -204,7 +280,7 @@ namespace Chapeau.Services
 
         public void AddSplitPersonPayment(int billId, decimal amount, string paymentMethod)
         {
-            PaymentMethod method = paymentMethod?.ToLower() == "cash" ? PaymentMethod.Cash : PaymentMethod.Pin;
+            PaymentMethod method = ParsePaymentMethod(paymentMethod);
             AddPayment(new Payment
             {
                 PaymentMethod = method,
@@ -262,6 +338,19 @@ namespace Chapeau.Services
                 _paymentRepository.DeletePayment(id);
 
                 UpdateBillStatus(billId);
+            }
+        }
+
+        private static PaymentMethod ParsePaymentMethod(string method)
+        {
+            switch (method?.ToLower())
+            {
+                case "cash": return PaymentMethod.Cash;
+                case "credit":
+                case "creditcard": return PaymentMethod.CreditCard;
+                case "debit":
+                case "debitcard": return PaymentMethod.DebitCard;
+                default: return PaymentMethod.DebitCard;
             }
         }
 

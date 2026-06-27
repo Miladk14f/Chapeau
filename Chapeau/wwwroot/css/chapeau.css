@@ -1179,7 +1179,7 @@ body.login-body footer {
     background: #f5f0eb;
 }
 
-.method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.method-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .method-option { position: relative; }
 .method-radio  { position: absolute; opacity: 0; width: 0; height: 0; }
 
@@ -1378,6 +1378,35 @@ body.login-body footer {
 
 .fb-select-sm { width: 100%; padding: 6px 10px; border: 1px solid #ede8e4; border-radius: 8px; font-size: 13px; margin-bottom: 6px; background: #f5f0eb; }
 .fb-textarea-sm { width: 100%; padding: 6px 10px; border: 1px solid #ede8e4; border-radius: 8px; font-size: 13px; resize: none; background: #f5f0eb; box-sizing: border-box; }
+
+.method-btns-sm { flex-wrap: wrap; }
+.amount-input-sm { width: 100%; padding: 6px 10px; border: 1px solid #ede8e4; border-radius: 8px; font-size: 13px; background: #f5f0eb; box-sizing: border-box; }
+.amount-row-sm { display: flex; gap: 8px; align-items: stretch; }
+.amount-row-sm .amount-input-sm { flex: 1; }
+.btn-remaining-sm {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 0 14px; border: none; border-radius: 8px;
+    background: linear-gradient(135deg, #7a2a3e, #5c1a2e);
+    color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .2px;
+    cursor: pointer; white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(122,42,62,.3);
+    transition: filter .15s ease, transform .05s ease;
+}
+.btn-remaining-sm::before { content: "↳"; font-size: 13px; opacity: .85; }
+.btn-remaining-sm:hover { filter: brightness(1.1); }
+.btn-remaining-sm:active { transform: translateY(1px); }
+.split-summary { margin-top: 12px; padding-top: 10px; border-top: 1px solid #ede8e4; }
+.split-summary-line { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: #6b5560; margin-bottom: 4px; }
+.split-summary-line span { font-weight: 700; }
+.split-grand-line { margin-top: 6px; padding-top: 8px; border-top: 1px solid #ede8e4; display: flex; justify-content: space-between; font-weight: 700; color: #2a1218; }
+
+/* ── Payment confirmation ───────────────────────────── */
+.pay-confirm-banner { margin: 14px 0; padding: 16px; border-radius: 12px; background: #e9f3ec; border: 1px solid #2a5c3a; color: #2a5c3a; font-size: 18px; font-weight: 800; text-align: center; }
+.pay-confirm-sub { margin-top: 4px; font-size: 13px; font-weight: 600; color: #4a6b54; }
+.confirm-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.btn-close-table { width: 100%; padding: 14px; border: none; border-radius: 12px; background: #7a2a3e; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-secondary { display: block; text-align: center; padding: 12px; border-radius: 12px; border: 1px solid #ede8e4; background: #fff; color: #6b5560; font-weight: 600; text-decoration: none; }
+@media print { .bill-header, .bill-actions, .confirm-actions, .pay-confirm-banner { display: none !important; } }
 
 /* ── Feedback section (bill page) ───────────────────────────── */
 .feedback-section { display: flex; flex-direction: column; gap: 8px; }
