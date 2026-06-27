@@ -57,8 +57,8 @@ namespace Chapeau.Controllers
             return staff.Role switch
             {
                 Models.Enums.StaffRole.Chef => RedirectToAction("Index", "Kitchen"),
-                Models.Enums.StaffRole.Bar  => RedirectToAction("Index", "Bar"),
-                _                           => RedirectToAction("Index", "RestaurantTable")
+                Models.Enums.StaffRole.Bar => RedirectToAction("Index", "Bar"),
+                _ => RedirectToAction("Index", "RestaurantTable")
             };
         }
 
