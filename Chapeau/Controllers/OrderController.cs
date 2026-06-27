@@ -18,49 +18,104 @@ namespace Chapeau.Controllers
 
         public IActionResult CreateOrder(int tableId)
         {
-            int staffId = HttpContext.Session.GetInt32("StaffId") ?? 0;
-            return View("CreateOrder", _orderService.GetOrderPage(tableId, staffId));
+            try
+            {
+                int staffId = HttpContext.Session.GetInt32("StaffId") ?? 0;
+                var displayPage = _orderService.GetOrderPage(tableId, staffId);
+                return View("CreateOrder", displayPage);
+            }
+            catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "Something went wrong while trying load the page.";
+                return RedirectToAction("Index", "RestaurantTable");
+            }
         }
 
         [HttpPost]
         public IActionResult AddItem(int menuItemId, int tableId)
         {
-            _orderItemService.AddItemToTable(menuItemId, tableId);
+            try
+            {
+                _orderItemService.AddItemToTable(menuItemId, tableId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "COuld not add item. Try again.";
+            }
+
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
 
         [HttpPost]
         public IActionResult DecreaseItem(int orderItemId, int tableId)
         {
-            _orderItemService.DecreaseItemForTable(orderItemId, tableId);
+            try
+            {
+                _orderItemService.DecreaseItemForTable(orderItemId, tableId);
+
+            }
+            catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "Something went wrong while updating order. Try again.";
+            }
+
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
 
         [HttpPost]
         public IActionResult DeleteItem(int orderItemId, int tableId)
         {
-            _orderItemService.RemoveItemFromTable(orderItemId, tableId);
+            try
+            {
+                _orderItemService.RemoveItemFromTable(orderItemId, tableId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Something went wrong while removing the item. Try again.";
+            }
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
 
         [HttpPost]
         public IActionResult UpdateItemNote(int orderItemId, int tableId, string note)
         {
-            _orderItemService.UpdateOrderItemNote(orderItemId, note);
+            try
+            {
+                _orderItemService.UpdateOrderItemNote(orderItemId, note);
+
+            }
+            catch(Exception ex)
+            {
+                TempData["ErrorMessage"] = "Something went wrong while updating the note. Try again.";
+            }
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
 
         [HttpPost]
         public IActionResult ServeItem(int orderItemId, int tableId)
         {
-            _orderItemService.ServeOrderItem(orderItemId);
+            try
+            {
+                _orderItemService.ServeOrderItem(orderItemId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Something went wrong while serving the item. Please try again.";
+            }
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
 
         [HttpPost]
         public IActionResult AddComment(int tableId, string type, string text)
         {
-            _commentService.AddCommentForTable(tableId, type, text);
+            try
+            {
+                _commentService.AddCommentForTable(tableId, type, text);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Something went wrong while saving the comment. Please try again.";
+            }
             return RedirectToAction("CreateOrder", new { tableId = tableId });
         }
     }

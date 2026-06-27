@@ -24,5 +24,11 @@ namespace Chapeau.Models
             CreatedAt = createdAt;
             TotalPrice = totalPrice;
         }
+
+        //private void AddOrder()
+        //{
+
+             
+        //}
     }
 }
