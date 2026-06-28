@@ -43,7 +43,7 @@ namespace Chapeau.Controllers
                                               ?? new List<PersonPaymentInput>();
             _paymentService.ProcessPayment(tableId, orderId, persons);
 
-            foreach (PersonPaymentInput person in persons)
+            
             {
                 if (!string.IsNullOrWhiteSpace(person.FeedbackText))
                     _commentService.AddCommentForTable(tableId, person.FeedbackType ?? "Comment", person.FeedbackText);
