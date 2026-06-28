@@ -6,6 +6,12 @@
     int orderCount = Model.OrderItems.Sum(i => i.Qty);
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
 
 <div class="order-header">
     <div class="order-header-left">
@@ -28,7 +34,8 @@
         <h2>Menu Items</h2>
 
         <div class="category-buttons">
-            <button type="button" class="active" onclick="filterMenu('', this)">All</button>
+            <a class="cat-btn @(string.IsNullOrEmpty(Model.SelectedCategory) ? "active" : "")"
+               asp-action="CreateOrder" asp-route-tableId="@Model.TableOrder.TableId">All</a>
             @{
                 var seenCats = new System.Collections.Generic.HashSet<string>();
             }
@@ -36,48 +43,54 @@
             {
                 if (!string.IsNullOrEmpty(item.CategoryDisplayName) && seenCats.Add(item.CategoryDisplayName))
                 {
-                    <button type="button" onclick="filterMenu('@item.CategoryDisplayName', this)">@item.CategoryDisplayName</button>
+                    <a class="cat-btn @(Model.SelectedCategory == item.CategoryDisplayName ? "active" : "")"
+                       asp-action="CreateOrder" asp-route-tableId="@Model.TableOrder.TableId"
+                       asp-route-category="@item.CategoryDisplayName">@item.CategoryDisplayName</a>
                 }
             }
         </div>
 
-        <div id="menu-list">
-        @foreach (var item in Model.MenuItems)
+        @if (!string.IsNullOrEmpty(Model.SelectedCategory))
         {
-            <div class="menu-row" data-category="@item.CategoryDisplayName">
-                <div class="menu-info">
-                    <span class="menu-name">@item.Name</span>
-                    <span class="menu-price">€@item.Price.ToString("0.00")</span>
-                </div>
-                <form asp-action="AddItem" method="post">
-                    <input type="hidden" name="menuItemId" value="@item.MenuItemId" />
-                    <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
-                    <button type="submit" class="btn-add">+</button>
-                </form>
+            <div class="subcategory-buttons">
+                @{
+                    var seenSubCats = new System.Collections.Generic.HashSet<string>();
+                }
+                @foreach (var item in Model.MenuItems)
+                {
+                    if (item.CategoryDisplayName == Model.SelectedCategory
+                        && !string.IsNullOrEmpty(item.SubCategoryDisplayName)
+                        && seenSubCats.Add(item.SubCategoryDisplayName))
+                    {
+                        <a class="cat-btn @(Model.SelectedSubCategory == item.SubCategoryDisplayName ? "active" : "")"
+                           asp-action="CreateOrder" asp-route-tableId="@Model.TableOrder.TableId"
+                           asp-route-category="@Model.SelectedCategory"
+                           asp-route-subCategory="@item.SubCategoryDisplayName">@item.SubCategoryDisplayName</a>
+                    }
+                }
             </div>
         }
+
+        <div id="menu-list">
+            @foreach (var item in Model.FilteredMenuItems)
+            {
+                <div class="menu-row">
+                    <div class="menu-info">
+                        <span class="menu-name">@item.Name</span>
+                        <span class="menu-price">€@item.Price.ToString("0.00")</span>
+                    </div>
+                    <form asp-action="AddItem" method="post">
+                        <input type="hidden" name="menuItemId" value="@item.MenuItemId" />
+                        <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                        <button type="submit" class="btn-add">+</button>
+                    </form>
+                </div>
+            }
+            @if (!Model.FilteredMenuItems.Any())
+            {
+                <div class="order-empty">No items in this category.</div>
+            }
         </div>
-
-        <script>
-        var FILTER_KEY = 'orderMenuFilter_@Model.TableOrder.TableId';
-
-        function filterMenu(cat, btn) {
-            sessionStorage.setItem(FILTER_KEY, cat);
-            document.querySelectorAll('.category-buttons button').forEach(function(b) { b.classList.remove('active'); });
-            btn.classList.add('active');
-            document.querySelectorAll('#menu-list .menu-row').forEach(function(row) {
-                row.style.display = (!cat || row.dataset.category === cat) ? '' : 'none';
-            });
-        }
-
-        (function restoreFilter() {
-            var saved = sessionStorage.getItem(FILTER_KEY);
-            if (!saved) return;
-            var btn = Array.from(document.querySelectorAll('.category-buttons button'))
-                          .find(function(b) { return b.textContent.trim() === saved; });
-            if (btn) filterMenu(saved, btn);
-        })();
-        </script>
     </div>
 
     <!-- RIGHT SIDE - ORDER ITEMS -->

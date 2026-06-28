@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Chapeau.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,17 +15,17 @@ namespace Chapeau.Controllers
             _commentService = commentService;
         }
 
-        public IActionResult CreateOrder(int tableId)
+        public IActionResult CreateOrder(int tableId, string category = null, string subCategory = null)
         {
             try
             {
                 int staffId = HttpContext.Session.GetInt32("StaffId") ?? 0;
-                var displayPage = _orderService.GetOrderPage(tableId, staffId);
+                var displayPage = _orderService.GetOrderPage(tableId, staffId, category, subCategory);
                 return View("CreateOrder", displayPage);
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Something went wrong while trying load the page.";
+                TempData["ErrorMessage"] = "Something went wrong while trying to load the page.";
                 return RedirectToAction("Index", "RestaurantTable");
             }
         }

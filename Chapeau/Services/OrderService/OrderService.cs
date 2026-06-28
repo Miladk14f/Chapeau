@@ -23,11 +23,10 @@ namespace Chapeau.Services
             _tableRepository = tableRepository;
         }
 
-        public OrderViewModel GetOrderPage(int tableId,int staffId)
+        public OrderViewModel GetOrderPage(int tableId, int staffId, string category = null, string subCategory = null)
         {
             RestaurantTable table = _tableRepository.GetTableById(tableId);
             List<MenuItem> menu = _menuItemService.GetAllMenuItems();
-
             Staff staff = _staffRepository.GetStaffById(staffId);
 
             Order current = _repository.GetActiveOrderByTableId(tableId);
@@ -40,12 +39,17 @@ namespace Chapeau.Services
                     Status = OrderStatus.InProgress,
                     CreatedAt = DateTime.Now
                 };
-
                 AddOrder(current);
             }
 
+            List<MenuItem> filteredMenu = menu;
+            if (!string.IsNullOrEmpty(category))
+                filteredMenu = filteredMenu.Where(m => m.CategoryDisplayName == category).ToList();
+            if (!string.IsNullOrEmpty(subCategory))
+                filteredMenu = filteredMenu.Where(m => m.SubCategoryDisplayName == subCategory).ToList();
+
             List<OrderItem> orderItems = _repository.GetOrderItemsByTableId(tableId);
-            return new OrderViewModel(menu, orderItems, table, staff);
+            return new OrderViewModel(menu, filteredMenu, orderItems, table, staff, category, subCategory);
         }
 
         private int AddOrder(Order order)
@@ -55,7 +59,7 @@ namespace Chapeau.Services
             return _repository.AddOrder(order);
         }
 
-        public List<PreparationCard> GetPreparationCards(ItemType[] types, int warningMinutes, int urgentMinutes)
+        public List<PreparationCard> GetPreparationCards(SubCategory[] types, int warningMinutes, int urgentMinutes)
         {
             List<Staff> staff = _staffRepository.GetAllStaff();
             List<Order> allOrders = _repository.GetAllOrders();
@@ -65,7 +69,7 @@ namespace Chapeau.Services
             foreach (OrderItem item in allItems)
             {
                 bool matchesType = false;
-                foreach (ItemType t in types)
+                foreach (SubCategory t in types)
                 {
                     if (item.ItemType == t) { matchesType = true; break; }
                 }
@@ -142,7 +146,7 @@ namespace Chapeau.Services
             return cards;
         }
 
-        public List<HistoryCard> GetOrderHistory(ItemType[] types)
+        public List<HistoryCard> GetOrderHistory(SubCategory[] types)
         {
             List<Staff> staff = _staffRepository.GetAllStaff();
             List<Order> allOrders = _repository.GetAllOrders();
@@ -155,7 +159,7 @@ namespace Chapeau.Services
                     continue;
 
                 bool matchesType = false;
-                foreach (ItemType t in types)
+                foreach (SubCategory t in types)
                     if (item.ItemType == t) { matchesType = true; break; }
                 if (!matchesType)
                     continue;
@@ -217,12 +221,12 @@ namespace Chapeau.Services
             _repository.UpdateOrderItemNote(id, note);
         }
 
-        public void StartPreparingItems(int orderId, ItemType[] types)
+        public void StartPreparingItems(int orderId, SubCategory[] types)
         {
             _repository.UpdateOrderItemsStatusByType(orderId, types, OrderItemStatus.Ordered, OrderItemStatus.InPreparation);
         }
 
-        public void MarkOrderItemsReady(int orderId, ItemType[] types)
+        public void MarkOrderItemsReady(int orderId, SubCategory[] types)
         {
             _repository.UpdateOrderItemsStatusByType(orderId, types, OrderItemStatus.InPreparation, OrderItemStatus.Ready);
         }
@@ -258,7 +262,7 @@ namespace Chapeau.Services
                     Name = menuItem.Name,
                     Price = menuItem.Price,
                     Vat = menuItem.Vat,
-                    ItemType = menuItem.Category,
+                    ItemType = menuItem.SubCategory,
                     Qty = 1,
                     CreatedAt = DateTime.Now
                 };
