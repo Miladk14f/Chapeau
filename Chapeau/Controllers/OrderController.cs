@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Chapeau.Models.Enums;
 using Chapeau.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -31,7 +32,7 @@ namespace Chapeau.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddItem(int menuItemId, int tableId)
+        public IActionResult AddItem(int menuItemId, int tableId, string category = null, string subCategory = null)
         {
             try
             {
@@ -39,13 +40,14 @@ namespace Chapeau.Controllers
             }
             catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "COuld not add item. Try again.";
+                TempData["ErrorMessage"] = "Could not add the item. Try again.";
             }
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
+
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
         }
 
         [HttpPost]
-        public IActionResult DecreaseItem(int orderItemId, int tableId)
+        public IActionResult DecreaseItem(int orderItemId, int tableId,string category = null, string subCategory = null)
         {
             try
             {
@@ -57,11 +59,11 @@ namespace Chapeau.Controllers
                 TempData["ErrorMessage"] = "Something went wrong while updating order. Try again.";
             }
 
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
         }
 
         [HttpPost]
-        public IActionResult DeleteItem(int orderItemId, int tableId)
+        public IActionResult DeleteItem(int orderItemId, int tableId, string category = null, string subCategory = null)
         {
             try
             {
@@ -71,11 +73,11 @@ namespace Chapeau.Controllers
             {
                 TempData["ErrorMessage"] = "Something went wrong while removing the item. Try again.";
             }
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
         }
 
         [HttpPost]
-        public IActionResult UpdateItemNote(int orderItemId, int tableId, string note)
+        public IActionResult UpdateItemNote(int orderItemId, int tableId, string note, string category = null, string subCategory = null)
         {
             try
             {
@@ -86,11 +88,11 @@ namespace Chapeau.Controllers
             {
                 TempData["ErrorMessage"] = "Something went wrong while updating the note. Try again.";
             }
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
         }
 
         [HttpPost]
-        public IActionResult ServeItem(int orderItemId, int tableId)
+        public IActionResult ServeItem(int orderItemId, int tableId, string category = null, string subCategory = null)
         {
             try
             {
@@ -100,7 +102,7 @@ namespace Chapeau.Controllers
             {
                 TempData["ErrorMessage"] = "Something went wrong while serving the item. Please try again.";
             }
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
         }
     }
 }
