@@ -24,13 +24,13 @@ namespace Chapeau.ViewModels
         public string Name { get; set; }
         public int Qty { get; set; }
         public OrderItemStatus Status { get; set; }
-        public ItemType Category { get; set; }
+        public SubCategory Category { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public string CategoryDisplayName => Category switch
         {
-            ItemType.SoftDrinks => "Soft Drinks",
-            ItemType.CoffeeTea  => "Coffee/Tea",
+            SubCategory.SoftDrinks => "Soft Drinks",
+            SubCategory.CoffeeTea  => "Coffee/Tea",
             _                   => Category.ToString()
         };
     }
@@ -81,14 +81,14 @@ namespace Chapeau.ViewModels
         public DateTime CreatedAt { get; set; }
         public string Note { get; set; }
         public OrderItemStatus Status { get; set; }
-        public ItemType Category { get; set; }
+        public SubCategory Category { get; set; }
 
         public int MinutesAgo => (int)(DateTime.Now - CreatedAt).TotalMinutes;
 
         public string CategoryDisplayName => Category switch
         {
-            ItemType.SoftDrinks => "Soft Drinks",
-            ItemType.CoffeeTea  => "Coffee/Tea",
+            SubCategory.SoftDrinks => "Soft Drinks",
+            SubCategory.CoffeeTea  => "Coffee/Tea",
             _                   => Category.ToString()
         };
     }

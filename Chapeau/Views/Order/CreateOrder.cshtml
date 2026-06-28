@@ -6,6 +6,12 @@
     int orderCount = Model.OrderItems.Sum(i => i.Qty);
 }
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["ErrorMessage"]
+    </div>
+}
 
 <div class="order-header">
     <div class="order-header-left">
@@ -28,7 +34,10 @@
         <h2>Menu Items</h2>
 
         <div class="category-buttons">
-            <button type="button" class="active" onclick="filterMenu('', this)">All</button>
+            <form asp-action="CreateOrder" method="get">
+                <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                <button type="submit" class="@(string.IsNullOrEmpty(Model.SelectedCategory) ? "active" : "")">All</button>
+            </form>
             @{
                 var seenCats = new System.Collections.Generic.HashSet<string>();
             }
@@ -36,48 +45,60 @@
             {
                 if (!string.IsNullOrEmpty(item.CategoryDisplayName) && seenCats.Add(item.CategoryDisplayName))
                 {
-                    <button type="button" onclick="filterMenu('@item.CategoryDisplayName', this)">@item.CategoryDisplayName</button>
+                    <form asp-action="CreateOrder" method="get">
+                        <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                        <input type="hidden" name="category" value="@item.CategoryDisplayName" />
+                        <button type="submit" class="@(Model.SelectedCategory == item.CategoryDisplayName ? "active" : "")">@item.CategoryDisplayName</button>
+                    </form>
                 }
             }
         </div>
 
-        <div id="menu-list">
-        @foreach (var item in Model.MenuItems)
+        @if (!string.IsNullOrEmpty(Model.SelectedCategory))
         {
-            <div class="menu-row" data-category="@item.CategoryDisplayName">
-                <div class="menu-info">
-                    <span class="menu-name">@item.Name</span>
-                    <span class="menu-price">€@item.Price.ToString("0.00")</span>
-                </div>
-                <form asp-action="AddItem" method="post">
-                    <input type="hidden" name="menuItemId" value="@item.MenuItemId" />
-                    <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
-                    <button type="submit" class="btn-add">+</button>
-                </form>
+            <div class="category-buttons">
+                @{
+                    var seenSubCats = new System.Collections.Generic.HashSet<string>();
+                }
+                @foreach (var item in Model.MenuItems)
+                {
+                    if (item.CategoryDisplayName == Model.SelectedCategory
+                        && !string.IsNullOrEmpty(item.SubCategoryDisplayName)
+                        && seenSubCats.Add(item.SubCategoryDisplayName))
+                    {
+                        <form asp-action="CreateOrder" method="get">
+                            <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                            <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                            <input type="hidden" name="subCategory" value="@item.SubCategoryDisplayName" />
+                            <button type="submit" class="@(Model.SelectedSubCategory == item.SubCategoryDisplayName ? "active" : "")">@item.SubCategoryDisplayName</button>
+                        </form>
+                    }
+                }
             </div>
         }
+
+        <div id="menu-list">
+            @foreach (var item in Model.FilteredMenuItems)
+            {
+                <div class="menu-row">
+                    <div class="menu-info">
+                        <span class="menu-name">@item.Name</span>
+                        <span class="menu-price">€@item.Price.ToString("0.00")</span>
+                    </div>
+                    <form asp-action="AddItem" method="post">
+                        <input type="hidden" name="menuItemId" value="@item.MenuItemId" />
+                        <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                        <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                        <input type="hidden" name="subCategory" value="@Model.SelectedSubCategory" />
+                        <button type="submit" class="btn-add">+</button>
+                    </form>
+                </div>
+            }
+            @if (!Model.FilteredMenuItems.Any())
+            {
+                <div class="order-empty">No items in this category.</div>
+            }
         </div>
-
-        <script>
-        var FILTER_KEY = 'orderMenuFilter_@Model.TableOrder.TableId';
-
-        function filterMenu(cat, btn) {
-            sessionStorage.setItem(FILTER_KEY, cat);
-            document.querySelectorAll('.category-buttons button').forEach(function(b) { b.classList.remove('active'); });
-            btn.classList.add('active');
-            document.querySelectorAll('#menu-list .menu-row').forEach(function(row) {
-                row.style.display = (!cat || row.dataset.category === cat) ? '' : 'none';
-            });
-        }
-
-        (function restoreFilter() {
-            var saved = sessionStorage.getItem(FILTER_KEY);
-            if (!saved) return;
-            var btn = Array.from(document.querySelectorAll('.category-buttons button'))
-                          .find(function(b) { return b.textContent.trim() === saved; });
-            if (btn) filterMenu(saved, btn);
-        })();
-        </script>
     </div>
 
     <!-- RIGHT SIDE - ORDER ITEMS -->
@@ -97,12 +118,16 @@
                         <form asp-action="DecreaseItem" method="post">
                             <input type="hidden" name="orderItemId" value="@orderItem.OrderItemId" />
                             <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                            <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                            <input type="hidden" name="subCategory" value="@Model.SelectedSubCategory" />
                             <button type="submit" class="btn-qty">−</button>
                         </form>
                         <span class="qty-num">@orderItem.Qty</span>
                         <form asp-action="AddItem" method="post">
                             <input type="hidden" name="MenuItemId" value="@orderItem.MenuItem.MenuItemId" />
                             <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                            <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                            <input type="hidden" name="subCategory" value="@Model.SelectedSubCategory" />
                             <button type="submit" class="btn-qty">+</button>
                         </form>
                     </div>
@@ -112,6 +137,8 @@
                         <form asp-action="UpdateItemNote" method="post" class="note-form">
                             <input type="hidden" name="orderItemId" value="@orderItem.OrderItemId" />
                             <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                            <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                            <input type="hidden" name="subCategory" value="@Model.SelectedSubCategory" />
                             <input type="text" name="note" class="note-input" placeholder="Add note…" value="@orderItem.Note" />
                             <button type="submit" class="btn-note-save">Save</button>
                         </form>
@@ -121,6 +148,8 @@
                     <form asp-action="DeleteItem" method="post">
                         <input type="hidden" name="orderItemId" value="@orderItem.OrderItemId" />
                         <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                        <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                        <input type="hidden" name="subCategory" value="@Model.SelectedSubCategory" />
                         <button type="submit" class="btn-del">✕</button>
                     </form>
                 </div>
@@ -142,6 +171,8 @@
                         <form asp-action="ServeItem" method="post">
                             <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
                             <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+                            <input type="hidden" name="category" value="@Model.SelectedCategory" />
+                            <input type="hidden" name="subCategory" value="@Model.SelectedSubCategory" />
                             <button type="submit" class="btn-served">Served</button>
                         </form>
                     </div>

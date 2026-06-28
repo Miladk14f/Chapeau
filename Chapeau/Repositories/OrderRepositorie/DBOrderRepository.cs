@@ -307,7 +307,7 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        public void UpdateOrderItemsStatusByType(int orderId, ItemType[] types, OrderItemStatus fromStatus, OrderItemStatus toStatus)
+        public void UpdateOrderItemsStatusByType(int orderId, SubCategory[] types, OrderItemStatus fromStatus, OrderItemStatus toStatus)
         {
             string inList = string.Join(",", types.Select(t => $"'{t.ToString().ToLower()}'"));
             using SqlConnection conn = new SqlConnection(_connectionString);
@@ -338,14 +338,14 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        private static ItemType ParseItemType(object val)
+        private static SubCategory ParseItemType(object val)
         {
             string s = (val == DBNull.Value ? "" : val.ToString()).Trim().ToLower();
             return s switch
             {
-                "food"  => ItemType.Starters,
-                "drink" => ItemType.Beer,
-                _       => Enum.TryParse<ItemType>(s, ignoreCase: true, out var t) ? t : ItemType.Starters
+                "food" => SubCategory.Starters,
+                "drink" => SubCategory.Beer,
+                _ => Enum.TryParse<SubCategory>(s, ignoreCase: true, out var t) ? t : SubCategory.Starters
             };
         }
 
