@@ -1,0 +1,73 @@
+@model Chapeau.ViewModels.BillReceiptViewModel
+@{
+
+    var items9 = Model.Items.Where(i => i.Vat == 9).ToList();
+    var items21 = Model.Items.Where(i => i.Vat == 21).ToList();
+
+    decimal sum9 = items9.Sum(i => i.Price * i.Qty);
+    decimal sum21 = items21.Sum(i => i.Price * i.Qty);
+    decimal excl9 = sum9 > 0 ? Math.Round(sum9 / 1.09m, 2) : 0;
+    decimal excl21 = sum21 > 0 ? Math.Round(sum21 / 1.21m, 2) : 0;
+    decimal vat9 = Math.Round(sum9 - excl9, 2);
+    decimal vat21 = Math.Round(sum21 - excl21, 2);
+
+    decimal subtotal = sum9 + sum21;
+    decimal total = subtotal + Model.Tip;
+}
+
+<div class="receipt">
+    <div class="receipt-head">
+        <h2>Restaurant Chapeau</h2>
+        <p>Centrum, Zeewolde · Tel: (036) 522 1234</p>
+        <div class="receipt-date">
+            @Model.Date.ToString("dddd, d MMMM yyyy") · @Model.Date.ToString("HH:mm")<br />
+            Table @Model.TableId · @Model.Guests guests
+        </div>
+    </div>
+    <div class="receipt-body">
+        @if (items9.Any())
+        {
+            <div class="vat-section">
+                <div class="vat-section-title">Food &amp; Soft Drinks · 9% VAT</div>
+                @foreach (var item in items9)
+                {
+                    <div class="item-line">
+                        <div><div class="item-line-left">@item.Qty× @item.Name</div></div>
+                        <div class="item-line-price">€@((item.Price * item.Qty).ToString("0.00"))</div>
+                    </div>
+                }
+                <div class="vat-line"><span>Excl. VAT</span><span>€@excl9.ToString("0.00")</span></div>
+                <div class="vat-line"><span>VAT 9%</span><span>€@vat9.ToString("0.00")</span></div>
+            </div>
+        }
+        @if (items21.Any())
+        {
+            <div class="vat-section">
+                <div class="vat-section-title">Alcoholic Beverages · 21% VAT</div>
+                @foreach (var item in items21)
+                {
+                    <div class="item-line">
+                        <div><div class="item-line-left">@item.Qty× @item.Name</div></div>
+                        <div class="item-line-price">€@((item.Price * item.Qty).ToString("0.00"))</div>
+                    </div>
+                }
+                <div class="vat-line"><span>Excl. VAT</span><span>€@excl21.ToString("0.00")</span></div>
+                <div class="vat-line"><span>VAT 21%</span><span>€@vat21.ToString("0.00")</span></div>
+            </div>
+        }
+    </div>
+    <div class="receipt-totals">
+        <div class="total-line"><span>Subtotal (incl. VAT)</span><span>€@subtotal.ToString("0.00")</span></div>
+        <div class="total-line" id="receiptTipLine" style="@(Model.Tip > 0 ? "" : "display:none")">
+            <span>Tip</span><span id="receiptTipAmount">€@Model.Tip.ToString("0.00")</span>
+        </div>
+        <div class="total-line grand">
+            <span>@(Model.Interactive ? "Total to pay" : "Total paid")</span>
+            <span class="price" id="receiptTotal">€@total.ToString("0.00")</span>
+        </div>
+    </div>
+    <div class="receipt-footer">
+        <div class="vat-info">VAT no: NL123456789B01 · KvK: 12345678</div>
+        <div class="merci">Merci et à bientôt!</div>
+    </div>
+</div>
