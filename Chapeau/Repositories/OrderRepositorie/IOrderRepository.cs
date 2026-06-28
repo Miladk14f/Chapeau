@@ -11,7 +11,6 @@ namespace Chapeau.Repositories
         List<Order> GetOrdersByStaffId(int staffId);
         Order GetOrderById(int orderId);
         int AddOrder(Order order);
-        void UpdateOrder(Order order);
         void UpdateOrderStatus(int orderId, OrderStatus status);
         void DeleteOrder(int orderId);
         void DeleteCommentsByOrderId(int orderId);
