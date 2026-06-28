@@ -59,6 +59,17 @@ namespace Chapeau.Services
             return _repository.AddOrder(order);
         }
 
+        public void DeleteOrder(int tableId)
+        {
+            Order current = _repository.GetActiveOrderByTableId(tableId);
+            if (current == null)
+                return; // return nothing open for this table if null
+
+            _repository.DeleteCommentsByOrderId(current.OrderId);
+            _repository.DeleteOrderItemsByOrderId(current.OrderId);
+            _repository.DeleteOrder(current.OrderId);
+        }
+
         public List<PreparationCard> GetPreparationCards(SubCategory[] types, int warningMinutes, int urgentMinutes)
         {
             List<Staff> staff = _staffRepository.GetAllStaff();

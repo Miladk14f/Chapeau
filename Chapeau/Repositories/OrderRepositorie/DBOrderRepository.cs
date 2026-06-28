@@ -134,27 +134,6 @@ namespace Chapeau.Repositories
             return Convert.ToInt32(cmd.ExecuteScalar());
         }
 
-        public void UpdateOrder(Order order)
-        {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-
-            string query = @"UPDATE [ORDER]
-                             SET TableId = @TableId, StaffId = @StaffId,
-                                 Status = @Status, Note = @Note,
-                                 total_price = @TotalPrice
-                             WHERE Id = @Id";
-
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@TableId", order.Table?.TableId ?? 0);
-            cmd.Parameters.AddWithValue("@StaffId", order.Staff?.StaffId ?? 0);
-            cmd.Parameters.AddWithValue("@Status", order.Status.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@Note", (object?)order.Note ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@TotalPrice", order.TotalPrice);
-            cmd.Parameters.AddWithValue("@Id", order.OrderId);
-
-            cmd.ExecuteNonQuery();
-        }
 
         public void UpdateOrderStatus(int orderId, OrderStatus status)
         {
@@ -180,6 +159,15 @@ namespace Chapeau.Repositories
             using SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@Id", orderId);
 
+            cmd.ExecuteNonQuery();
+        }
+
+        public void DeleteCommentsByOrderId(int orderId)
+        {
+            using SqlConnection conn = new SqlConnection(_connectionString);
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand("DELETE FROM COMMENT WHERE OrderId = @OrderId", conn);
+            cmd.Parameters.AddWithValue("@OrderId", orderId);
             cmd.ExecuteNonQuery();
         }
 
