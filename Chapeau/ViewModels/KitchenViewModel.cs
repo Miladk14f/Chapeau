@@ -1,38 +1,95 @@
+using Chapeau.Models.Enums;
+
 namespace Chapeau.ViewModels
 {
-    public class BarOrderCard
+    public class OrderHistoryViewModel
+    {
+        public List<HistoryCard> Cards { get; set; } = new();
+        public string Title { get; set; }
+        public string PageClass { get; set; }
+        public string BackAction { get; set; }
+    }
+
+    public class HistoryCard
     {
         public int OrderId { get; set; }
         public int TableId { get; set; }
         public string StaffName { get; set; }
         public DateTime OrderedAt { get; set; }
-        public List<KitchenItemRow> Items { get; set; } = new();
-
-        public int MinutesAgo => (int)(DateTime.Now - OrderedAt).TotalMinutes;
-        public bool IsUrgent => MinutesAgo >= 10;
-        public bool IsWarning => MinutesAgo >= 6 && MinutesAgo < 10;
+        public List<HistoryItemRow> Items { get; set; } = new();
     }
 
-    public class KitchenOrderCard
+    public class HistoryItemRow
+    {
+        public string Name { get; set; }
+        public int Qty { get; set; }
+        public OrderItemStatus Status { get; set; }
+        public SubCategory Category { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public string CategoryDisplayName => Category switch
+        {
+            SubCategory.SoftDrinks => "Soft Drinks",
+            SubCategory.CoffeeTea  => "Coffee/Tea",
+            _                   => Category.ToString()
+        };
+    }
+
+
+    public class PreparationPageViewModel
+    {
+        public List<PreparationCard> Cards { get; set; } = new();
+        public string PageClass { get; set; }
+        public string HeaderClass { get; set; }
+        public string IconClass { get; set; }
+        public string IconEmoji { get; set; }
+        public string SubClass { get; set; }
+        public string Title { get; set; }
+        public string CountLabel { get; set; }
+        public string PrepLabel { get; set; }
+        public string EmptyText { get; set; }
+        public bool ShowTypeBadge { get; set; }
+        public bool ShowZeroUrgent { get; set; }
+        public string LegendNormal { get; set; }
+        public string LegendWarning { get; set; }
+        public string LegendUrgent { get; set; }
+    }
+
+    public class PreparationCard
     {
         public int OrderId { get; set; }
         public int TableId { get; set; }
         public string StaffName { get; set; }
         public DateTime OrderedAt { get; set; }
-        public List<KitchenItemRow> Items { get; set; } = new();
+        public List<PreparationItemRow> Items { get; set; } = new();
+
+        public bool IsPreparing { get; set; }
+
+        public int WarningMinutes { get; set; }
+        public int UrgentMinutes { get; set; }
 
         public int MinutesAgo => (int)(DateTime.Now - OrderedAt).TotalMinutes;
-        public bool IsUrgent => MinutesAgo >= 20;
-        public bool IsWarning => MinutesAgo >= 12 && MinutesAgo < 20;
+        public bool IsUrgent => MinutesAgo >= UrgentMinutes;
+        public bool IsWarning => MinutesAgo >= WarningMinutes && MinutesAgo < UrgentMinutes;
     }
 
-    public class KitchenItemRow
+    public class PreparationItemRow
     {
+        public int OrderItemId { get; set; }
         public string Name { get; set; }
         public int Qty { get; set; }
         public DateTime CreatedAt { get; set; }
         public string Note { get; set; }
+        public OrderItemStatus Status { get; set; }
+        public SubCategory Category { get; set; }
 
         public int MinutesAgo => (int)(DateTime.Now - CreatedAt).TotalMinutes;
+
+        public string CategoryDisplayName => Category switch
+        {
+            SubCategory.SoftDrinks => "Soft Drinks",
+            SubCategory.CoffeeTea  => "Coffee/Tea",
+            _                   => Category.ToString()
+        };
     }
 }

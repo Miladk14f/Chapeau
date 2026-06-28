@@ -1,0 +1,119 @@
+@model Chapeau.ViewModels.PreparationPageViewModel
+@using Chapeau.Models.Enums
+@{
+    int urgent = Model.Cards?.Count(c => c.IsUrgent) ?? 0;
+}
+
+<div class="@Model.PageClass">
+<div class="@Model.HeaderClass">
+    <div class="@Model.IconClass">@Model.IconEmoji</div>
+    <div>
+        <h1>@Model.Title</h1>
+        <div class="@Model.SubClass">
+            @(Model.Cards?.Count ?? 0) @Model.CountLabel ·
+            @if (urgent > 0)
+            {
+                <span class="urgent-txt">@urgent urgent!</span>
+            }
+            else if (Model.ShowZeroUrgent)
+            {
+                <span>0 urgent</span>
+            }
+        </div>
+    </div>
+    <a asp-controller="@ViewContext.RouteData.Values["controller"]?.ToString()" asp-action="History" class="btn-history">🕐 History</a>
+</div>
+
+@if (Model.Cards == null || !Model.Cards.Any())
+{
+    <div class="empty-state">@Model.EmptyText</div>
+}
+else
+{
+    <div class="cards-grid">
+        @foreach (var card in Model.Cards)
+        {
+            string cardClass = card.IsUrgent ? "urgent" : card.IsWarning ? "warning" : "";
+            string timeClass = card.IsUrgent ? "urgent" : card.IsWarning ? "warning" : "";
+            string timeText = card.MinutesAgo < 1 ? "just now" : $"{card.MinutesAgo} min ago";
+
+            <div class="order-card @cardClass">
+                <div class="card-top">
+                    <span class="table-badge">Table @card.TableId</span>
+                    <span class="time-ago @timeClass">🕐 @timeText</span>
+                </div>
+
+                @if (card.IsUrgent)
+                {
+                    <div class="wait-exceeded">⊘ Wait time exceeded!</div>
+                }
+
+                @if (card.IsPreparing)
+                {
+                    <div class="prep-label">@Model.PrepLabel</div>
+                }
+
+                <div class="items-list">
+                    @{
+                        var grouped = new Dictionary<string, List<Chapeau.ViewModels.PreparationItemRow>>();
+                        foreach (var item in card.Items)
+                        {
+                            string cat = item.CategoryDisplayName;
+                            if (!grouped.ContainsKey(cat))
+                                grouped[cat] = new List<Chapeau.ViewModels.PreparationItemRow>();
+                            grouped[cat].Add(item);
+                        }
+                    }
+                    @foreach (var group in grouped)
+                    {
+                        <div class="item-category-header">@group.Key</div>
+                        @foreach (var item in group.Value)
+                        {
+                            string itemTime = item.MinutesAgo < 1 ? "just now" : $"{item.MinutesAgo} min ago";
+                            <div class="item-row">
+                                <div class="item-left">
+                                    <span class="item-qty">@(item.Qty)×</span>
+                                    <div class="item-info">
+                                        <span class="item-name">@item.Name</span>
+                                        @if (!string.IsNullOrEmpty(item.Note))
+                                        {
+                                            <span class="item-note">📝 @item.Note</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="item-right">
+                                    <span class="item-time">@itemTime</span>
+                                    @if (item.Status == OrderItemStatus.InPreparation)
+                                    {
+                                        <form method="post" asp-controller="@ViewContext.RouteData.Values["controller"]?.ToString()" asp-action="MarkItemReady">
+                                            <input type="hidden" name="orderItemId" value="@item.OrderItemId" />
+                                            <button type="submit" class="btn-item-ready">✓</button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="card-footer">
+                    <span class="ordered-by">Ordered by: @card.StaffName</span>
+                    @if (!card.IsPreparing)
+                    {
+                        <form method="post" asp-controller="@ViewContext.RouteData.Values["controller"]?.ToString()" asp-action="StartPreparing">
+                            <input type="hidden" name="orderId" value="@card.OrderId" />
+                            <button type="submit" class="btn-start">▶ Start preparing</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<div class="legend">
+    <div class="legend-item"><div class="legend-box normal"></div> @Model.LegendNormal</div>
+    <div class="legend-item"><div class="legend-box warning"></div> @Model.LegendWarning</div>
+    <div class="legend-item"><div class="legend-box urgent"></div> @Model.LegendUrgent</div>
+</div>
+</div>

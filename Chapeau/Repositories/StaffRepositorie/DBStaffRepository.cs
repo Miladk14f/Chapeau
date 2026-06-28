@@ -49,25 +49,6 @@ namespace Chapeau.Repositories
             return null;
         }
 
-        public Staff GetStaffByCredentials(string name, string pin)
-        {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-
-            string query = "SELECT Id, Name, Role, Pin FROM STAFF WHERE Name = @Name AND Pin = @Pin";
-
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Name", name);
-            cmd.Parameters.AddWithValue("@Pin", pin);
-
-            using SqlDataReader reader = cmd.ExecuteReader();
-
-            if (reader.Read())
-                return MapReader(reader);
-
-            return null;
-        }
-
         public void AddStaff(Staff staff)
         {
             using SqlConnection conn = new SqlConnection(_connectionString);

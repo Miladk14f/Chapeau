@@ -1,5 +1,3 @@
-using Chapeau.Models;
-using Chapeau.Models.Enums;
 using Chapeau.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,13 +14,12 @@ namespace Chapeau.Controllers
 
         public IActionResult Index()
         {
-            List<RestaurantTable> tables = _tableService.GetAllTables();
-            return View(tables);
+            return View(_tableService.GetTableOverview());
         }
 
         public IActionResult Details(int id)
         {
-            RestaurantTable table = _tableService.GetTableById(id);
+            var table = _tableService.GetTableById(id);
 
             if (table == null)
                 return NotFound();
@@ -48,10 +45,7 @@ namespace Chapeau.Controllers
         [HttpGet]
         public IActionResult Reserve()
         {
-            List<RestaurantTable> tables = _tableService.GetAllTables()
-                .Where(t => t.Status != TableStatus.Occupied)
-                .ToList();
-            return View(tables);
+            return View(_tableService.GetAvailableTables());
         }
 
         [HttpPost]

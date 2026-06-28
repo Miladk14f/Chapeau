@@ -1,93 +1,12 @@
-@model List<Chapeau.Models.Staff>
+﻿@model List<Chapeau.Models.Staff>
 @using Chapeau.Models.Enums
 @{
     ViewData["Title"] = "Staff Management";
 }
 
-<style>
-    .sm-header {
-        display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px;
-    }
-    .sm-header h1 {
-        font-size: 26px; font-weight: 700; color: #2a1a1f; font-family: Georgia, serif;
-    }
-
-    .staff-table {
-        width: 100%; border-collapse: collapse;
-        background: #fff; border-radius: 14px; overflow: hidden;
-        border: 1px solid #ede8e4; margin-bottom: 32px;
-    }
-    .staff-table th {
-        font-size: 11px; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 0.08em; color: #9a8a90; padding: 12px 20px;
-        background: #faf7f5; border-bottom: 1px solid #ede8e4; text-align: left;
-    }
-    .staff-table td {
-        padding: 14px 20px; border-bottom: 1px solid #f5f0eb;
-        font-size: 14px; color: #2a1a1f; vertical-align: middle;
-    }
-    .staff-table tr:last-child td { border-bottom: none; }
-
-    .avatar-sm {
-        width: 34px; height: 34px; border-radius: 50%;
-        background: #7a2a3e; color: #fff;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 11px; font-weight: 700; margin-right: 10px; vertical-align: middle;
-    }
-    .role-badge {
-        padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
-        text-transform: capitalize;
-    }
-    .role-manager { background: #f5e8ec; color: #7a2a3e; }
-    .role-chef    { background: #e8f5ee; color: #2d6e4e; }
-    .role-bar     { background: #e8eef5; color: #2a4f7a; }
-    .role-waiter  { background: #f5f0e8; color: #7a5a1a; }
-
-    .btn-edit {
-        padding: 6px 14px; background: #f5f0eb; border: 1px solid #ede8e4;
-        border-radius: 8px; font-size: 13px; font-weight: 600; color: #2a1a1f;
-        text-decoration: none; margin-right: 6px;
-    }
-    .btn-edit:hover { background: #ede8e4; }
-
-    .btn-delete {
-        padding: 6px 14px; background: #fff0f0; border: 1px solid #f0d0d0;
-        border-radius: 8px; font-size: 13px; font-weight: 600; color: #c03030;
-        cursor: pointer;
-    }
-    .btn-delete:hover { background: #ffe0e0; }
-
-    .card-form {
-        background: #fff; border: 1px solid #ede8e4; border-radius: 14px; padding: 24px;
-        max-width: 560px;
-    }
-    .card-form h2 {
-        font-size: 18px; font-weight: 700; color: #2a1a1f;
-        font-family: Georgia, serif; margin-bottom: 20px;
-    }
-    .form-row { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
-    .form-group { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 160px; }
-    .form-group label {
-        font-size: 11px; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 0.08em; color: #9a8a90;
-    }
-    .form-group input, .form-group select {
-        padding: 10px 12px; border: 1px solid #ede8e4; border-radius: 8px;
-        font-size: 14px; color: #2a1a1f; background: #faf7f5; outline: none;
-    }
-    .form-group input:focus, .form-group select:focus { border-color: #7a2a3e; }
-
-    .btn-primary {
-        padding: 10px 24px; background: #7a2a3e; color: #fff;
-        border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
-        cursor: pointer; margin-top: 4px;
-    }
-    .btn-primary:hover { background: #8e3349; }
-</style>
-
 <div class="sm-header">
     <h1>Staff Management</h1>
-    <a asp-controller="Manager" asp-action="Index" style="font-size:13px;color:#9a8a90;text-decoration:none">← Dashboard</a>
+    <a asp-controller="Manager" asp-action="Index" class="link-muted">← Dashboard</a>
 </div>
 
 <table class="staff-table">
@@ -105,9 +24,9 @@
             string roleClass = s.Role switch
             {
                 StaffRole.Manager => "role-manager",
-                StaffRole.Chef    => "role-chef",
-                StaffRole.Bar     => "role-bar",
-                _                  => "role-waiter"
+                StaffRole.Chef => "role-chef",
+                StaffRole.Bar => "role-bar",
+                _ => "role-waiter"
             };
             <tr>
                 <td>
@@ -119,7 +38,7 @@
                 </td>
                 <td>
                     <a class="btn-edit" asp-controller="Manager" asp-action="EditStaff" asp-route-id="@s.StaffId">Edit</a>
-                    <form method="post" asp-controller="Manager" asp-action="DeleteStaff" style="display:inline">
+                    <form method="post" asp-controller="Manager" asp-action="DeleteStaff" class="form-inline">
                         <input type="hidden" name="id" value="@s.StaffId" />
                         <button type="submit" class="btn-delete">Delete</button>
                     </form>

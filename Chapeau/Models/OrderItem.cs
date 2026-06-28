@@ -9,7 +9,7 @@ namespace Chapeau.Models
         public int Qty { get; set; }
         public decimal Price { get; set; }
         public int Vat { get; set; }
-        public ItemType ItemType { get; set; }
+        public SubCategory ItemType { get; set; }
         public DateTime CreatedAt { get; set; }
         public OrderItemStatus Status { get; set; }
         public string Note { get; set; }
@@ -19,7 +19,7 @@ namespace Chapeau.Models
 
         public OrderItem() { }
 
-        public OrderItem(int orderItemId, string name, int qty, decimal price, int vat, ItemType itemType)
+        public OrderItem(int orderItemId, string name, int qty, decimal price, int vat, SubCategory itemType)
         {
             OrderItemId = orderItemId;
             Name = name;

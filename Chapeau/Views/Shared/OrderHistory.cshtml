@@ -1,0 +1,63 @@
+@model Chapeau.ViewModels.OrderHistoryViewModel
+@using Chapeau.Models.Enums
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="@Model.PageClass">
+    <div class="history-header">
+        <div class="history-title-row">
+            <a asp-controller="@Model.BackAction" asp-action="Index" class="btn-back">← Back</a>
+            <h1>@Model.Title</h1>
+        </div>
+        <div class="history-sub">@Model.Cards.Count orders</div>
+    </div>
+
+    @if (!Model.Cards.Any())
+    {
+        <div class="empty-state">No history yet.</div>
+    }
+    else
+    {
+        <div class="history-list">
+            @foreach (var card in Model.Cards)
+            {
+                <div class="history-card">
+                    <div class="history-card-top">
+                        <span class="table-badge">Table @card.TableId</span>
+                        <span class="history-time">@card.OrderedAt.ToString("dd MMM HH:mm")</span>
+                        <span class="history-staff">@card.StaffName</span>
+                    </div>
+                    <div class="items-list">
+                        @{
+                            var grouped = new Dictionary<string, List<Chapeau.ViewModels.HistoryItemRow>>();
+                            foreach (var item in card.Items)
+                            {
+                                string cat = item.CategoryDisplayName;
+                                if (!grouped.ContainsKey(cat))
+                                    grouped[cat] = new List<Chapeau.ViewModels.HistoryItemRow>();
+                                grouped[cat].Add(item);
+                            }
+                        }
+                        @foreach (var group in grouped)
+                        {
+                            <div class="item-category-header">@group.Key</div>
+                            @foreach (var item in group.Value)
+                            {
+                                <div class="item-row">
+                                    <div class="item-left">
+                                        <span class="item-qty">@(item.Qty)×</span>
+                                        <span class="item-name">@item.Name</span>
+                                    </div>
+                                    <span class="history-status @(item.Status == OrderItemStatus.Served ? "status-served" : "status-ready")">
+                                        @(item.Status == OrderItemStatus.Served ? "Served" : "Ready")
+                                    </span>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

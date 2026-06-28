@@ -1,181 +1,123 @@
-﻿using Chapeau.Models;
+using System.Diagnostics;
 using Chapeau.Models.Enums;
-using Microsoft.AspNetCore.Mvc;
 using Chapeau.Services;
-using Chapeau.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Chapeau.Controllers
 {
     public class OrderController : Controller
     {
         private readonly IOrderService _orderService;
-        private readonly IMenuItemService _menuItemService;
-        private readonly IStaffService _staffService;
-        private readonly IRestaurantTableService _tableService;
-        private readonly IOrderItemService _orderItemService;
         private readonly ICommentService _commentService;
 
-        public OrderController(IOrderService orderService, IMenuItemService menuItemService, IStaffService staffService, IRestaurantTableService tableService, IOrderItemService orderItemService, ICommentService commentService)
+        public OrderController(IOrderService orderService, ICommentService commentService)
         {
-            _menuItemService = menuItemService;
             _orderService = orderService;
-            _staffService = staffService;
-            _tableService = tableService;
-            _orderItemService = orderItemService;
             _commentService = commentService;
         }
 
-        public IActionResult Index()
+        public IActionResult CreateOrder(int tableId, string category = null, string subCategory = null)
         {
-            return View();
+            try
+            {
+                int staffId = HttpContext.Session.GetInt32("StaffId") ?? 0;
+                var displayPage = _orderService.GetOrderPage(tableId, staffId, category, subCategory);
+                return View("CreateOrder", displayPage);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Something went wrong while trying to load the page.";
+                return RedirectToAction("Index", "RestaurantTable");
+            }
         }
 
-        public IActionResult CreateOrder(int tableId)
+        [HttpPost]
+        public IActionResult AddItem(int menuItemId, int tableId, string category = null, string subCategory = null)
         {
-            RestaurantTable tableOrder = _tableService.GetTableById(tableId);
-            List<MenuItem> menuItems = _menuItemService.GetAllMenuItems();
-            Staff staff = _staffService.GetStaffById(2);
-
-            Order currentOrder = _orderService.GetActiveOrderByTableId(tableId);
-            if (currentOrder == null)
+            try
             {
-                int newOrderId = _orderService.AddOrder(new Order
-                {
-                    Table = tableOrder,
-                    Staff = staff,
-                    Status = Models.Enums.OrderStatus.InProgress,
-                    CreatedAt = DateTime.Now
-                });
-                currentOrder = _orderService.GetOrderById(newOrderId);
+                _orderService.AddItemToTable(menuItemId, tableId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Could not add the item. Try again.";
             }
 
-            List<OrderItem> orderItems = _orderItemService.GetOrderItemsByTableId(tableId);
-
-            OrderViewModel orderViewModel = new OrderViewModel(menuItems, orderItems, tableOrder, staff);
-            return View("CreateOrder", orderViewModel);
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
         }
 
-
         [HttpPost]
-        public IActionResult AddItem(int menuItemId, int tableId)
+        public IActionResult DecreaseItem(int orderItemId, int tableId,string category = null, string subCategory = null)
         {
-            Order currentOrder = _orderService.GetActiveOrderByTableId(tableId);
-
-            List<OrderItem> orderItems = _orderItemService.GetOrderItemsByTableId(tableId);
-            OrderItem existingItem = orderItems.FirstOrDefault(item => item.MenuItem.MenuItemId == menuItemId);
-
-            if (existingItem != null)
+            try
             {
-                existingItem.Qty++;
-                _orderItemService.UpdateOrderItem(existingItem);
+                _orderService.DecreaseItemForTable(orderItemId, tableId);
+
             }
-            else
+            catch (Exception ex)
             {
-                MenuItem menuItemForOrder = _menuItemService.GetMenuItemById(menuItemId);
-
-                OrderItem newItem = new OrderItem
-                {
-                    Order = currentOrder,
-                    MenuItem = menuItemForOrder,
-                    Name = menuItemForOrder.Name,
-                    Price = menuItemForOrder.Price,
-                    Vat = menuItemForOrder.Vat,
-                    ItemType = menuItemForOrder.Category,
-                    Qty = 1,
-                    CreatedAt = DateTime.Now
-                };
-
-                _orderItemService.AddOrderItem(newItem);
+                TempData["ErrorMessage"] = "Something went wrong while updating order. Try again.";
             }
 
-            _tableService.UpdateTableStatus(tableId, Models.Enums.TableStatus.Occupied);
-
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
         }
 
-
         [HttpPost]
-        public IActionResult DecreaseItem(int orderItemId, int tableId)
+        public IActionResult DeleteItem(int orderItemId, int tableId, string category = null, string subCategory = null)
         {
-            OrderItem itemToDecrease = _orderItemService.GetOrderItemById(orderItemId);
-
-            if (itemToDecrease != null)
+            try
             {
-                if (itemToDecrease.Qty > 1)
-                {
-                    itemToDecrease.Qty--;
-                    _orderItemService.UpdateOrderItem(itemToDecrease);
-                }
-                else
-                {
-                    _orderItemService.DeleteOrderItem(orderItemId);
-                }
+                _orderService.RemoveItemFromTable(orderItemId, tableId);
             }
-
-            UpdateTableStatusByItems(tableId);
-
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
-        }
-
-
-        [HttpPost]
-        public IActionResult DeleteItem(int orderItemId, int tableId)
-        {
-            _orderItemService.DeleteOrderItem(orderItemId);
-
-            UpdateTableStatusByItems(tableId);
-
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
-        }
-
-        [HttpPost]
-        public IActionResult UpdateItemNote(int orderItemId, int tableId, string note)
-        {
-            note = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
-            _orderItemService.UpdateOrderItemNote(orderItemId, note);
-
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
-        }
-
-        [HttpPost]
-        public IActionResult ServeItem(int orderItemId, int tableId)
-        {
-            _orderItemService.UpdateOrderItemStatus(orderItemId, OrderItemStatus.Served);
-
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
-        }
-
-        [HttpPost]
-        public IActionResult AddComment(int tableId, string type, string text)
-        {
-            if (!string.IsNullOrWhiteSpace(text))
+            catch (Exception ex)
             {
-                Order currentOrder = _orderService.GetActiveOrderByTableId(tableId);
-
-                CommentType commentType = Enum.TryParse(type, ignoreCase: true, out CommentType parsed)
-                    ? parsed
-                    : CommentType.Comment;
-
-                Comment comment = new Comment
-                {
-                    Order = currentOrder,
-                    Type = commentType,
-                    Text = text.Trim(),
-                    CreatedAt = DateTime.Now
-                };
-
-                _commentService.AddComment(comment);
+                TempData["ErrorMessage"] = "Something went wrong while removing the item. Try again.";
             }
-
-            return RedirectToAction("CreateOrder", new { tableId = tableId });
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
         }
 
-        private void UpdateTableStatusByItems(int tableId)
+        [HttpPost]
+        public IActionResult DeleteOrder(int tableId)
         {
-            List<OrderItem> orderItems = _orderItemService.GetOrderItemsByTableId(tableId);
-            TableStatus status = orderItems.Any() ? TableStatus.Occupied : TableStatus.Free;
-            _tableService.UpdateTableStatus(tableId, status);
+            try
+            {
+                _orderService.DeleteOrder(tableId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Could not delete the order. Please try again.";
+                return RedirectToAction("CreateOrder", new { tableId = tableId });
+            }
+            return RedirectToAction("Index", "RestaurantTable");
         }
 
+        [HttpPost]
+        public IActionResult UpdateItemNote(int orderItemId, int tableId, string note, string category = null, string subCategory = null)
+        {
+            try
+            {
+                _orderService.UpdateOrderItemNote(orderItemId, note);
+
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Something went wrong while updating the note. Try again.";
+            }
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
+        }
+
+        [HttpPost]
+        public IActionResult ServeItem(int orderItemId, int tableId, string category = null, string subCategory = null)
+        {
+            try
+            {
+                _orderService.ServeOrderItem(orderItemId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Something went wrong while serving the item. Please try again.";
+            }
+            return RedirectToAction("CreateOrder", new { tableId = tableId, category = category, subCategory = subCategory });
+        }
     }
 }

@@ -1,4 +1,3 @@
-using Chapeau.Models;
 using Chapeau.Models.Enums;
 using Chapeau.Services;
 using Chapeau.ViewModels;
@@ -9,99 +8,77 @@ namespace Chapeau.Controllers
     public class BarController : Controller
     {
         private readonly IOrderService _orderService;
-        private readonly IOrderItemService _orderItemService;
-        private readonly IStaffService _staffService;
 
-        public BarController(
-            IOrderService orderService,
-            IOrderItemService orderItemService,
-            IStaffService staffService)
+        public BarController(IOrderService orderService)
         {
             _orderService = orderService;
-            _orderItemService = orderItemService;
-            _staffService = staffService;
         }
 
+        private bool CanAccessBar()
+        {
+            string role = HttpContext.Session.GetString("StaffRole") ?? "";
+            return role == "bar" || role == "manager" || role == "waiter";
+        }
 
         public IActionResult Index()
         {
-            List<Staff> staff = _staffService.GetAllStaff();
-            List<Order> allOrders = _orderService.GetAllOrders();
-            List<OrderItem> allItems = _orderItemService.GetAllOrderItems();
+            if (!CanAccessBar())
+                return RedirectToAction("Login", "Staff");
 
-            // Group drink items that are still waiting, keyed by their order id
-            Dictionary<int, List<OrderItem>> itemsByOrder = new Dictionary<int, List<OrderItem>>();
-            foreach (OrderItem item in allItems)
+            var vm = new PreparationPageViewModel
             {
-                if (item.ItemType != ItemType.Drink || item.Status != OrderItemStatus.Ordered)
-                    continue;
+                Cards = _orderService.GetPreparationCards(ItemTypeGroups.Drinks, 6, 10),
+                PageClass = "bar-page",
+                HeaderClass = "bar-header",
+                IconClass = "bar-icon",
+                IconEmoji = "🍷",
+                SubClass = "bar-sub",
+                Title = "Bar",
+                CountLabel = "pending",
+                PrepLabel = "🍸 In preparation",
+                EmptyText = "No pending drink orders.",
+                ShowTypeBadge = true,
+                ShowZeroUrgent = false,
+                LegendNormal = "< 6 min",
+                LegendWarning = "6–9 min",
+                LegendUrgent = "≥ 10 min (urgent)"
+            };
+            return View(vm);
+        }
 
-                int orderId = item.Order != null ? item.Order.OrderId : 0;
-                if (!itemsByOrder.ContainsKey(orderId))
-                    itemsByOrder[orderId] = new List<OrderItem>();
-
-                itemsByOrder[orderId].Add(item);
-            }
-
-            List<BarOrderCard> cards = new List<BarOrderCard>();
-            foreach (Order order in allOrders)
-            {
-                if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.InProgress)
-                    continue;
-                if (!itemsByOrder.ContainsKey(order.OrderId))
-                    continue;
-
-                List<OrderItem> items = itemsByOrder[order.OrderId];
-
-                int orderStaffId = order.Staff != null ? order.Staff.StaffId : 0;
-                string staffName = "Unknown";
-                foreach (Staff s in staff)
-                {
-                    if (s.StaffId == orderStaffId)
-                    {
-                        staffName = s.Name;
-                        break;
-                    }
-                }
-
-                DateTime orderedAt = items[0].CreatedAt;
-                List<KitchenItemRow> rows = new List<KitchenItemRow>();
-                foreach (OrderItem item in items)
-                {
-                    if (item.CreatedAt < orderedAt)
-                        orderedAt = item.CreatedAt;
-
-                    rows.Add(new KitchenItemRow
-                    {
-                        Name = item.Name,
-                        Qty = item.Qty,
-                        CreatedAt = item.CreatedAt,
-                        Note = item.Note
-                    });
-                }
-
-                cards.Add(new BarOrderCard
-                {
-                    OrderId = order.OrderId,
-                    TableId = order.Table != null ? order.Table.TableId : 0,
-                    StaffName = staffName,
-                    OrderedAt = orderedAt,
-                    Items = rows
-                });
-            }
-
-            // Oldest (most urgent) first
-            cards.Sort((a, b) => b.MinutesAgo.CompareTo(a.MinutesAgo));
-
-            return View(cards);
+        [HttpPost]
+        public IActionResult StartPreparing(int orderId)
+        {
+            _orderService.StartPreparingItems(orderId, ItemTypeGroups.Drinks);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public IActionResult MarkReady(int orderId)
         {
-            _orderItemService.MarkOrderItemsReady(orderId, ItemType.Drink);
+            _orderService.MarkOrderItemsReady(orderId, ItemTypeGroups.Drinks);
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult History()
+        {
+            if (!CanAccessBar())
+                return RedirectToAction("Login", "Staff");
+
+            return View("~/Views/Shared/OrderHistory.cshtml", new OrderHistoryViewModel
+            {
+                Cards = _orderService.GetOrderHistory(ItemTypeGroups.Drinks),
+                Title = "Bar History",
+                PageClass = "bar-page",
+                BackAction = "Bar"
+            });
+        }
+
+        [HttpPost]
+        public IActionResult MarkItemReady(int orderItemId)
+        {
+            _orderService.UpdateOrderItemStatus(orderItemId, Models.Enums.OrderItemStatus.Ready);
             return RedirectToAction("Index");
         }
     }
 }
-

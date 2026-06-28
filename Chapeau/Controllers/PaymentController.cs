@@ -1,155 +1,131 @@
-using Chapeau.Models;
-using Chapeau.Models.Enums;
 using Chapeau.Services;
-using Chapeau.Services.BillService;
 using Chapeau.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Chapeau.Controllers
 {
     public class PaymentController : Controller
     {
-        private readonly IOrderService _orderService;
-        private readonly IOrderItemService _orderItemService;
-        private readonly IBillService _billService;
         private readonly IPaymentService _paymentService;
-        private readonly IRestaurantTableService _tableService;
-        private readonly IStaffService _staffService;
+        private readonly ICommentService _commentService;
+        private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
 
-        public PaymentController(
-            IOrderService orderService,
-            IOrderItemService orderItemService,
-            IBillService billService,
-            IPaymentService paymentService,
-            IRestaurantTableService tableService,
-            IStaffService staffService)
+        public PaymentController(IPaymentService paymentService, ICommentService commentService)
         {
-            _orderService = orderService;
-            _orderItemService = orderItemService;
-            _billService = billService;
             _paymentService = paymentService;
-            _tableService = tableService;
-            _staffService = staffService;
+            _commentService = commentService;
         }
 
         [HttpGet]
         public IActionResult Index(int tableId)
         {
-            var table = _tableService.GetTableById(tableId);
-            if (table == null) return NotFound();
-
-            var orders = _orderService.GetOrdersByTableId(tableId)
-                .Where(o => o.Status != OrderStatus.Paid)
-                .ToList();
-
-            if (!orders.Any())
+            BillViewModel bill = _paymentService.GetBill(tableId);
+            if (bill == null)
                 return RedirectToAction("Index", "RestaurantTable");
 
-            var activeOrder = orders.OrderByDescending(o => o.CreatedAt).First();
-            var items = _orderItemService.GetOrderItemsByOrderId(activeOrder.OrderId);
-            var staff = _staffService.GetAllStaff();
-
-            string waiterName = "";
-            if (table.Waiter != null)
+            string splitJson = HttpContext.Session.GetString($"split_{tableId}");
+            if (splitJson != null)
             {
-                var waiter = staff.FirstOrDefault(s => s.StaffId == table.Waiter.StaffId);
-                waiterName = waiter?.Name ?? "";
+                SplitData split = JsonSerializer.Deserialize<SplitData>(splitJson, JsonOpts);
+                bill.SplitPersons = split.Persons;
+                bill.SplitBillId = split.BillId;
             }
 
-            var items9 = items.Where(i => i.Vat == 9).ToList();
-            var items21 = items.Where(i => i.Vat == 21).ToList();
+            return View(bill);
+        }
 
-            decimal sum9 = items9.Sum(i => i.Price * i.Qty);
-            decimal sum21 = items21.Sum(i => i.Price * i.Qty);
-            decimal excl9 = sum9 > 0 ? Math.Round(sum9 / 1.09m, 2) : 0;
-            decimal excl21 = sum21 > 0 ? Math.Round(sum21 / 1.21m, 2) : 0;
+        // Single payment (no split)
+        [HttpPost]
+        public IActionResult Process(int tableId, int orderId, string personsJson)
+        {
+            List<PersonPaymentInput> persons = JsonSerializer.Deserialize<List<PersonPaymentInput>>(personsJson, JsonOpts)
+                                              ?? new List<PersonPaymentInput>();
+            _paymentService.ProcessPayment(tableId, orderId, persons);
 
-            BillItemRow ToRow(OrderItem item)
+            foreach (PersonPaymentInput person in persons)
             {
-                var member = staff.FirstOrDefault(s => s.StaffId == (activeOrder.Staff?.StaffId ?? 0));
-                return new BillItemRow
-                {
-                    Name = item.Name,
-                    Qty = item.Qty,
-                    UnitPrice = item.Price,
-                    StaffName = member?.Name ?? "",
-                    Vat = item.Vat
-                };
+                if (!string.IsNullOrWhiteSpace(person.FeedbackText))
+                    _commentService.AddCommentForTable(tableId, person.FeedbackType ?? "Comment", person.FeedbackText);
             }
 
-            var vm = new BillViewModel
+            return RedirectToAction("Confirmation", new { tableId, orderId });
+        }
+
+        // Configure split — creates Bill, stores persons in session
+        [HttpPost]
+        public IActionResult SetupSplit(int tableId, int orderId, string personsJson)
+        {
+            List<PersonPaymentInput> persons = JsonSerializer.Deserialize<List<PersonPaymentInput>>(personsJson, JsonOpts)
+                                              ?? new List<PersonPaymentInput>();
+
+            SplitData split = _paymentService.StartSplitBill(orderId, persons);
+            HttpContext.Session.SetString($"split_{tableId}", JsonSerializer.Serialize(split));
+            return RedirectToAction("Index", new { tableId });
+        }
+
+        // Pay one person's portion
+        [HttpPost]
+        public IActionResult PayPerson(int tableId, int orderId, int personIndex)
+        {
+            string key = $"split_{tableId}";
+            string splitJson = HttpContext.Session.GetString(key);
+            if (splitJson == null)
+                return RedirectToAction("Index", new { tableId });
+
+            SplitData split = JsonSerializer.Deserialize<SplitData>(splitJson, JsonOpts);
+            SplitPersonState person = null;
+            foreach (SplitPersonState p in split.Persons)
             {
-                TableId = tableId,
-                OrderId = activeOrder.OrderId,
-                Guests = table.Guests ?? 0,
-                WaiterName = waiterName,
-                GeneratedAt = DateTime.Now,
-                Items9 = items9.Select(ToRow).ToList(),
-                Items21 = items21.Select(ToRow).ToList(),
-                Excl9 = excl9,
-                Vat9Amount = Math.Round(sum9 - excl9, 2),
-                Excl21 = excl21,
-                Vat21Amount = Math.Round(sum21 - excl21, 2)
-            };
+                if (p.Index == personIndex) { person = p; break; }
+            }
+
+            if (person == null || person.Paid)
+                return RedirectToAction("Index", new { tableId });
+
+            _paymentService.AddSplitPersonPayment(split.BillId, person.Total, person.PaymentMethod);
+
+            if (!string.IsNullOrWhiteSpace(person.FeedbackText))
+                _commentService.AddCommentForTable(tableId, person.FeedbackType ?? "Comment", person.FeedbackText);
+
+            person.Paid = true;
+            HttpContext.Session.SetString(key, JsonSerializer.Serialize(split));
+
+            if (split.AllPaid)
+            {
+                _paymentService.CompleteOrder(orderId);
+                HttpContext.Session.Remove(key);
+                return RedirectToAction("Confirmation", new { tableId, orderId });
+            }
+
+            return RedirectToAction("Index", new { tableId });
+        }
+
+        // Paid-bill confirmation (printable). Table NOT closed yet.
+        [HttpGet]
+        public IActionResult Confirmation(int tableId, int orderId)
+        {
+            PaymentConfirmationViewModel vm = _paymentService.GetConfirmation(orderId);
+            if (vm == null)
+                return RedirectToAction("Index", "RestaurantTable");
 
             return View(vm);
         }
 
+        // Finalize: free the table, return to overview
         [HttpPost]
-        public IActionResult Process(int tableId, int orderId, decimal tip, decimal tipOther, string paymentMethod, string splitMethod, int splitWays = 1)
+        public IActionResult CloseTable(int tableId, int orderId)
         {
-            var items = _orderItemService.GetOrderItemsByOrderId(orderId);
-            if (tipOther > 0) tip = tipOther;
-            decimal total = items.Sum(i => i.Price * i.Qty) + tip;
-
-            SplitMethod split = splitWays > 1 ? SplitMethod.Equal : SplitMethod.None;
-
-            var bill = new Bill
-            {
-                Tip = tip,
-                SplitedMethod = split,
-                Amount = total,
-                Order = new Order { OrderId = orderId }
-            };
-
-            int billId = _billService.AddBill(bill);
-
-            PaymentMethod method = paymentMethod?.ToLower() switch
-            {
-                "cash" => PaymentMethod.Cash,
-                _ => PaymentMethod.Pin
-            };
-
-            int ways = Math.Max(1, splitWays);
-            decimal perPerson = Math.Round(total / ways, 2);
-
-            for (int i = 0; i < ways; i++)
-            {
-                decimal amount = i == ways - 1 ? total - perPerson * (ways - 1) : perPerson;
-                _paymentService.AddPayment(new Payment
-                {
-                    PaymentMethod = method,
-                    Amount = amount,
-                    Status = BillStatus.Paid,
-                    PaidAt = DateTime.Now,
-                    Bill = new Bill { BillId = billId }
-                });
-            }
-
-            _billService.UpdateBill(new Bill
-            {
-                BillId = billId,
-                Tip = tip,
-                SplitedMethod = split,
-                Amount = total,
-                Status = BillStatus.Paid,
-                Order = new Order { OrderId = orderId }
-            });
-
-            _orderService.UpdateOrderStatus(orderId, OrderStatus.Paid);
-            _tableService.ClearTable(tableId);
-
+            _paymentService.CloseTable(tableId, orderId);
             return RedirectToAction("Index", "RestaurantTable");
+        }
+
+        // Cancel split — remove session state
+        [HttpPost]
+        public IActionResult CancelSplit(int tableId)
+        {
+            HttpContext.Session.Remove($"split_{tableId}");
+            return RedirectToAction("Index", new { tableId });
         }
     }
 }

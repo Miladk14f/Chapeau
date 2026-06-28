@@ -2,7 +2,21 @@ namespace Chapeau.Models.Enums
 {
     public enum ItemType
     {
-        Food,
-        Drink
+        Lunch,
+        Dinner,
+        Drinks
+
+        //Starters,
+        //Mains,
+        //Desserts,
+        //Entremets,
+        //SoftDrinks,
+        //CoffeeTea,
+        //Beer,
+        //Wine,
+        //Spirits
     }
+
+    
 }
+ 

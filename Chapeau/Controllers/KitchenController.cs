@@ -1,4 +1,3 @@
-using Chapeau.Models;
 using Chapeau.Models.Enums;
 using Chapeau.Services;
 using Chapeau.ViewModels;
@@ -9,96 +8,76 @@ namespace Chapeau.Controllers
     public class KitchenController : Controller
     {
         private readonly IOrderService _orderService;
-        private readonly IOrderItemService _orderItemService;
-        private readonly IStaffService _staffService;
 
-        public KitchenController(
-            IOrderService orderService,
-            IOrderItemService orderItemService,
-            IStaffService staffService)
+        public KitchenController(IOrderService orderService)
         {
             _orderService = orderService;
-            _orderItemService = orderItemService;
-            _staffService = staffService;
+        }
+
+        private bool CanAccessKitchen()
+        {
+            string role = HttpContext.Session.GetString("StaffRole") ?? "";
+            return role == "chef" || role == "manager" || role == "waiter";
         }
 
         public IActionResult Index()
         {
-            List<Staff> staff = _staffService.GetAllStaff();
-            List<Order> allOrders = _orderService.GetAllOrders();
-            List<OrderItem> allItems = _orderItemService.GetAllOrderItems();
+            if (!CanAccessKitchen())
+                return RedirectToAction("Login", "Staff");
 
-            // Group food items that are still waiting, keyed by their order id
-            Dictionary<int, List<OrderItem>> itemsByOrder = new Dictionary<int, List<OrderItem>>();
-            foreach (OrderItem item in allItems)
+            var vm = new PreparationPageViewModel
             {
-                if (item.ItemType != ItemType.Food || item.Status != OrderItemStatus.Ordered)
-                    continue;
+                Cards = _orderService.GetPreparationCards(ItemTypeGroups.Food, 12, 20),
+                PageClass = "kitchen-page",
+                HeaderClass = "kitchen-header",
+                IconClass = "kitchen-icon",
+                IconEmoji = "🍳",
+                SubClass = "kitchen-sub",
+                Title = "Kitchen",
+                CountLabel = "orders",
+                PrepLabel = "👨‍🍳 In preparation",
+                EmptyText = "No pending food orders.",
+                ShowTypeBadge = false,
+                ShowZeroUrgent = true,
+                LegendNormal = "< 12 min",
+                LegendWarning = "12–19 min",
+                LegendUrgent = "≥ 20 min (urgent)"
+            };
+            return View(vm);
+        }
 
-                int orderId = item.Order != null ? item.Order.OrderId : 0;
-                if (!itemsByOrder.ContainsKey(orderId))
-                    itemsByOrder[orderId] = new List<OrderItem>();
-
-                itemsByOrder[orderId].Add(item);
-            }
-
-            List<KitchenOrderCard> cards = new List<KitchenOrderCard>();
-            foreach (Order order in allOrders)
-            {
-                if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.InProgress)
-                    continue;
-                if (!itemsByOrder.ContainsKey(order.OrderId))
-                    continue;
-
-                List<OrderItem> items = itemsByOrder[order.OrderId];
-
-                int orderStaffId = order.Staff != null ? order.Staff.StaffId : 0;
-                string staffName = "Unknown";
-                foreach (Staff s in staff)
-                {
-                    if (s.StaffId == orderStaffId)
-                    {
-                        staffName = s.Name;
-                        break;
-                    }
-                }
-
-                DateTime orderedAt = items[0].CreatedAt;
-                List<KitchenItemRow> rows = new List<KitchenItemRow>();
-                foreach (OrderItem item in items)
-                {
-                    if (item.CreatedAt < orderedAt)
-                        orderedAt = item.CreatedAt;
-
-                    rows.Add(new KitchenItemRow
-                    {
-                        Name = item.Name,
-                        Qty = item.Qty,
-                        CreatedAt = item.CreatedAt,
-                        Note = item.Note
-                    });
-                }
-
-                cards.Add(new KitchenOrderCard
-                {
-                    OrderId = order.OrderId,
-                    TableId = order.Table != null ? order.Table.TableId : 0,
-                    StaffName = staffName,
-                    OrderedAt = orderedAt,
-                    Items = rows
-                });
-            }
-
-            // Oldest (most urgent) first
-            cards.Sort((a, b) => b.MinutesAgo.CompareTo(a.MinutesAgo));
-
-            return View(cards);
+        [HttpPost]
+        public IActionResult StartPreparing(int orderId)
+        {
+            _orderService.StartPreparingItems(orderId, ItemTypeGroups.Food);
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public IActionResult MarkReady(int orderId)
         {
-            _orderItemService.MarkOrderItemsReady(orderId, ItemType.Food);
+            _orderService.MarkOrderItemsReady(orderId, ItemTypeGroups.Food);
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult History()
+        {
+            if (!CanAccessKitchen())
+                return RedirectToAction("Login", "Staff");
+
+            return View("~/Views/Shared/OrderHistory.cshtml", new OrderHistoryViewModel
+            {
+                Cards = _orderService.GetOrderHistory(ItemTypeGroups.Food),
+                Title = "Kitchen History",
+                PageClass = "kitchen-page",
+                BackAction = "Kitchen"
+            });
+        }
+
+        [HttpPost]
+        public IActionResult MarkItemReady(int orderItemId)
+        {
+            _orderService.UpdateOrderItemStatus(orderItemId, Models.Enums.OrderItemStatus.Ready);
             return RedirectToAction("Index");
         }
     }

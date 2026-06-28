@@ -4,183 +4,48 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Chapeau</title>
-    <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: #f5f0eb;
-            color: #2a1a1f;
-            display: flex;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .sidebar {
-            width: 76px;
-            background: #1a0d12;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 16px 0;
-            gap: 4px;
-            flex-shrink: 0;
-        }
-
-        .sidebar-logo {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #7a2a3e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 700;
-            color: #e8c9a0;
-            margin-bottom: 20px;
-            text-decoration: none;
-        }
-
-        .nav-item {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 4px;
-            text-decoration: none;
-            color: #6b5560;
-            font-size: 10px;
-            font-weight: 600;
-            transition: background 0.15s, color 0.15s;
-            cursor: pointer;
-        }
-
-        .nav-item:hover {
-            background: #2e1520;
-            color: #c9843a;
-        }
-
-        .nav-item.active {
-            background: #7a2a3e;
-            color: #f0e6d8;
-        }
-
-        .nav-icon { font-size: 20px; line-height: 1; }
-
-        .main-wrap {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .topbar {
-            background: #2a1218;
-            display: flex;
-            align-items: center;
-            padding: 0 24px;
-            height: 64px;
-            flex-shrink: 0;
-            gap: 16px;
-        }
-
-        .topbar-brand {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.2;
-        }
-
-        .topbar-brand-name {
-            font-size: 16px;
-            font-weight: 700;
-            color: #f0e6d8;
-            font-family: Georgia, serif;
-        }
-
-        .topbar-brand-sub {
-            font-size: 11px;
-            color: #6b5560;
-        }
-
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-left: auto;
-        }
-
-        .topbar-avatar {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #7a2a3e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-            color: #f0e6d8;
-        }
-
-        .topbar-user { line-height: 1.2; }
-
-        .topbar-user-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #f0e6d8;
-        }
-
-        .topbar-user-role {
-            font-size: 11px;
-            color: #6b5560;
-        }
-
-        .topbar-logout {
-            color: #6b5560;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            transition: color 0.15s;
-        }
-
-        .topbar-logout:hover { color: #c9843a; }
-
-        .page-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 32px 36px;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/chapeau.css" />
 </head>
 <body>
 
+    @{
+        var _role = Context.Session.GetString("StaffRole") ?? "";
+        bool _isChef = _role == "chef";
+        bool _isBar  = _role == "bar";
+    }
     <nav class="sidebar">
-        <a class="sidebar-logo" asp-controller="RestaurantTable" asp-action="Index">C</a>
+        <a class="sidebar-logo"
+           asp-controller="@(_isChef ? "Kitchen" : _isBar ? "Bar" : "RestaurantTable")"
+           asp-action="Index">C</a>
 
-        <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "RestaurantTable" ? "active" : "")"
-           asp-controller="RestaurantTable" asp-action="Index">
-            <span class="nav-icon">⊞</span>
-            Tables
-        </a>
+        @if (!_isChef && !_isBar)
+        {
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "RestaurantTable" ? "active" : "")"
+               asp-controller="RestaurantTable" asp-action="Index">
+                <span class="nav-icon">⊞</span>
+                Tables
+            </a>
+        }
 
-        <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Kitchen" ? "active" : "")"
-           asp-controller="Kitchen" asp-action="Index">
-            <span class="nav-icon">🍽</span>
-            Kitchen
-        </a>
+        @if (!_isBar)
+        {
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Kitchen" ? "active" : "")"
+               asp-controller="Kitchen" asp-action="Index">
+                <span class="nav-icon">🍽</span>
+                Kitchen
+            </a>
+        }
 
-        <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Bar" ? "active" : "")"
-           asp-controller="Bar" asp-action="Index">
-            <span class="nav-icon">🍷</span>
-            Bar
-        </a>
+        @if (!_isChef)
+        {
+            <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Bar" ? "active" : "")"
+               asp-controller="Bar" asp-action="Index">
+                <span class="nav-icon">🍷</span>
+                Bar
+            </a>
+        }
 
-        @if (Context.Session.GetString("StaffRole") == "manager")
+        @if (_role == "manager")
         {
             <a class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Manager" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "active" : "")"
                asp-controller="Manager" asp-action="Index">
@@ -207,7 +72,7 @@
                 @{
                     var staffName = Context.Session.GetString("StaffName") ?? "";
                     var staffRole = Context.Session.GetString("StaffRole") ?? "";
-                    var initials  = staffName.Length > 0
+                    var initials = staffName.Length > 0
                         ? string.Concat(staffName.Split(' ').Where(w => w.Length > 0).Take(2).Select(w => w[0].ToString().ToUpper()))
                         : "?";
                 }
