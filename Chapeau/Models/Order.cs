@@ -24,5 +24,16 @@ namespace Chapeau.Models
             CreatedAt = createdAt;
             TotalPrice = totalPrice;
         }
+
+        public static Order CreateNewOrder(RestaurantTable table, Staff staff)
+        {
+            return new Order
+            {
+                Table = table,
+                Staff = staff,
+                Status = OrderStatus.InProgress,
+                CreatedAt = DateTime.Now
+            };
+        }
     }
 }
