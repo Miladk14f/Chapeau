@@ -183,6 +183,15 @@ namespace Chapeau.Repositories
             cmd.ExecuteNonQuery();
         }
 
+        public void DeleteCommentsByOrderId(int orderId)
+        {
+            using SqlConnection conn = new SqlConnection(_connectionString);
+            conn.Open();
+            using SqlCommand cmd = new SqlCommand("DELETE FROM COMMENT WHERE OrderId = @OrderId", conn);
+            cmd.Parameters.AddWithValue("@OrderId", orderId);
+            cmd.ExecuteNonQuery();
+        }
+
         private Order MapReader(SqlDataReader reader)
         {
             return new Order(

@@ -23,6 +23,10 @@
     </div>
     <div class="order-header-actions">
         <a class="btn-bill" asp-controller="Payment" asp-action="Index" asp-route-tableId="@Model.TableOrder.TableId">🧾 Bill</a>
+        <form asp-action="DeleteOrder" method="post" class="form-inline">
+            <input type="hidden" name="tableId" value="@Model.TableOrder.TableId" />
+            <button type="submit" class="btn-close" title="Delete entire order">🗑</button>
+        </form>
         <a class="btn-close" asp-controller="RestaurantTable" asp-action="Index" title="Back to tables">✕</a>
     </div>
 </div>

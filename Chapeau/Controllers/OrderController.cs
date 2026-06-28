@@ -77,6 +77,21 @@ namespace Chapeau.Controllers
         }
 
         [HttpPost]
+        public IActionResult DeleteOrder(int tableId)
+        {
+            try
+            {
+                _orderService.DeleteOrder(tableId);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Could not delete the order. Please try again.";
+                return RedirectToAction("CreateOrder", new { tableId = tableId });
+            }
+            return RedirectToAction("Index", "RestaurantTable");
+        }
+
+        [HttpPost]
         public IActionResult UpdateItemNote(int orderItemId, int tableId, string note, string category = null, string subCategory = null)
         {
             try

@@ -17,5 +17,6 @@ namespace Chapeau.Services
         void ServeOrderItem(int orderItemId);
         void StartPreparingItems(int orderId, SubCategory[] types);
         void MarkOrderItemsReady(int orderId, SubCategory[] types);
+        void DeleteOrder(int tableId);
     }
 }
