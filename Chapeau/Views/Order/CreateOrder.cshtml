@@ -2,8 +2,6 @@
 
 @{
     ViewData["Title"] = "Create Order";
-    decimal orderTotal = Model.OrderItems.Sum(i => i.Price * i.Qty);
-    int orderCount = Model.OrderItems.Sum(i => i.Qty);
 }
 
 @if (TempData["ErrorMessage"] != null)
@@ -202,8 +200,8 @@
             }
 
             <div class="order-total">
-                <span class="order-total-label">Total (@orderCount items)</span>
-                <span class="order-total-amount">€@orderTotal.ToString("0.00")</span>
+                <span class="order-total-label">Total (@Model.OrderCount items)</span>
+                <span class="order-total-amount">€@Model.OrderTotal.ToString("0.00")</span>
             </div>
         }
         else

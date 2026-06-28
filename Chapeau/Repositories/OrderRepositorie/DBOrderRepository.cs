@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Chapeau.Models;
 using Chapeau.Models.Enums;
 using Microsoft.Data.SqlClient;
@@ -15,160 +16,256 @@ namespace Chapeau.Repositories
 
         public List<Order> GetAllOrders()
         {
-            List<Order> orders = new List<Order>();
+            try
+            {
+                List<Order> orders = new List<Order>();
 
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
 
-            string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER]";
+                string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER]";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            using SqlDataReader reader = cmd.ExecuteReader();
+                using SqlCommand cmd = new SqlCommand(query, conn);
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-            while (reader.Read())
-                orders.Add(MapReader(reader));
+                while (reader.Read())
+                    orders.Add(MapReader(reader));
 
-            return orders;
+                return orders;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[GetAllOrders] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public List<Order> GetOrdersByTableId(int tableId)
         {
-            List<Order> orders = new List<Order>();
+            try
+            {
+                List<Order> orders = new List<Order>();
 
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
 
-            string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE TableId = @TableId";
+                string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE TableId = @TableId";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@TableId", tableId);
+                using SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@TableId", tableId);
 
-            using SqlDataReader reader = cmd.ExecuteReader();
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-            while (reader.Read())
-                orders.Add(MapReader(reader));
+                while (reader.Read())
+                    orders.Add(MapReader(reader));
 
-            return orders;
+                return orders;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[GetOrdersByTableId] Database error: {ex.Message}");
+                throw;
+            }
         }
-
-
 
         public Order GetActiveOrderByTableId(int tableId)
         {
-
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-
-            string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE TableId = @TableId AND (Status = 'pending' OR Status = 'inprogress')";
-
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@TableId", tableId);
-
-            using SqlDataReader reader = cmd.ExecuteReader();
-
-
-            if (reader.Read())
+            try
             {
-                return MapReader(reader);
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+
+                string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE TableId = @TableId AND (Status = 'pending' OR Status = 'inprogress')";
+
+                using SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@TableId", tableId);
+
+                using SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    return MapReader(reader);
+                }
+
+                return null;
             }
-
-            return null;
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[GetActiveOrderByTableId] Database error: {ex.Message}");
+                throw;
+            }
         }
-
 
         public List<Order> GetOrdersByStaffId(int staffId)
         {
-            List<Order> orders = new List<Order>();
+            try
+            {
+                List<Order> orders = new List<Order>();
 
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
 
-            string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE StaffId = @StaffId";
+                string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE StaffId = @StaffId";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@StaffId", staffId);
+                using SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@StaffId", staffId);
 
-            using SqlDataReader reader = cmd.ExecuteReader();
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-            while (reader.Read())
-                orders.Add(MapReader(reader));
+                while (reader.Read())
+                    orders.Add(MapReader(reader));
 
-            return orders;
+                return orders;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[GetOrdersByStaffId] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public Order GetOrderById(int orderId)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
 
-            string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE Id = @Id";
+                string query = "SELECT Id, TableId, StaffId, Status, Note, CreatedAt, total_price FROM [ORDER] WHERE Id = @Id";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Id", orderId);
+                using SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Id", orderId);
 
-            using SqlDataReader reader = cmd.ExecuteReader();
+                using SqlDataReader reader = cmd.ExecuteReader();
 
-            if (reader.Read())
-                return MapReader(reader);
+                if (reader.Read())
+                    return MapReader(reader);
 
-            return null;
+                return null;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[GetOrderById] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public int AddOrder(Order order)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
 
-            string query = @"INSERT INTO [ORDER] (TableId, StaffId, Status, Note, CreatedAt, total_price)
-                             VALUES (@TableId, @StaffId, @Status, @Note, @CreatedAt, @TotalPrice);
-                             SELECT SCOPE_IDENTITY();";
+                string query = @"INSERT INTO [ORDER] (TableId, StaffId, Status, Note, CreatedAt, total_price)
+                                 VALUES (@TableId, @StaffId, @Status, @Note, @CreatedAt, @TotalPrice);
+                                 SELECT SCOPE_IDENTITY();";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@TableId", order.Table?.TableId ?? 0);
-            cmd.Parameters.AddWithValue("@StaffId", order.Staff?.StaffId ?? 0);
-            cmd.Parameters.AddWithValue("@Status", order.Status.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@Note", (object?)order.Note ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@CreatedAt", order.CreatedAt);
-            cmd.Parameters.AddWithValue("@TotalPrice", order.TotalPrice);
+                using SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@TableId", order.Table?.TableId ?? 0);
+                cmd.Parameters.AddWithValue("@StaffId", order.Staff?.StaffId ?? 0);
+                cmd.Parameters.AddWithValue("@Status", order.Status.ToString().ToLower());
+                cmd.Parameters.AddWithValue("@Note", (object?)order.Note ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@CreatedAt", order.CreatedAt);
+                cmd.Parameters.AddWithValue("@TotalPrice", order.TotalPrice);
 
-            return Convert.ToInt32(cmd.ExecuteScalar());
+                return Convert.ToInt32(cmd.ExecuteScalar());
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[AddOrder] Database error: {ex.Message}");
+                throw;
+            }
         }
 
+        public void UpdateOrder(Order order)
+        {
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+
+                string query = @"UPDATE [ORDER]
+                                 SET TableId = @TableId, StaffId = @StaffId,
+                                     Status = @Status, Note = @Note,
+                                     total_price = @TotalPrice
+                                 WHERE Id = @Id";
+
+                using SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@TableId", order.Table?.TableId ?? 0);
+                cmd.Parameters.AddWithValue("@StaffId", order.Staff?.StaffId ?? 0);
+                cmd.Parameters.AddWithValue("@Status", order.Status.ToString().ToLower());
+                cmd.Parameters.AddWithValue("@Note", (object?)order.Note ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@TotalPrice", order.TotalPrice);
+                cmd.Parameters.AddWithValue("@Id", order.OrderId);
+
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[UpdateOrder] Database error: {ex.Message}");
+                throw;
+            }
+        }
 
         public void UpdateOrderStatus(int orderId, OrderStatus status)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
 
-            string query = "UPDATE [ORDER] SET Status = @Status WHERE Id = @Id";
+                string query = "UPDATE [ORDER] SET Status = @Status WHERE Id = @Id";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Status", status.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@Id", orderId);
+                using SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Status", status.ToString().ToLower());
+                cmd.Parameters.AddWithValue("@Id", orderId);
 
-            cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderStatus] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public void DeleteOrder(int orderId)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
 
-            string query = "DELETE FROM [ORDER] WHERE Id = @Id";
+                string query = "DELETE FROM [ORDER] WHERE Id = @Id";
 
-            using SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@Id", orderId);
+                using SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Id", orderId);
 
-            cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[DeleteOrder] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public void DeleteCommentsByOrderId(int orderId)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand("DELETE FROM COMMENT WHERE OrderId = @OrderId", conn);
-            cmd.Parameters.AddWithValue("@OrderId", orderId);
-            cmd.ExecuteNonQuery();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand("DELETE FROM COMMENT WHERE OrderId = @OrderId", conn);
+                cmd.Parameters.AddWithValue("@OrderId", orderId);
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[DeleteCommentsByOrderId] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         private Order MapReader(SqlDataReader reader)
@@ -188,142 +285,230 @@ namespace Chapeau.Repositories
 
         public List<OrderItem> GetAllOrderItems()
         {
-            var list = new List<OrderItem>();
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand(
-                "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note FROM ORDER_ITEM", conn);
-            using SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read()) list.Add(MapOrderItem(reader));
-            return list;
+            try
+            {
+                var list = new List<OrderItem>();
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(
+                    "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note FROM ORDER_ITEM", conn);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read()) list.Add(MapOrderItem(reader));
+                return list;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[GetAllOrderItems] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public List<OrderItem> GetOrderItemsByOrderId(int orderId)
         {
-            var list = new List<OrderItem>();
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand(
-                "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note FROM ORDER_ITEM WHERE OrderId = @OrderId", conn);
-            cmd.Parameters.AddWithValue("@OrderId", orderId);
-            using SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read()) list.Add(MapOrderItem(reader));
-            return list;
+            try
+            {
+                var list = new List<OrderItem>();
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(
+                    "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note FROM ORDER_ITEM WHERE OrderId = @OrderId", conn);
+                cmd.Parameters.AddWithValue("@OrderId", orderId);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read()) list.Add(MapOrderItem(reader));
+                return list;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[GetOrderItemsByOrderId] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public List<OrderItem> GetOrderItemsByTableId(int tableId)
         {
-            List<OrderItem> list = new List<OrderItem>();
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand(
-                @"SELECT oi.Id, oi.OrderId, oi.MenuId, oi.Name, oi.Qty, oi.Price, oi.Vat, oi.ItemType, oi.CreatedAt, oi.Status, oi.Note
-          FROM ORDER_ITEM oi
-          INNER JOIN [ORDER] o ON oi.OrderId = o.Id
-          WHERE o.TableId = @TableId AND o.Status != 'paid'", conn);
-            cmd.Parameters.AddWithValue("@TableId", tableId);
-            using SqlDataReader reader = cmd.ExecuteReader();
-            while (reader.Read()) list.Add(MapOrderItem(reader));
+            try
+            {
+                List<OrderItem> list = new List<OrderItem>();
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(
+                    @"SELECT oi.Id, oi.OrderId, oi.MenuId, oi.Name, oi.Qty, oi.Price, oi.Vat, oi.ItemType, oi.CreatedAt, oi.Status, oi.Note
+              FROM ORDER_ITEM oi
+              INNER JOIN [ORDER] o ON oi.OrderId = o.Id
+              WHERE o.TableId = @TableId AND o.Status != 'paid'", conn);
+                cmd.Parameters.AddWithValue("@TableId", tableId);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read()) list.Add(MapOrderItem(reader));
 
-            return list;
+                return list;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[GetOrderItemsByTableId] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public OrderItem GetOrderItemById(int id)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand(
-                "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note FROM ORDER_ITEM WHERE Id = @Id", conn);
-            cmd.Parameters.AddWithValue("@Id", id);
-            using SqlDataReader reader = cmd.ExecuteReader();
-            return reader.Read() ? MapOrderItem(reader) : null;
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(
+                    "SELECT Id, OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note FROM ORDER_ITEM WHERE Id = @Id", conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                using SqlDataReader reader = cmd.ExecuteReader();
+                return reader.Read() ? MapOrderItem(reader) : null;
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[GetOrderItemById] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public void AddOrderItem(OrderItem item)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand(
-                "INSERT INTO ORDER_ITEM (OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note) VALUES (@OrderId, @MenuId, @Name, @Qty, @Price, @Vat, @ItemType, @CreatedAt, @Status, @Note)", conn);
-            cmd.Parameters.AddWithValue("@OrderId", item.Order?.OrderId ?? 0);
-            cmd.Parameters.AddWithValue("@MenuId", item.MenuItem?.MenuItemId ?? 0);
-            cmd.Parameters.AddWithValue("@Name", item.Name);
-            cmd.Parameters.AddWithValue("@Qty", item.Qty);
-            cmd.Parameters.AddWithValue("@Price", item.Price);
-            cmd.Parameters.AddWithValue("@Vat", item.Vat);
-            cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@CreatedAt", item.CreatedAt);
-            cmd.Parameters.AddWithValue("@Status", item.Status.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@Note", (object)item.Note ?? DBNull.Value);
-            cmd.ExecuteNonQuery();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(
+                    "INSERT INTO ORDER_ITEM (OrderId, MenuId, Name, Qty, Price, Vat, ItemType, CreatedAt, Status, Note) VALUES (@OrderId, @MenuId, @Name, @Qty, @Price, @Vat, @ItemType, @CreatedAt, @Status, @Note)", conn);
+                cmd.Parameters.AddWithValue("@OrderId", item.Order?.OrderId ?? 0);
+                cmd.Parameters.AddWithValue("@MenuId", item.MenuItem?.MenuItemId ?? 0);
+                cmd.Parameters.AddWithValue("@Name", item.Name);
+                cmd.Parameters.AddWithValue("@Qty", item.Qty);
+                cmd.Parameters.AddWithValue("@Price", item.Price);
+                cmd.Parameters.AddWithValue("@Vat", item.Vat);
+                cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
+                cmd.Parameters.AddWithValue("@CreatedAt", item.CreatedAt);
+                cmd.Parameters.AddWithValue("@Status", item.Status.ToString().ToLower());
+                cmd.Parameters.AddWithValue("@Note", (object)item.Note ?? DBNull.Value);
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[AddOrderItem] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public void UpdateOrderItem(OrderItem item)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand(
-                "UPDATE ORDER_ITEM SET OrderId=@OrderId, MenuId=@MenuId, Name=@Name, Qty=@Qty, Price=@Price, Vat=@Vat, ItemType=@ItemType WHERE Id=@Id", conn);
-            cmd.Parameters.AddWithValue("@OrderId", item.Order?.OrderId ?? 0);
-            cmd.Parameters.AddWithValue("@MenuId", item.MenuItem?.MenuItemId ?? 0);
-            cmd.Parameters.AddWithValue("@Name", item.Name);
-            cmd.Parameters.AddWithValue("@Qty", item.Qty);
-            cmd.Parameters.AddWithValue("@Price", item.Price);
-            cmd.Parameters.AddWithValue("@Vat", item.Vat);
-            cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@Id", item.OrderItemId);
-            cmd.ExecuteNonQuery();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(
+                    "UPDATE ORDER_ITEM SET OrderId=@OrderId, MenuId=@MenuId, Name=@Name, Qty=@Qty, Price=@Price, Vat=@Vat, ItemType=@ItemType WHERE Id=@Id", conn);
+                cmd.Parameters.AddWithValue("@OrderId", item.Order?.OrderId ?? 0);
+                cmd.Parameters.AddWithValue("@MenuId", item.MenuItem?.MenuItemId ?? 0);
+                cmd.Parameters.AddWithValue("@Name", item.Name);
+                cmd.Parameters.AddWithValue("@Qty", item.Qty);
+                cmd.Parameters.AddWithValue("@Price", item.Price);
+                cmd.Parameters.AddWithValue("@Vat", item.Vat);
+                cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
+                cmd.Parameters.AddWithValue("@Id", item.OrderItemId);
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderItem] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public void UpdateOrderItemStatus(int id, OrderItemStatus status)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand("UPDATE ORDER_ITEM SET Status = @Status WHERE Id = @Id", conn);
-            cmd.Parameters.AddWithValue("@Status", status.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@Id", id);
-            cmd.ExecuteNonQuery();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand("UPDATE ORDER_ITEM SET Status = @Status WHERE Id = @Id", conn);
+                cmd.Parameters.AddWithValue("@Status", status.ToString().ToLower());
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderItemStatus] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public void UpdateOrderItemNote(int id, string note)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand("UPDATE ORDER_ITEM SET Note = @Note WHERE Id = @Id", conn);
-            cmd.Parameters.AddWithValue("@Note", (object)note ?? DBNull.Value);
-            cmd.Parameters.AddWithValue("@Id", id);
-            cmd.ExecuteNonQuery();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand("UPDATE ORDER_ITEM SET Note = @Note WHERE Id = @Id", conn);
+                cmd.Parameters.AddWithValue("@Note", (object)note ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderItemNote] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public void UpdateOrderItemsStatusByType(int orderId, SubCategory[] types, OrderItemStatus fromStatus, OrderItemStatus toStatus)
         {
-            string inList = string.Join(",", types.Select(t => $"'{t.ToString().ToLower()}'"));
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand(
-                $"UPDATE ORDER_ITEM SET Status = @ToStatus WHERE OrderId = @OrderId AND ItemType IN ({inList}) AND Status = @FromStatus", conn);
-            cmd.Parameters.AddWithValue("@ToStatus", toStatus.ToString().ToLower());
-            cmd.Parameters.AddWithValue("@OrderId", orderId);
-            cmd.Parameters.AddWithValue("@FromStatus", fromStatus.ToString().ToLower());
-            cmd.ExecuteNonQuery();
+            try
+            {
+                string inList = string.Join(",", types.Select(t => $"'{t.ToString().ToLower()}'"));
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand(
+                    $"UPDATE ORDER_ITEM SET Status = @ToStatus WHERE OrderId = @OrderId AND ItemType IN ({inList}) AND Status = @FromStatus", conn);
+                cmd.Parameters.AddWithValue("@ToStatus", toStatus.ToString().ToLower());
+                cmd.Parameters.AddWithValue("@OrderId", orderId);
+                cmd.Parameters.AddWithValue("@FromStatus", fromStatus.ToString().ToLower());
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderItemsStatusByType] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public void DeleteOrderItem(int id)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand("DELETE FROM ORDER_ITEM WHERE Id = @Id", conn);
-            cmd.Parameters.AddWithValue("@Id", id);
-            cmd.ExecuteNonQuery();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand("DELETE FROM ORDER_ITEM WHERE Id = @Id", conn);
+                cmd.Parameters.AddWithValue("@Id", id);
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[DeleteOrderItem] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         public void DeleteOrderItemsByOrderId(int orderId)
         {
-            using SqlConnection conn = new SqlConnection(_connectionString);
-            conn.Open();
-            using SqlCommand cmd = new SqlCommand("DELETE FROM ORDER_ITEM WHERE OrderId = @OrderId", conn);
-            cmd.Parameters.AddWithValue("@OrderId", orderId);
-            cmd.ExecuteNonQuery();
+            try
+            {
+                using SqlConnection conn = new SqlConnection(_connectionString);
+                conn.Open();
+                using SqlCommand cmd = new SqlCommand("DELETE FROM ORDER_ITEM WHERE OrderId = @OrderId", conn);
+                cmd.Parameters.AddWithValue("@OrderId", orderId);
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                Debug.WriteLine($"[DeleteOrderItemsByOrderId] Database error: {ex.Message}");
+                throw;
+            }
         }
 
         private static SubCategory ParseItemType(object val)
