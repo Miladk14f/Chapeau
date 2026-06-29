@@ -59,7 +59,7 @@ namespace Chapeau.Services
                     continue;
 
                 ReadyItemRow row = new ReadyItemRow { Name = item.Name, Qty = item.Qty };
-                bool isDrink = System.Array.IndexOf(ItemTypeGroups.Drinks, item.ItemType) >= 0;
+                bool isDrink = Array.IndexOf(ItemTypeGroups.Drinks, item.ItemType) >= 0;
 
                 if (item.Status == OrderItemStatus.Ready)
                 {

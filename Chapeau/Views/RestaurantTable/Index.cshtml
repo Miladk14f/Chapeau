@@ -2,8 +2,8 @@
 @using Chapeau.Models.Enums
 @{
     ViewData["Title"] = "Tables";
-    var occupied  = Model.Cards.Count(c => c.Table.Status == TableStatus.Occupied);
-    var reserved  = Model.Cards.Count(c => c.Table.Status == TableStatus.Reserved || (c.Table.ReservationName != null && c.Table.Status != TableStatus.Occupied));
+    var occupied = Model.Cards.Count(c => c.Table.Status == TableStatus.Occupied);
+    var reserved = Model.Cards.Count(c => c.Table.Status == TableStatus.Reserved || (c.Table.ReservationName != null && c.Table.Status != TableStatus.Occupied));
     var available = Model.Cards.Count(c => c.Table.Status != TableStatus.Occupied && c.Table.ReservationName == null);
 }
 
@@ -25,10 +25,10 @@
         var table = card.Table;
         var isOccupied = table.Status == TableStatus.Occupied;
         var isReserved = table.ReservationName != null && !isOccupied;
-        var cardClass  = isOccupied ? "occupied" : isReserved ? "reserved" : "";
+        var cardClass = isOccupied ? "occupied" : isReserved ? "reserved" : "";
         var badgeClass = isOccupied ? "badge-occupied" : isReserved ? "badge-reserved" : "badge-available";
-        var badgeText  = isOccupied ? "Occupied" : isReserved ? "Reserved" : "Available";
-        var hasReady     = card.ReadyFood.Any() || card.ReadyDrink.Any();
+        var badgeText = isOccupied ? "Occupied" : isReserved ? "Reserved" : "Available";
+        var hasReady = card.ReadyFood.Any() || card.ReadyDrink.Any();
         var hasPreparing = card.PreparingFood.Any() || card.PreparingDrink.Any();
 
         <div class="table-card @cardClass @(hasReady ? "has-ready" : "")">
