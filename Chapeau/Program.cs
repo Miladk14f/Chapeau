@@ -12,6 +12,7 @@ builder.Services.AddScoped<IPaymentRepository, DBPaymentRepository>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddScoped<IBillRepository, DBBillRepository>();
+builder.Services.AddScoped<IBillService, BillService>();
 
 builder.Services.AddScoped<IRestaurantTableRepository, DBRestaurantTableRepository>();
 builder.Services.AddScoped<IRestaurantTableService, RestaurantTableService>();
