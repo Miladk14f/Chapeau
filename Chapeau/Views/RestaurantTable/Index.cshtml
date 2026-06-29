@@ -44,7 +44,19 @@
             {
                 <form method="post" asp-controller="RestaurantTable" asp-action="FreeTable" class="free-form">
                     <input type="hidden" name="tableId" value="@table.TableId" />
-                    <button type="submit" class="btn-free">✕ Free table</button>
+
+                    @if (hasPreparing || hasReady)
+                    {
+                        <button type="submit" class="btn-free" disabled>
+                            ✕ Free table
+                        </button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn-free">
+                            ✕ Free table
+                        </button>
+                    }
                 </form>
             }
             else
