@@ -178,35 +178,6 @@ namespace Chapeau.Repositories
             }
         }
 
-        public void UpdateOrder(Order order)
-        {
-            try
-            {
-                using SqlConnection conn = new SqlConnection(_connectionString);
-                conn.Open();
-
-                string query = @"UPDATE [ORDER]
-                                 SET TableId = @TableId, StaffId = @StaffId,
-                                     Status = @Status, Note = @Note,
-                                     total_price = @TotalPrice
-                                 WHERE Id = @Id";
-
-                using SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@TableId", order.Table?.TableId ?? 0);
-                cmd.Parameters.AddWithValue("@StaffId", order.Staff?.StaffId ?? 0);
-                cmd.Parameters.AddWithValue("@Status", order.Status.ToString().ToLower());
-                cmd.Parameters.AddWithValue("@Note", (object?)order.Note ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@TotalPrice", order.TotalPrice);
-                cmd.Parameters.AddWithValue("@Id", order.OrderId);
-
-                cmd.ExecuteNonQuery();
-            }
-            catch (SqlException ex)
-            {
-                Debug.WriteLine($"[UpdateOrder] Database error: {ex.Message}");
-                throw;
-            }
-        }
 
         public void UpdateOrderStatus(int orderId, OrderStatus status)
         {
@@ -221,11 +192,20 @@ namespace Chapeau.Repositories
                 cmd.Parameters.AddWithValue("@Status", status.ToString().ToLower());
                 cmd.Parameters.AddWithValue("@Id", orderId);
 
-                cmd.ExecuteNonQuery();
+                int linesChanged = cmd.ExecuteNonQuery();
+                if (linesChanged == 0)
+                {
+                    throw new InvalidOperationException("Failed to update order statys.");
+                }
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[UpdateOrderStatus] Database error: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderStatus] Logical error: {ex.Message}");
                 throw;
             }
         }
@@ -242,11 +222,20 @@ namespace Chapeau.Repositories
                 using SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Id", orderId);
 
-                cmd.ExecuteNonQuery();
+                int linesChanged = cmd.ExecuteNonQuery();
+                if (linesChanged == 0)
+                {
+                    throw new InvalidOperationException("Failed to delete order.");
+                }
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[DeleteOrder] Database error: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"[DeleteOrder] Logical error: {ex.Message}");
                 throw;
             }
         }
@@ -259,11 +248,21 @@ namespace Chapeau.Repositories
                 conn.Open();
                 using SqlCommand cmd = new SqlCommand("DELETE FROM COMMENT WHERE OrderId = @OrderId", conn);
                 cmd.Parameters.AddWithValue("@OrderId", orderId);
-                cmd.ExecuteNonQuery();
+
+                int linesChanged = cmd.ExecuteNonQuery();
+                if (linesChanged == 0)
+                {
+                    throw new InvalidOperationException("Failed to delete Comment.");
+                }
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[DeleteCommentsByOrderId] Database error: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"[DeleteCommentsByOrderId] Logical error: {ex.Message}");
                 throw;
             }
         }
@@ -386,7 +385,9 @@ namespace Chapeau.Repositories
                 cmd.Parameters.AddWithValue("@CreatedAt", item.CreatedAt);
                 cmd.Parameters.AddWithValue("@Status", item.Status.ToString().ToLower());
                 cmd.Parameters.AddWithValue("@Note", (object)item.Note ?? DBNull.Value);
+                
                 cmd.ExecuteNonQuery();
+                
             }
             catch (SqlException ex)
             {
@@ -411,11 +412,21 @@ namespace Chapeau.Repositories
                 cmd.Parameters.AddWithValue("@Vat", item.Vat);
                 cmd.Parameters.AddWithValue("@ItemType", item.ItemType.ToString().ToLower());
                 cmd.Parameters.AddWithValue("@Id", item.OrderItemId);
-                cmd.ExecuteNonQuery();
+                
+                int linesChanged = cmd.ExecuteNonQuery();
+                if (linesChanged == 0)
+                {
+                    throw new InvalidOperationException("Failed to update order item.");
+                }
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[UpdateOrderItem] Database error: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderItem] Logical error: {ex.Message}");
                 throw;
             }
         }
@@ -429,11 +440,21 @@ namespace Chapeau.Repositories
                 using SqlCommand cmd = new SqlCommand("UPDATE ORDER_ITEM SET Status = @Status WHERE Id = @Id", conn);
                 cmd.Parameters.AddWithValue("@Status", status.ToString().ToLower());
                 cmd.Parameters.AddWithValue("@Id", id);
-                cmd.ExecuteNonQuery();
+                
+                int linesChanged = cmd.ExecuteNonQuery();
+                if (linesChanged == 0)
+                {
+                    throw new InvalidOperationException("Failed to update order items status.");
+                }
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[UpdateOrderItemStatus] Database error: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderItemStatus] Logical error: {ex.Message}");
                 throw;
             }
         }
@@ -447,11 +468,21 @@ namespace Chapeau.Repositories
                 using SqlCommand cmd = new SqlCommand("UPDATE ORDER_ITEM SET Note = @Note WHERE Id = @Id", conn);
                 cmd.Parameters.AddWithValue("@Note", (object)note ?? DBNull.Value);
                 cmd.Parameters.AddWithValue("@Id", id);
-                cmd.ExecuteNonQuery();
+                
+                int linesChanged = cmd.ExecuteNonQuery();
+                if (linesChanged == 0)
+                {
+                    throw new InvalidOperationException("Failed to update order item note.");
+                }
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[UpdateOrderItemNote] Database error: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderItemNote] Logical error: {ex.Message}");
                 throw;
             }
         }
@@ -468,11 +499,21 @@ namespace Chapeau.Repositories
                 cmd.Parameters.AddWithValue("@ToStatus", toStatus.ToString().ToLower());
                 cmd.Parameters.AddWithValue("@OrderId", orderId);
                 cmd.Parameters.AddWithValue("@FromStatus", fromStatus.ToString().ToLower());
-                cmd.ExecuteNonQuery();
+                
+                int linesChanged = cmd.ExecuteNonQuery();
+                if (linesChanged == 0)
+                {
+                    throw new InvalidOperationException("Failed to update order item status by type.");
+                }
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[UpdateOrderItemsStatusByType] Database error: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"[UpdateOrderItemsStatusByType] Logical error: {ex.Message}");
                 throw;
             }
         }
@@ -485,11 +526,21 @@ namespace Chapeau.Repositories
                 conn.Open();
                 using SqlCommand cmd = new SqlCommand("DELETE FROM ORDER_ITEM WHERE Id = @Id", conn);
                 cmd.Parameters.AddWithValue("@Id", id);
-                cmd.ExecuteNonQuery();
+                
+                int linesChanged = cmd.ExecuteNonQuery();
+                if (linesChanged == 0)
+                {
+                    throw new InvalidOperationException("Failed to delter order item.");
+                }
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[DeleteOrderItem] Database error: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"[DeleteOrderItem] Logical error: {ex.Message}");
                 throw;
             }
         }
@@ -502,11 +553,21 @@ namespace Chapeau.Repositories
                 conn.Open();
                 using SqlCommand cmd = new SqlCommand("DELETE FROM ORDER_ITEM WHERE OrderId = @OrderId", conn);
                 cmd.Parameters.AddWithValue("@OrderId", orderId);
-                cmd.ExecuteNonQuery();
+                
+                int linesChanged = cmd.ExecuteNonQuery();
+                if (linesChanged == 0)
+                {
+                    throw new InvalidOperationException("Failed to delete order items by order id.");
+                }
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[DeleteOrderItemsByOrderId] Database error: {ex.Message}");
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                Debug.WriteLine($"[DeleteOrderItemsByOrderId] Logical error: {ex.Message}");
                 throw;
             }
         }
