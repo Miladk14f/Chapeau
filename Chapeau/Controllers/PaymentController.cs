@@ -29,13 +29,11 @@ namespace Chapeau.Controllers
             {
                 SplitData split = JsonSerializer.Deserialize<SplitData>(splitJson, JsonOpts);
                 bill.SplitPersons = split.Persons;
-                bill.SplitBillId = split.BillId;
             }
 
             return View(bill);
         }
 
-        // Single payment (no split)
         [HttpPost]
         public IActionResult Process(int tableId, int orderId, string personsJson)
         {
@@ -52,7 +50,7 @@ namespace Chapeau.Controllers
             return RedirectToAction("Confirmation", new { tableId, orderId });
         }
 
-        // Configure split — creates Bill, stores persons in session
+
         [HttpPost]
         public IActionResult SetupSplit(int tableId, int orderId, string personsJson)
         {
@@ -64,7 +62,6 @@ namespace Chapeau.Controllers
             return RedirectToAction("Index", new { tableId });
         }
 
-        // Pay one person's portion
         [HttpPost]
         public IActionResult PayPerson(int tableId, int orderId, int personIndex)
         {
@@ -74,11 +71,7 @@ namespace Chapeau.Controllers
                 return RedirectToAction("Index", new { tableId });
 
             SplitData split = JsonSerializer.Deserialize<SplitData>(splitJson, JsonOpts);
-            SplitPersonState person = null;
-            foreach (SplitPersonState p in split.Persons)
-            {
-                if (p.Index == personIndex) { person = p; break; }
-            }
+            SplitPersonState person = split.Persons.FirstOrDefault(p => p.Index == personIndex);
 
             if (person == null || person.Paid)
                 return RedirectToAction("Index", new { tableId });
@@ -101,7 +94,8 @@ namespace Chapeau.Controllers
             return RedirectToAction("Index", new { tableId });
         }
 
-        // Paid-bill confirmation (printable). Table NOT closed yet.
+
+
         [HttpGet]
         public IActionResult Confirmation(int tableId, int orderId)
         {
@@ -112,7 +106,6 @@ namespace Chapeau.Controllers
             return View(vm);
         }
 
-        // Finalize: free the table, return to overview
         [HttpPost]
         public IActionResult CloseTable(int tableId, int orderId)
         {
@@ -120,7 +113,8 @@ namespace Chapeau.Controllers
             return RedirectToAction("Index", "RestaurantTable");
         }
 
-        // Cancel split — remove session state
+
+
         [HttpPost]
         public IActionResult CancelSplit(int tableId)
         {

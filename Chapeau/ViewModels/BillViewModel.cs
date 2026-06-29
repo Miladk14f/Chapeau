@@ -2,6 +2,18 @@ using Chapeau.Models;
 
 namespace Chapeau.ViewModels
 {
+    public class BillViewModel
+    {
+        public int TableId { get; set; }
+        public int OrderId { get; set; }
+        public int Guests { get; set; }
+        public string WaiterName { get; set; }
+        public DateTime GeneratedAt { get; set; } = DateTime.Now;
+
+        public List<OrderItem> Items { get; set; } = new();
+
+        public List<SplitPersonState> SplitPersons { get; set; }
+    }
     public class PaymentConfirmationViewModel
     {
         public int TableId { get; set; }
@@ -10,28 +22,28 @@ namespace Chapeau.ViewModels
         public string WaiterName { get; set; }
         public DateTime PaidAt { get; set; }
 
-        public List<BillItemRow> Items9 { get; set; } = new();
-        public List<BillItemRow> Items21 { get; set; } = new();
-
-        public decimal Excl9 { get; set; }
-        public decimal Vat9Amount { get; set; }
-        public decimal Excl21 { get; set; }
-        public decimal Vat21Amount { get; set; }
+        public List<OrderItem> Items { get; set; } = new();
         public decimal Tip { get; set; }
-
-        public decimal Subtotal => Excl9 + Vat9Amount + Excl21 + Vat21Amount;
-        public decimal TotalVat => Vat9Amount + Vat21Amount;
-        public decimal Total => Subtotal + Tip;
 
         public List<Payment> Payments { get; set; } = new();
         public bool IsSplit { get; set; }
+    }
+
+    public class BillReceiptViewModel
+    {
+        public List<OrderItem> Items { get; set; } = new();
+        public decimal Tip { get; set; }
+        public DateTime Date { get; set; } = DateTime.Now;
+        public int TableId { get; set; }
+        public int Guests { get; set; }
+        public bool Interactive { get; set; }
     }
 
     public class PersonPaymentInput
     {
         public decimal Amount { get; set; }
         public decimal Tip { get; set; }
-        public string PaymentMethod { get; set; } = "debit";
+        public string PaymentMethod { get; set; }
         public string FeedbackType { get; set; }
         public string FeedbackText { get; set; }
     }
@@ -41,7 +53,7 @@ namespace Chapeau.ViewModels
         public int Index { get; set; }
         public decimal Amount { get; set; }
         public decimal Tip { get; set; }
-        public string PaymentMethod { get; set; } = "debit";
+        public string PaymentMethod { get; set; }
         public string FeedbackType { get; set; }
         public string FeedbackText { get; set; }
         public bool Paid { get; set; }
@@ -57,38 +69,4 @@ namespace Chapeau.ViewModels
         public bool AllPaid => Persons.All(p => p.Paid);
     }
 
-    public class BillViewModel
-    {
-        public int TableId { get; set; }
-        public int OrderId { get; set; }
-        public int Guests { get; set; }
-        public string WaiterName { get; set; }
-        public DateTime GeneratedAt { get; set; } = DateTime.Now;
-
-        public List<BillItemRow> Items9 { get; set; } = new();
-        public List<BillItemRow> Items21 { get; set; } = new();
-
-        public decimal Excl9 { get; set; }
-        public decimal Vat9Amount { get; set; }
-        public decimal Excl21 { get; set; }
-        public decimal Vat21Amount { get; set; }
-
-        public decimal Subtotal => Excl9 + Vat9Amount + Excl21 + Vat21Amount;
-        public decimal TotalVat => Vat9Amount + Vat21Amount;
-        public decimal TotalToPay => Subtotal;
-
-        // Split-in-progress state (null when no active split)
-        public List<SplitPersonState> SplitPersons { get; set; }
-        public int SplitBillId { get; set; }
-    }
-
-    public class BillItemRow
-    {
-        public string Name { get; set; }
-        public int Qty { get; set; }
-        public decimal UnitPrice { get; set; }
-        public decimal LineTotal => UnitPrice * Qty;
-        public string StaffName { get; set; }
-        public int Vat { get; set; }
-    }
 }

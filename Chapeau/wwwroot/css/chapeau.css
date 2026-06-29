@@ -1406,6 +1406,15 @@ body.login-body footer {
 .confirm-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
 .btn-close-table { width: 100%; padding: 14px; border: none; border-radius: 12px; background: #7a2a3e; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
 .btn-secondary { display: block; text-align: center; padding: 12px; border-radius: 12px; border: 1px solid #ede8e4; background: #fff; color: #6b5560; font-weight: 600; text-decoration: none; }
+.confirm-actions .cf-form { margin: 0; }
+.cf-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box; padding: 15px 18px; border-radius: 14px; font-size: 15px; font-weight: 700; letter-spacing: .2px; cursor: pointer; text-decoration: none; border: 1.5px solid transparent; transition: filter .15s ease, transform .05s ease, box-shadow .15s ease; }
+.cf-btn:active { transform: translateY(1px); }
+.cf-btn-close { background: linear-gradient(135deg, #2a5c3a, #1f4a2e); color: #fff; box-shadow: 0 3px 10px rgba(42,92,58,.35); }
+.cf-btn-close:hover { filter: brightness(1.08); box-shadow: 0 4px 14px rgba(42,92,58,.45); }
+.cf-btn-print { background: #fff; color: #7a2a3e; border-color: #7a2a3e; }
+.cf-btn-print:hover { background: #fdf3f5; }
+.cf-btn-back { background: transparent; color: #6b5560; border-color: #ede8e4; font-weight: 600; }
+.cf-btn-back:hover { background: #f5f0eb; }
 @media print { .bill-header, .bill-actions, .confirm-actions, .pay-confirm-banner { display: none !important; } }
 
 /* ── Feedback section (bill page) ───────────────────────────── */
