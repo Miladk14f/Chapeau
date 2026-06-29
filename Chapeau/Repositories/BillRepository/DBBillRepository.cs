@@ -69,7 +69,7 @@ namespace Chapeau.Repositories.BillRepository
             cmd.Parameters.AddWithValue("@Amount", bill.Amount);
             cmd.Parameters.AddWithValue("@Status", bill.Status.ToString().ToLower());
 
-            return Convert.ToInt32(cmd.ExecuteScalar());
+            return Convert.ToInt32(cmd.ExecuteScalar()); // returns new bill ID as int 
         }
 
         public void UpdateBill(Bill bill)
@@ -98,8 +98,8 @@ namespace Chapeau.Repositories.BillRepository
 
         private Bill MapReader(SqlDataReader reader)
         {
-            return new Bill(
-                billId: (int)reader["Id"],
+            return new Bill( //bill object
+                billId: (int)reader["Id"], //convrets id to int 
                 tip: (decimal)reader["Tip"],
                 splitedMethod: Enum.Parse<SplitMethod>(reader["splited_method"] == DBNull.Value ? "None" : reader["splited_method"].ToString(), ignoreCase: true),
                 amount: (decimal)reader["amount"],

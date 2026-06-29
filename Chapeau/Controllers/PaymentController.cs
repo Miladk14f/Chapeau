@@ -8,19 +8,19 @@ namespace Chapeau.Controllers
     public class PaymentController : Controller
     {
         private readonly IPaymentService _paymentService;
-        private readonly ICommentService _commentService;
+        private readonly IBillService _billService;
         private static readonly JsonSerializerOptions JsonOpts = new() { PropertyNameCaseInsensitive = true };
 
-        public PaymentController(IPaymentService paymentService, ICommentService commentService)
+        public PaymentController(IPaymentService paymentService, IBillService billService)
         {
             _paymentService = paymentService;
-            _commentService = commentService;
+            _billService = billService;
         }
 
         [HttpGet]
         public IActionResult Index(int tableId)
         {
-            BillViewModel bill = _paymentService.GetBill(tableId);
+            BillViewModel bill = _billService.GetBill(tableId);
             if (bill == null)
                 return RedirectToAction("Index", "RestaurantTable");
 
@@ -40,12 +40,6 @@ namespace Chapeau.Controllers
             List<PersonPaymentInput> persons = JsonSerializer.Deserialize<List<PersonPaymentInput>>(personsJson, JsonOpts)
                                               ?? new List<PersonPaymentInput>();
             _paymentService.ProcessPayment(tableId, orderId, persons);
-
-            foreach (PersonPaymentInput person in persons)
-            {
-                if (!string.IsNullOrWhiteSpace(person.FeedbackText))
-                    _commentService.AddCommentForTable(tableId, person.FeedbackType ?? "Comment", person.FeedbackText);
-            }
 
             return RedirectToAction("Confirmation", new { tableId, orderId });
         }
@@ -76,10 +70,7 @@ namespace Chapeau.Controllers
             if (person == null || person.Paid)
                 return RedirectToAction("Index", new { tableId });
 
-            _paymentService.AddSplitPersonPayment(split.BillId, person.Total, person.PaymentMethod);
-
-            if (!string.IsNullOrWhiteSpace(person.FeedbackText))
-                _commentService.AddCommentForTable(tableId, person.FeedbackType ?? "Comment", person.FeedbackText);
+            _paymentService.AddSplitPersonPayment(tableId, split.BillId, person.Total, person.PaymentMethod, person.FeedbackType, person.FeedbackText);
 
             person.Paid = true;
             HttpContext.Session.SetString(key, JsonSerializer.Serialize(split));
@@ -99,7 +90,7 @@ namespace Chapeau.Controllers
         [HttpGet]
         public IActionResult Confirmation(int tableId, int orderId)
         {
-            PaymentConfirmationViewModel vm = _paymentService.GetConfirmation(orderId);
+            PaymentConfirmationViewModel vm = _billService.GetConfirmation(orderId);
             if (vm == null)
                 return RedirectToAction("Index", "RestaurantTable");
 

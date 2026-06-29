@@ -10,7 +10,7 @@ namespace Chapeau.ViewModels
         public string WaiterName { get; set; }
         public DateTime GeneratedAt { get; set; } = DateTime.Now;
 
-        public List<OrderItem> Items { get; set; } = new();
+        public List<OrderItem> Items { get; set; } = new(); // // initialize empty list (never null, to prevent crash)
 
         public List<SplitPersonState> SplitPersons { get; set; }
     }
