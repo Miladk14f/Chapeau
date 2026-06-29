@@ -249,22 +249,15 @@ namespace Chapeau.Repositories
                 using SqlCommand cmd = new SqlCommand("DELETE FROM COMMENT WHERE OrderId = @OrderId", conn);
                 cmd.Parameters.AddWithValue("@OrderId", orderId);
 
-                int linesChanged = cmd.ExecuteNonQuery();
-                if (linesChanged == 0)
-                {
-                    throw new InvalidOperationException("Failed to delete Comment.");
-                }
+                cmd.ExecuteNonQuery();
+               
             }
             catch (SqlException ex)
             {
                 Debug.WriteLine($"[DeleteCommentsByOrderId] Database error: {ex.Message}");
                 throw;
             }
-            catch (InvalidOperationException ex)
-            {
-                Debug.WriteLine($"[DeleteCommentsByOrderId] Logical error: {ex.Message}");
-                throw;
-            }
+            
         }
 
         private Order MapReader(SqlDataReader reader)

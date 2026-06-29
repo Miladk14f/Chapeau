@@ -79,9 +79,11 @@ namespace Chapeau.Controllers
         [HttpPost]
         public IActionResult DeleteOrder(int tableId)
         {
+
             try
             {
                 _orderService.DeleteOrder(tableId);
+
             }
             catch (Exception ex)
             {
