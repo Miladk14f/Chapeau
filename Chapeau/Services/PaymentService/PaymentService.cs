@@ -178,22 +178,7 @@ namespace Chapeau.Services
             _tableRepository.ClearTable(tableId);
         }
 
-        public List<Payment> GetAllPayments()
-        {
-            return _paymentRepository.GetAllPayments();
-        }
-
-        public List<Payment> GetPaymentsByBillId(int billId)
-        {
-            return _paymentRepository.GetPaymentsByBillId(billId);
-        }
-
-        public Payment GetPaymentById(int id)
-        {
-            return _paymentRepository.GetPaymentById(id);
-        }
-
-        public void AddPayment(Payment payment)
+        private void AddPayment(Payment payment)
         {
             payment.Status = BillStatus.Paid;
             payment.PaidAt = DateTime.Now;
@@ -202,28 +187,6 @@ namespace Chapeau.Services
 
             UpdateBillStatus(payment.Bill?.BillId ?? 0);
         }
-
-        public void UpdatePayment(Payment payment)
-        {
-            _paymentRepository.UpdatePayment(payment);
-
-            UpdateBillStatus(payment.Bill?.BillId ?? 0);
-        }
-
-        public void DeletePayment(int id)
-        {
-            Payment payment = _paymentRepository.GetPaymentById(id);
-
-            if (payment != null)
-            {
-                int billId = payment.Bill?.BillId ?? 0;
-
-                _paymentRepository.DeletePayment(id);
-
-                UpdateBillStatus(billId);
-            }
-        }
-
 
         private string GetWaiterName(RestaurantTable table)
         {

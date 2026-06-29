@@ -29,7 +29,6 @@ namespace Chapeau.Controllers
             {
                 SplitData split = JsonSerializer.Deserialize<SplitData>(splitJson, JsonOpts);
                 bill.SplitPersons = split.Persons;
-                bill.SplitBillId = split.BillId;
             }
 
             return View(bill);

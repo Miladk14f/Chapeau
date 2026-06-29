@@ -5,7 +5,7 @@ namespace Chapeau.Models.Enums
         Cash,
         CreditCard,
         DebitCard,
-        // legacy values kept so existing DB rows still parse
+        // values below are for DB
         Pin,
         Visa,
         Amex
