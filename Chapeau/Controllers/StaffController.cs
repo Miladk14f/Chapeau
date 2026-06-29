@@ -25,11 +25,7 @@ namespace Chapeau.Controllers
         [HttpPost]
         public IActionResult Select(int staffId)
         {
-            Response.Cookies.Append("SelectedStaffId", staffId.ToString(), new CookieOptions
-            {
-                HttpOnly = true,
-                SameSite = SameSiteMode.Lax
-            });
+            Response.Cookies.Append("SelectedStaffId", staffId.ToString());
 
             return RedirectToAction("Login");
         }
