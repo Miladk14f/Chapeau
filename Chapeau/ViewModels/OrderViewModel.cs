@@ -12,6 +12,7 @@ namespace Chapeau.ViewModels
         public string SelectedCategory;
         public string SelectedSubCategory;
 
+
         public OrderViewModel(List<MenuItem> menuItems, List<MenuItem> filteredMenuItems, List<OrderItem> orderItems,
             RestaurantTable tableOrder, Staff staffOrder, string selectedCategory, string selectedSubCategory)
         {
@@ -23,5 +24,8 @@ namespace Chapeau.ViewModels
             SelectedCategory = selectedCategory;
             SelectedSubCategory = selectedSubCategory;
         }
+
+        public decimal OrderTotal => OrderItems.Sum(i => i.Price * i.Qty);
+        public int OrderCount => OrderItems.Sum(i => i.Qty);
     }
 }

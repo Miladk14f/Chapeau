@@ -28,35 +28,36 @@ namespace Chapeau.Services
             RestaurantTable table = _tableRepository.GetTableById(tableId);
             List<MenuItem> menu = _menuItemService.GetAllMenuItems();
             Staff staff = _staffRepository.GetStaffById(staffId);
+            EnsureActiveOrderExists(tableId, table, staff);
 
-            Order current = _repository.GetActiveOrderByTableId(tableId);
-            if (current == null)
-            {
-                current = new Order
-                {
-                    Table = table,
-                    Staff = staff,
-                    Status = OrderStatus.InProgress,
-                    CreatedAt = DateTime.Now
-                };
-                AddOrder(current);
-            }
-
-            List<MenuItem> filteredMenu = menu;
-            if (!string.IsNullOrEmpty(category))
-                filteredMenu = filteredMenu.Where(m => m.CategoryDisplayName == category).ToList();
-            if (!string.IsNullOrEmpty(subCategory))
-                filteredMenu = filteredMenu.Where(m => m.SubCategoryDisplayName == subCategory).ToList();
-
+            List<MenuItem> filteredMenu = FilterMenu(menu, category, subCategory);
             List<OrderItem> orderItems = _repository.GetOrderItemsByTableId(tableId);
             return new OrderViewModel(menu, filteredMenu, orderItems, table, staff, category, subCategory);
         }
 
-        private int AddOrder(Order order)
+
+
+        // private method for the filtering of the menu, preventing main method from getting too long
+        private List<MenuItem> FilterMenu(List<MenuItem> menu, string category, string subCategory)
         {
-            order.CreatedAt = DateTime.Now;
-            order.Status = OrderStatus.Pending;
-            return _repository.AddOrder(order);
+            List<MenuItem> filtered = menu;
+            if (!string.IsNullOrEmpty(category))
+                filtered = filtered.Where(m => m.CategoryDisplayName == category).ToList();
+            if (!string.IsNullOrEmpty(subCategory))
+                filtered = filtered.Where(m => m.SubCategoryDisplayName == subCategory).ToList();
+            return filtered;
+        }
+
+
+        // private mthod to help the check, if order doesnt exist, create it and send to repo.
+        private void EnsureActiveOrderExists(int tableId, RestaurantTable table, Staff staff)
+        {
+            Order current = _repository.GetActiveOrderByTableId(tableId);
+            if (current == null)
+            {
+                current = Order.CreateNewOrder(table, staff);
+                _repository.AddOrder(current);
+            }
         }
 
         public void DeleteOrder(int tableId)
@@ -69,6 +70,9 @@ namespace Chapeau.Services
             _repository.DeleteOrderItemsByOrderId(current.OrderId);
             _repository.DeleteOrder(current.OrderId);
         }
+
+
+
 
         public List<PreparationCard> GetPreparationCards(SubCategory[] types, int warningMinutes, int urgentMinutes)
         {
