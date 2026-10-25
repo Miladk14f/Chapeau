@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="nl.inholland.quizgame.controller.ResultsController"
+            styleClass="root-pane">
+
+    <top>
+        <VBox styleClass="header" alignment="CENTER">
+            <padding><Insets top="30" bottom="20" left="20" right="20"/></padding>
+            <Label text="Quiz Complete!" styleClass="app-title"/>
+            <Label fx:id="playerNameLabel" text="Player: " styleClass="app-subtitle"/>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="20">
+            <padding><Insets top="20" bottom="20" left="60" right="60"/></padding>
+
+            <VBox styleClass="score-card" alignment="CENTER" spacing="8">
+                <padding><Insets top="30" bottom="30" left="40" right="40"/></padding>
+                <Label text="Your Score" styleClass="score-card-title"/>
+                <HBox alignment="CENTER" spacing="8">
+                    <Label fx:id="scoreLabel" text="0" styleClass="score-big"/>
+                    <Label fx:id="totalLabel" text="out of 0" styleClass="score-total"/>
+                </HBox>
+                <Label fx:id="percentLabel" text="0%" styleClass="score-percent"/>
+            </VBox>
+
+            <Label fx:id="savedLabel" text="" styleClass="saved-label" wrapText="true"/>
+
+            <Button text="Back to Menu" onAction="#onBackToMenu"
+                    styleClass="primary-button" prefWidth="200"/>
+        </VBox>
+    </center>
+
+    <bottom>
+        <Label text="Hogeschool Inholland · Java Fundamentals 2026–2027"
+               styleClass="footer-label" alignment="CENTER">
+            <BorderPane.margin><Insets bottom="12"/></BorderPane.margin>
+        </Label>
+    </bottom>
+</BorderPane>

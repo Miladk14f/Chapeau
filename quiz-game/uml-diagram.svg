@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="800" font-family="Consolas, monospace" font-size="12">
+  <rect width="1100" height="800" fill="#1e1e2e"/>
+
+  <!-- Title -->
+  <text x="550" y="30" fill="#cba6f7" font-size="18" font-weight="bold" text-anchor="middle">Quiz Game — UML Class Diagram</text>
+
+  <!-- === Question (abstract) === -->
+  <rect x="380" y="60" width="240" height="145" rx="6" fill="#2a2a3e" stroke="#89b4fa" stroke-width="2"/>
+  <rect x="380" y="60" width="240" height="28" rx="6" fill="#313244"/>
+  <text x="500" y="79" fill="#cba6f7" font-weight="bold" text-anchor="middle">«abstract» Question</text>
+  <line x1="380" y1="88" x2="620" y2="88" stroke="#89b4fa" stroke-width="1"/>
+  <text x="388" y="104" fill="#cdd6f4"># name: String</text>
+  <text x="388" y="118" fill="#cdd6f4"># title: String</text>
+  <text x="388" y="132" fill="#cdd6f4"># isRequired: boolean</text>
+  <text x="388" y="146" fill="#cdd6f4"># timeLimit: int</text>
+  <line x1="380" y1="155" x2="620" y2="155" stroke="#89b4fa" stroke-width="1"/>
+  <text x="388" y="170" fill="#a6e3a1">+ evaluate(answer): boolean «final»</text>
+  <text x="388" y="184" fill="#f9e2af">+ checkAnswer(answer): boolean «abstract»</text>
+  <text x="388" y="198" fill="#f9e2af">+ getChoices(): List&lt;String&gt; «abstract»</text>
+
+  <!-- === RadioGroupQuestion === -->
+  <rect x="60" y="280" width="240" height="145" rx="6" fill="#2a2a3e" stroke="#a6e3a1" stroke-width="1.5"/>
+  <rect x="60" y="280" width="240" height="28" rx="6" fill="#313244"/>
+  <text x="180" y="299" fill="#a6e3a1" font-weight="bold" text-anchor="middle">RadioGroupQuestion</text>
+  <line x1="60" y1="308" x2="300" y2="308" stroke="#a6e3a1" stroke-width="1"/>
+  <text x="68" y="324" fill="#cdd6f4">- choices: List&lt;String&gt;</text>
+  <text x="68" y="338" fill="#cdd6f4">- correctAnswer: String</text>
+  <text x="68" y="352" fill="#cdd6f4">- choicesOrder: String</text>
+  <line x1="60" y1="360" x2="300" y2="360" stroke="#a6e3a1" stroke-width="1"/>
+  <text x="68" y="376" fill="#cdd6f4"># checkAnswer(a): boolean</text>
+  <text x="68" y="390" fill="#cdd6f4">+ getChoices(): List&lt;String&gt;</text>
+  <text x="68" y="404" fill="#cdd6f4">+ getQuestionType(): String</text>
+
+  <!-- === BooleanQuestion === -->
+  <rect x="380" y="280" width="240" height="145" rx="6" fill="#2a2a3e" stroke="#a6e3a1" stroke-width="1.5"/>
+  <rect x="380" y="280" width="240" height="28" rx="6" fill="#313244"/>
+  <text x="500" y="299" fill="#a6e3a1" font-weight="bold" text-anchor="middle">BooleanQuestion</text>
+  <line x1="380" y1="308" x2="620" y2="308" stroke="#a6e3a1" stroke-width="1"/>
+  <text x="388" y="324" fill="#cdd6f4">- correctAnswer: boolean</text>
+  <text x="388" y="338" fill="#cdd6f4">- labelTrue: String</text>
+  <text x="388" y="352" fill="#cdd6f4">- labelFalse: String</text>
+  <line x1="380" y1="360" x2="620" y2="360" stroke="#a6e3a1" stroke-width="1"/>
+  <text x="388" y="376" fill="#cdd6f4"># checkAnswer(a): boolean</text>
+  <text x="388" y="390" fill="#cdd6f4">+ getChoices(): List&lt;String&gt;</text>
+  <text x="388" y="404" fill="#cdd6f4">+ getQuestionType(): String</text>
+
+  <!-- === UnknownQuestion === -->
+  <rect x="700" y="280" width="240" height="130" rx="6" fill="#2a2a3e" stroke="#f38ba8" stroke-width="1.5"/>
+  <rect x="700" y="280" width="240" height="28" rx="6" fill="#313244"/>
+  <text x="820" y="299" fill="#f38ba8" font-weight="bold" text-anchor="middle">UnknownQuestion</text>
+  <line x1="700" y1="308" x2="940" y2="308" stroke="#f38ba8" stroke-width="1"/>
+  <text x="708" y="324" fill="#cdd6f4">- originalType: String</text>
+  <line x1="700" y1="332" x2="940" y2="332" stroke="#f38ba8" stroke-width="1"/>
+  <text x="708" y="348" fill="#cdd6f4"># checkAnswer(a): boolean</text>
+  <text x="708" y="362" fill="#cdd6f4">+ getChoices(): List&lt;String&gt;</text>
+  <text x="708" y="376" fill="#cdd6f4">+ getQuestionType(): String</text>
+
+  <!-- === Quiz === -->
+  <rect x="700" y="60" width="240" height="130" rx="6" fill="#2a2a3e" stroke="#89b4fa" stroke-width="1.5"/>
+  <rect x="700" y="60" width="240" height="28" rx="6" fill="#313244"/>
+  <text x="820" y="79" fill="#89b4fa" font-weight="bold" text-anchor="middle">Quiz</text>
+  <line x1="700" y1="88" x2="940" y2="88" stroke="#89b4fa" stroke-width="1"/>
+  <text x="708" y="104" fill="#cdd6f4">- quizId: String</text>
+  <text x="708" y="118" fill="#cdd6f4">- title: String</text>
+  <text x="708" y="132" fill="#cdd6f4">- description: String</text>
+  <text x="708" y="146" fill="#cdd6f4">- questions: List&lt;Question&gt;</text>
+  <line x1="700" y1="154" x2="940" y2="154" stroke="#89b4fa" stroke-width="1"/>
+  <text x="708" y="170" fill="#cdd6f4">+ getQuestions(): List&lt;Question&gt;</text>
+  <text x="708" y="184" fill="#cdd6f4">+ getQuestionCount(): int</text>
+
+  <!-- === GameManager (Singleton) === -->
+  <rect x="60" y="480" width="260" height="180" rx="6" fill="#2a2a3e" stroke="#cba6f7" stroke-width="2"/>
+  <rect x="60" y="480" width="260" height="28" rx="6" fill="#313244"/>
+  <text x="190" y="499" fill="#cba6f7" font-weight="bold" text-anchor="middle">«Singleton» GameManager</text>
+  <line x1="60" y1="508" x2="320" y2="508" stroke="#cba6f7" stroke-width="1"/>
+  <text x="68" y="524" fill="#cdd6f4">- instance: GameManager «static»</text>
+  <text x="68" y="538" fill="#cdd6f4">- playerName: String</text>
+  <text x="68" y="552" fill="#cdd6f4">- currentQuiz: Quiz</text>
+  <text x="68" y="566" fill="#cdd6f4">- scoreProperty: IntegerProperty</text>
+  <text x="68" y="580" fill="#cdd6f4">- currentState: AppState</text>
+  <line x1="60" y1="588" x2="320" y2="588" stroke="#cba6f7" stroke-width="1"/>
+  <text x="68" y="604" fill="#a6e3a1">+ getInstance(): GameManager «static»</text>
+  <text x="68" y="618" fill="#cdd6f4">+ scoreProperty(): IntegerProperty</text>
+  <text x="68" y="632" fill="#cdd6f4">+ incrementScore(): void</text>
+  <text x="68" y="646" fill="#cdd6f4">+ setState(state: AppState): void</text>
+
+  <!-- === AppState interface === -->
+  <rect x="380" y="480" width="240" height="120" rx="6" fill="#2a2a3e" stroke="#f9e2af" stroke-width="1.5"/>
+  <rect x="380" y="480" width="240" height="28" rx="6" fill="#313244"/>
+  <text x="500" y="499" fill="#f9e2af" font-weight="bold" text-anchor="middle">«interface» AppState</text>
+  <line x1="380" y1="508" x2="620" y2="508" stroke="#f9e2af" stroke-width="1"/>
+  <text x="388" y="524" fill="#f9e2af">+ getName(): String</text>
+  <text x="388" y="538" fill="#f9e2af">+ canLoadQuiz(): boolean</text>
+  <text x="388" y="552" fill="#f9e2af">+ canStartQuiz(loaded): boolean</text>
+  <text x="388" y="566" fill="#f9e2af">+ isPlaying(): boolean</text>
+
+  <!-- MenuState / PlayingState / ResultsState -->
+  <rect x="340" y="660" width="110" height="40" rx="4" fill="#313244" stroke="#f9e2af" stroke-width="1"/>
+  <text x="395" y="685" fill="#f9e2af" text-anchor="middle" font-size="11">MenuState</text>
+  <rect x="460" y="660" width="120" height="40" rx="4" fill="#313244" stroke="#f9e2af" stroke-width="1"/>
+  <text x="520" y="685" fill="#f9e2af" text-anchor="middle" font-size="11">PlayingState</text>
+  <rect x="590" y="660" width="120" height="40" rx="4" fill="#313244" stroke="#f9e2af" stroke-width="1"/>
+  <text x="650" y="685" fill="#f9e2af" text-anchor="middle" font-size="11">ResultsState</text>
+
+  <!-- === QuestionFactory === -->
+  <rect x="700" y="480" width="240" height="80" rx="6" fill="#2a2a3e" stroke="#89b4fa" stroke-width="1.5"/>
+  <rect x="700" y="480" width="240" height="28" rx="6" fill="#313244"/>
+  <text x="820" y="499" fill="#89b4fa" font-weight="bold" text-anchor="middle">«Factory» QuestionFactory</text>
+  <line x1="700" y1="508" x2="940" y2="508" stroke="#89b4fa" stroke-width="1"/>
+  <text x="708" y="524" fill="#a6e3a1">+ create(node, tl): Question «static»</text>
+  <text x="708" y="540" fill="#cdd6f4">- buildRadioGroup(...): RadioGroupQuestion</text>
+  <text x="708" y="554" fill="#cdd6f4">- buildBoolean(...): BooleanQuestion</text>
+
+  <!-- === Arrows === -->
+  <!-- Question ← RadioGroupQuestion (inheritance, hollow triangle) -->
+  <line x1="180" y1="280" x2="430" y2="205" stroke="#a6e3a1" stroke-width="1.5" stroke-dasharray="none"/>
+  <polygon points="430,205 415,215 420,200" fill="#1e1e2e" stroke="#a6e3a1" stroke-width="1.5"/>
+
+  <!-- Question ← BooleanQuestion -->
+  <line x1="500" y1="280" x2="500" y2="205" stroke="#a6e3a1" stroke-width="1.5"/>
+  <polygon points="500,205 492,220 508,220" fill="#1e1e2e" stroke="#a6e3a1" stroke-width="1.5"/>
+
+  <!-- Question ← UnknownQuestion -->
+  <line x1="820" y1="280" x2="570" y2="205" stroke="#f38ba8" stroke-width="1.5" stroke-dasharray="none"/>
+  <polygon points="570,205 585,215 578,200" fill="#1e1e2e" stroke="#f38ba8" stroke-width="1.5"/>
+
+  <!-- Quiz contains Question (composition) -->
+  <line x1="700" y1="146" x2="620" y2="132" stroke="#89b4fa" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="640" y="140" fill="#89b4fa" font-size="10">uses</text>
+
+  <!-- GameManager uses Quiz -->
+  <line x1="320" y1="560" x2="700" y2="130" stroke="#cba6f7" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- GameManager uses AppState -->
+  <line x1="320" y1="590" x2="380" y2="555" stroke="#cba6f7" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- AppState implementations -->
+  <line x1="500" y1="600" x2="395" y2="660" stroke="#f9e2af" stroke-width="1" stroke-dasharray="4,2"/>
+  <line x1="500" y1="600" x2="520" y2="660" stroke="#f9e2af" stroke-width="1" stroke-dasharray="4,2"/>
+  <line x1="500" y1="600" x2="650" y2="660" stroke="#f9e2af" stroke-width="1" stroke-dasharray="4,2"/>
+
+  <!-- QuestionFactory creates Question -->
+  <line x1="820" y1="480" x2="620" y2="180" stroke="#89b4fa" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="720" y="380" fill="#89b4fa" font-size="10">«creates»</text>
+
+  <!-- Legend -->
+  <rect x="60" y="730" width="450" height="55" rx="4" fill="#2a2a3e" stroke="#444466" stroke-width="1"/>
+  <text x="70" y="748" fill="#a6adc8" font-size="11">Legend:</text>
+  <line x1="70" y1="762" x2="100" y2="762" stroke="#a6e3a1" stroke-width="2"/>
+  <text x="105" y="766" fill="#a6adc8" font-size="11">Inheritance (extends)</text>
+  <line x1="200" y1="762" x2="230" y2="762" stroke="#89b4fa" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="235" y="766" fill="#a6adc8" font-size="11">Dependency (uses)</text>
+  <line x1="340" y1="762" x2="370" y2="762" stroke="#f9e2af" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <text x="375" y="766" fill="#a6adc8" font-size="11">Implementation (implements)</text>
+  <text x="70" y="782" fill="#cba6f7" font-size="11">Purple border = Singleton</text>
+  <text x="220" y="782" fill="#f9e2af" font-size="11">Yellow border = Interface/State</text>
+  <text x="390" y="782" fill="#89b4fa" font-size="11">Blue = Factory</text>
+</svg>

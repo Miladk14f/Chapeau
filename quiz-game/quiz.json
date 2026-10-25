@@ -1,0 +1,76 @@
+{
+  "quizId": "quiz001",
+  "title": "Java Basics Quiz",
+  "description": "A short quiz to test your knowledge of Java fundamentals.",
+  "pages": [
+    {
+      "timeLimit": 20,
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "q1",
+          "title": "Which company originally developed Java?",
+          "choicesOrder": "random",
+          "choices": ["Microsoft", "Sun Microsystems", "Apple", "Google"],
+          "correctAnswer": "Sun Microsystems",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "timeLimit": 15,
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "q2",
+          "title": "Java is a statically typed programming language.",
+          "labelTrue": "True",
+          "labelFalse": "False",
+          "correctAnswer": true,
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "timeLimit": 20,
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "q3",
+          "title": "Which keyword is used to define a class in Java?",
+          "choices": ["define", "class", "Class", "struct"],
+          "correctAnswer": "class",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "timeLimit": 20,
+      "elements": [
+        {
+          "type": "radiogroup",
+          "name": "q4",
+          "title": "What is the default value of an int field in Java?",
+          "choices": ["null", "undefined", "0", "1"],
+          "correctAnswer": "0",
+          "isRequired": true
+        }
+      ]
+    },
+    {
+      "timeLimit": 15,
+      "elements": [
+        {
+          "type": "boolean",
+          "name": "q5",
+          "title": "In Java, a String is a primitive type.",
+          "labelTrue": "True",
+          "labelFalse": "False",
+          "correctAnswer": false,
+          "isRequired": true
+        }
+      ]
+    }
+  ],
+  "completedHtml": "<h4>You got <b>{correctAnswers}</b> out of <b>{questionCount}</b> correct.</h4>"
+}
