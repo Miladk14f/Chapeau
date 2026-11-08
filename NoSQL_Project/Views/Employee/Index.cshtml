@@ -1,0 +1,110 @@
+@model List<UserWithTicketCountViewModel>
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>User Management</h2>
+    <a asp-action="Create" class="btn nd-btn-primary">
+        <i class="bi bi-person-plus me-1"></i> ADD EMPLOYEE
+    </a>
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body py-2">
+        <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-funnel text-muted"></i>
+            <input type="text" id="empFilter" class="form-control form-control-sm"
+                   placeholder="Filter by name or email…" style="max-width:280px;" />
+            <select id="roleFilter" class="form-select form-select-sm" style="max-width:160px;">
+                <option value="">All roles</option>
+                <option value="Employee">Employee</option>
+                <option value="ServiceDesk">ServiceDesk</option>
+            </select>
+            <select id="deptFilter" class="form-select form-select-sm" style="max-width:180px;">
+                <option value="">All departments</option>
+                <option value="Haarlem">Haarlem</option>
+                <option value="Amsterdam">Amsterdam</option>
+                <option value="Knuppeldam">Knuppeldam</option>
+                <option value="Headquarters">Headquarters</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="empTable">
+            <thead class="nd-table-head">
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Department</th>
+                    <th>Tickets</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vm in Model)
+                {
+                    <tr data-name="@vm.Employee.Name.ToLower()"
+                        data-email="@vm.Employee.Email.ToLower()"
+                        data-role="@vm.Employee.Role"
+                        data-dept="@vm.Employee.DepartmentName">
+                        <td class="fw-semibold">@vm.Employee.Name</td>
+                        <td><small>@vm.Employee.Email</small></td>
+                        <td>
+                            @if (vm.Employee.Role == "ServiceDesk")
+                            {
+                                <span class="badge bg-primary">ServiceDesk</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Employee</span>
+                            }
+                        </td>
+                        <td>@vm.Employee.DepartmentName</td>
+                        <td><span class="badge bg-light text-dark border">@vm.TicketCount</span></td>
+                        <td><small>@vm.Employee.CreatedAt.ToString("dd MMM yyyy")</small></td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@vm.Employee.Id"
+                               class="btn btn-sm btn-outline-primary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@vm.Employee.Id"
+                               class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const empFilter  = document.getElementById('empFilter');
+    const roleFilter = document.getElementById('roleFilter');
+    const deptFilter = document.getElementById('deptFilter');
+
+    function applyFilters() {
+        const name = empFilter.value.toLowerCase();
+        const role = roleFilter.value;
+        const dept = deptFilter.value;
+        document.querySelectorAll('#empTable tbody tr').forEach(row => {
+            const matchName = !name || row.dataset.name.includes(name) || row.dataset.email.includes(name);
+            const matchRole = !role || row.dataset.role === role;
+            const matchDept = !dept || row.dataset.dept === dept;
+            row.style.display = matchName && matchRole && matchDept ? '' : 'none';
+        });
+    }
+
+    empFilter.addEventListener('input', applyFilters);
+    roleFilter.addEventListener('change', applyFilters);
+    deptFilter.addEventListener('change', applyFilters);
+</script>
+}

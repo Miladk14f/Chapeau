@@ -1,0 +1,156 @@
+@model List<TicketDisplayViewModel>
+@{
+    ViewData["Title"] = "Incident Management";
+    bool isSD = User.IsInRole("ServiceDesk");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="fw-bold mb-0">Overview tickets</h2>
+    <a asp-action="Create" class="btn nd-btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> CREATE INCIDENT
+    </a>
+</div>
+
+<!-- Search bar (individual feature) -->
+<form asp-action="Search" method="get" class="d-flex gap-2 mb-3">
+    <input type="text" name="q" class="form-control" placeholder="Search by keyword…"
+           value="@ViewBag.Query" style="max-width:320px;" />
+    <select name="mode" class="form-select" style="max-width:120px;">
+        <option value="and" selected>AND</option>
+        <option value="or">OR</option>
+    </select>
+    <button type="submit" class="btn btn-outline-secondary">
+        <i class="bi bi-search"></i>
+    </button>
+</form>
+
+<!-- Filter by email (client-side) -->
+<div class="mb-3">
+    <input type="text" id="emailFilter" class="form-control" placeholder="Filter by email…"
+           style="max-width:300px;" />
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5 text-muted">
+        <i class="bi bi-inbox fs-1"></i>
+        <p class="mt-2">No tickets found.</p>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="ticketTable">
+                <thead class="nd-table-head">
+                    <tr>
+                        <th class="sortable" data-col="0"># <i class="bi bi-arrow-down-up text-muted small"></i></th>
+                        <th class="sortable" data-col="1">Subject <i class="bi bi-arrow-down-up text-muted small"></i></th>
+                        <th class="sortable" data-col="2">User <i class="bi bi-arrow-down-up text-muted small"></i></th>
+                        <th class="sortable" data-col="3">Date <i class="bi bi-arrow-down-up text-muted small"></i></th>
+                        <th class="sortable" data-col="4">Status <i class="bi bi-arrow-down-up text-muted small"></i></th>
+                        <th>Priority</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="ticketBody">
+                    @foreach (var vm in Model)
+                    {
+                        <tr data-email="@vm.ReporterEmail">
+                            <td class="text-muted small">@vm.Ticket.Id[^6..]</td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@vm.Ticket.Id"
+                                   class="text-decoration-none fw-semibold text-dark">
+                                    @vm.Ticket.Title
+                                </a>
+                                @if (vm.Ticket.IsPastDeadline)
+                                {
+                                    <span class="badge bg-danger ms-1">Overdue</span>
+                                }
+                            </td>
+                            <td>
+                                <div>@vm.ReporterName</div>
+                                <small class="text-muted">@vm.ReporterEmail</small>
+                            </td>
+                            <td>@vm.Ticket.DateReported.ToString("dd MMM yyyy")</td>
+                            <td>
+                                @{
+                                    var statusClass = vm.Ticket.Status switch
+                                    {
+                                        "Open"     => "nd-badge-open",
+                                        "Resolved" => "nd-badge-resolved",
+                                        "Closed"   => "nd-badge-closed",
+                                        _          => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @statusClass">@vm.Ticket.Status</span>
+                            </td>
+                            <td>
+                                @{
+                                    var priClass = vm.Ticket.Priority switch
+                                    {
+                                        "High"   => "nd-badge-high",
+                                        "Normal" => "nd-badge-normal",
+                                        "Low"    => "nd-badge-low",
+                                        _        => "bg-secondary"
+                                    };
+                                }
+                                <span class="badge @priClass">@vm.Ticket.Priority</span>
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@vm.Ticket.Id"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                @if (isSD)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@vm.Ticket.Id"
+                                       class="btn btn-sm btn-outline-primary ms-1">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@vm.Ticket.Id"
+                                       class="btn btn-sm btn-outline-danger ms-1">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script>
+// Client-side email filter
+document.getElementById('emailFilter').addEventListener('input', function () {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('#ticketBody tr').forEach(row => {
+        const email = row.dataset.email?.toLowerCase() ?? '';
+        row.style.display = email.includes(q) ? '' : 'none';
+    });
+});
+
+// Sortable columns
+let sortAsc = true;
+let lastCol = -1;
+document.querySelectorAll('th.sortable').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+        const col = parseInt(th.dataset.col);
+        if (lastCol === col) sortAsc = !sortAsc; else sortAsc = true;
+        lastCol = col;
+        const tbody = document.getElementById('ticketBody');
+        const rows  = [...tbody.querySelectorAll('tr')];
+        rows.sort((a, b) => {
+            const ta = a.cells[col]?.innerText.trim() ?? '';
+            const tb = b.cells[col]?.innerText.trim() ?? '';
+            return sortAsc ? ta.localeCompare(tb) : tb.localeCompare(ta);
+        });
+        rows.forEach(r => tbody.appendChild(r));
+    });
+});
+</script>
+}

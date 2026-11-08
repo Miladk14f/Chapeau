@@ -1,0 +1,98 @@
+@model EditTicketViewModel
+@{
+    ViewData["Title"] = "Edit Ticket";
+}
+
+<div class="row justify-content-center">
+<div class="col-lg-8">
+    <div class="card shadow-sm">
+        <div class="card-header nd-card-header">
+            <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Edit Incident Ticket</h4>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input asp-for="Id" type="hidden" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="DateReported" class="form-label fw-semibold"></label>
+                        <input asp-for="DateReported" class="form-control" type="datetime-local"
+                               value="@Model.DateReported.ToString("yyyy-MM-ddTHH:mm")" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Status" class="form-label fw-semibold"></label>
+                        <select asp-for="Status" class="form-select"
+                                asp-items="@(ViewBag.Statuses as IEnumerable<SelectListItem>)">
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Title" class="form-label fw-semibold"></label>
+                        <input asp-for="Title" class="form-control" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Type" class="form-label fw-semibold"></label>
+                        <select asp-for="Type" class="form-select"
+                                asp-items="@(ViewBag.Types as IEnumerable<SelectListItem>)">
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="Priority" class="form-label fw-semibold"></label>
+                        <select asp-for="Priority" class="form-select"
+                                asp-items="@(ViewBag.Priorities as IEnumerable<SelectListItem>)">
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="DeadlineOption" class="form-label fw-semibold"></label>
+                        <select asp-for="DeadlineOption" class="form-select"
+                                asp-items="@(ViewBag.Deadlines as IEnumerable<SelectListItem>)">
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="ReportedByUserId" class="form-label fw-semibold"></label>
+                        <select asp-for="ReportedByUserId" class="form-select"
+                                asp-items="@(ViewBag.Employees as IEnumerable<SelectListItem>)">
+                            <option value="">— Select reporter —</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="AssignedToUserId" class="form-label fw-semibold"></label>
+                        <select asp-for="AssignedToUserId" class="form-select"
+                                asp-items="@(ViewBag.Employees as IEnumerable<SelectListItem>)">
+                            <option value="">— Unassigned —</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Note" class="form-label fw-semibold"></label>
+                        <input asp-for="Note" class="form-control"
+                               placeholder="Describe what changed and why (appended to history log)" />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn nd-btn-primary">
+                        <i class="bi bi-save me-1"></i> SAVE CHANGES
+                    </button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">CANCEL</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>

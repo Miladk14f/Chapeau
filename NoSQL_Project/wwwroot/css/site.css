@@ -1,0 +1,137 @@
+/* NoDesk: TGG — custom theme */
+
+:root {
+    --nd-navy:    #1f3c6e;
+    --nd-navy-dk: #162d54;
+    --nd-accent:  #2d7dd2;
+    --nd-open:    #198754;
+    --nd-resolve: #0d6efd;
+    --nd-closed:  #6c757d;
+    --nd-high:    #dc3545;
+    --nd-normal:  #fd7e14;
+    --nd-low:     #adb5bd;
+}
+
+/* ── Typography ─────────────────────────────────────── */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f6fa;
+    color: #212529;
+}
+
+/* ── Navbar ─────────────────────────────────────────── */
+.nd-navbar {
+    background-color: var(--nd-navy);
+}
+.nd-navbar .navbar-brand,
+.nd-navbar .nav-link {
+    color: #fff !important;
+}
+.nd-navbar .nav-link:hover,
+.nd-navbar .nav-link.active {
+    color: #aac8f8 !important;
+}
+.nd-navbar .navbar-text {
+    color: rgba(255,255,255,.75);
+}
+.nd-navbar .btn-outline-light {
+    border-color: rgba(255,255,255,.5);
+    color: #fff;
+}
+.nd-navbar .btn-outline-light:hover {
+    background: rgba(255,255,255,.12);
+}
+.nd-brand-logo {
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: .02em;
+}
+.nd-licensed {
+    font-size: .7rem;
+    opacity: .7;
+    display: block;
+    line-height: 1;
+}
+
+/* ── Cards ──────────────────────────────────────────── */
+.nd-card-header {
+    background-color: var(--nd-navy);
+    color: #fff;
+    padding: .65rem 1rem;
+}
+
+/* ── Tables ─────────────────────────────────────────── */
+.nd-table-head {
+    background-color: var(--nd-navy);
+    color: #fff;
+}
+.nd-table-head th {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── Buttons ────────────────────────────────────────── */
+.nd-btn-primary {
+    background-color: var(--nd-navy);
+    border-color: var(--nd-navy);
+    color: #fff;
+}
+.nd-btn-primary:hover,
+.nd-btn-primary:focus {
+    background-color: var(--nd-navy-dk);
+    border-color: var(--nd-navy-dk);
+    color: #fff;
+}
+
+/* ── Status badges ──────────────────────────────────── */
+.nd-badge-open     { background-color: var(--nd-open);    color: #fff; }
+.nd-badge-resolved { background-color: var(--nd-resolve); color: #fff; }
+.nd-badge-closed   { background-color: var(--nd-closed);  color: #fff; }
+
+/* ── Priority badges ────────────────────────────────── */
+.nd-badge-high   { background-color: var(--nd-high);   color: #fff; }
+.nd-badge-normal { background-color: var(--nd-normal); color: #fff; }
+.nd-badge-low    { background-color: var(--nd-low);    color: #212529; }
+
+/* ── Login page ─────────────────────────────────────── */
+.nd-login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--nd-navy) 0%, var(--nd-accent) 100%);
+}
+.nd-login-card {
+    width: 100%;
+    max-width: 420px;
+    border-radius: .6rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,.25);
+}
+.nd-login-header {
+    background-color: var(--nd-navy);
+    color: #fff;
+    border-radius: .6rem .6rem 0 0;
+    padding: 1.5rem 1.5rem 1rem;
+    text-align: center;
+}
+.nd-login-header h3 { font-weight: 700; letter-spacing: .04em; margin-bottom: 0; }
+.nd-login-header small { opacity: .75; }
+
+/* ── Dashboard stat tiles ───────────────────────────── */
+.nd-stat-tile {
+    border-left: 5px solid var(--nd-navy);
+    border-radius: .3rem;
+    background: #fff;
+    padding: 1rem 1.25rem;
+}
+.nd-stat-tile .nd-stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+}
+.nd-stat-tile.overdue { border-left-color: var(--nd-high); }
+
+/* ── Misc ───────────────────────────────────────────── */
+.cursor-pointer { cursor: pointer; }
+.sortable { cursor: pointer; user-select: none; }
+.sortable:hover { background-color: rgba(255,255,255,.12); }

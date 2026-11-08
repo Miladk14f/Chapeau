@@ -1,0 +1,134 @@
+@model TicketDisplayViewModel
+@{
+    ViewData["Title"] = "Ticket Details";
+    bool isSD = User.IsInRole("ServiceDesk");
+    var empNames = ViewBag.LogEmployeeNames as Dictionary<string, string> ?? new();
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="fw-bold mb-0">
+        <i class="bi bi-ticket-perforated me-2"></i>@Model.Ticket.Title
+    </h3>
+    <div class="d-flex gap-2">
+        @if (isSD)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.Ticket.Id" class="btn btn-outline-primary">
+                <i class="bi bi-pencil me-1"></i> Edit
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.Ticket.Id" class="btn btn-outline-danger">
+                <i class="bi bi-trash me-1"></i> Delete
+            </a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header nd-card-header">Incident Details</div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Status</dt>
+                    <dd class="col-sm-9">
+                        @{
+                            var sc = Model.Ticket.Status switch
+                            {
+                                "Open"     => "nd-badge-open",
+                                "Resolved" => "nd-badge-resolved",
+                                "Closed"   => "nd-badge-closed",
+                                _          => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @sc fs-6">@Model.Ticket.Status</span>
+                        @if (Model.Ticket.IsPastDeadline)
+                        {
+                            <span class="badge bg-danger ms-2">Overdue</span>
+                        }
+                    </dd>
+                    <dt class="col-sm-3">Priority</dt>
+                    <dd class="col-sm-9">
+                        @{
+                            var pc = Model.Ticket.Priority switch
+                            {
+                                "High"   => "nd-badge-high",
+                                "Normal" => "nd-badge-normal",
+                                "Low"    => "nd-badge-low",
+                                _        => "bg-secondary"
+                            };
+                        }
+                        <span class="badge @pc">@Model.Ticket.Priority</span>
+                    </dd>
+                    <dt class="col-sm-3">Type</dt>
+                    <dd class="col-sm-9">@Model.Ticket.Type</dd>
+                    <dt class="col-sm-3">Reported by</dt>
+                    <dd class="col-sm-9">@Model.ReporterName <small class="text-muted">(@Model.ReporterEmail)</small></dd>
+                    <dt class="col-sm-3">Assigned to</dt>
+                    <dd class="col-sm-9">@(Model.AssigneeName ?? "— Unassigned —")</dd>
+                    <dt class="col-sm-3">Date reported</dt>
+                    <dd class="col-sm-9">@Model.Ticket.DateReported.ToString("dd MMM yyyy HH:mm")</dd>
+                    <dt class="col-sm-3">Deadline</dt>
+                    <dd class="col-sm-9 @(Model.Ticket.IsPastDeadline ? "text-danger fw-bold" : "")">
+                        @Model.Ticket.Deadline.ToString("dd MMM yyyy")
+                    </dd>
+                    @if (Model.Ticket.ClosedAt.HasValue)
+                    {
+                        <dt class="col-sm-3">Closed at</dt>
+                        <dd class="col-sm-9">@Model.Ticket.ClosedAt.Value.ToString("dd MMM yyyy HH:mm")</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header nd-card-header">Description</div>
+            <div class="card-body">
+                <p class="mb-0" style="white-space:pre-wrap;">@Model.Ticket.Description</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audit log panel -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header nd-card-header">
+                <i class="bi bi-clock-history me-1"></i> Change History
+            </div>
+            <div class="card-body p-0">
+                @if (!Model.Ticket.Logs.Any())
+                {
+                    <p class="text-muted p-3 mb-0">No history yet.</p>
+                }
+                else
+                {
+                    <ul class="list-group list-group-flush">
+                        @foreach (var log in Model.Ticket.Logs.OrderByDescending(l => l.Timestamp))
+                        {
+                            <li class="list-group-item">
+                                <div class="d-flex justify-content-between">
+                                    <strong class="small">@log.Action</strong>
+                                    <small class="text-muted">@log.Timestamp.ToString("dd MMM HH:mm")</small>
+                                </div>
+                                @if (log.PreviousValue != null || log.NewValue != null)
+                                {
+                                    <small class="text-muted">
+                                        @log.PreviousValue → @log.NewValue
+                                    </small>
+                                }
+                                @if (!string.IsNullOrEmpty(log.Note))
+                                {
+                                    <p class="mb-0 small fst-italic mt-1">"@log.Note"</p>
+                                }
+                                <small class="text-muted">
+                                    by @(empNames.TryGetValue(log.ChangedBy, out var n) ? n : "Unknown")
+                                </small>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
